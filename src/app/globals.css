@@ -1,8 +1,29 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --neon-pink: #ff00ff;
+  --bright-blue: #00ffff;
+}
+
+/* Tema claro */
+:root,
+:root.light {
+  --theme-bg: #f8fafc;
+  --theme-text: #0f172a;
+  --theme-secondary: #475569;
+  --theme-border: #cbd5e1;
+  --theme-card: #ffffff;
+}
+
+/* Tema oscuro */
+:root.dark {
+  --theme-bg: #0f172a;
+  --theme-text: #f1f5f9;
+  --theme-secondary: #cbd5e1;
+  --theme-border: rgba(255, 255, 255, 0.1);
+  --theme-card: rgba(15, 23, 42, 0.6);
 }
 
 @theme inline {
@@ -10,6 +31,10 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-dark-bg: #1a1a1a;
+  --color-light-gray: #cccccc;
+  --color-neon-pink: var(--neon-pink);
+  --color-bright-blue: var(--bright-blue);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,8 +44,40 @@
   }
 }
 
+/* Aplicar tema globalmente */
+body {
+  background-color: var(--theme-bg) !important;
+  color: var(--theme-text) !important;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+/* Animated Technologies Scroll */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  animation: scroll 30s linear infinite;
+}
+
+.animate-scroll:hover {
+  animation-play-state: paused;
 }
