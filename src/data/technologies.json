@@ -1,0 +1,417 @@
+{
+    "technologies": [
+        {
+            "id": "lora",
+            "name": "LoRa Technology",
+            "icon": "Lo",
+            "gradient": "from-neon-pink to-bright-blue",
+            "primaryColor": "neon-pink",
+            "description": "Tecnología de comunicación de largo alcance y bajo consumo energético para aplicaciones IoT distribuidas y sensores remotos.",
+            "about": {
+                "title": "¿Qué es LoRa?",
+                "content": [
+                    "LoRa (Long Range) es una tecnología de modulación de radio que permite comunicaciones de largo alcance con muy bajo consumo de energía.",
+                    "Ideal para aplicaciones IoT que requieren envío de pequeñas cantidades de datos a distancias de varios kilómetros."
+                ]
+            },
+            "features": {
+                "title": "Características",
+                "items": [
+                    {
+                        "text": "Alcance de hasta 15 km en áreas rurales",
+                        "color": "neon-pink"
+                    },
+                    {
+                        "text": "Batería de hasta 10 años",
+                        "color": "bright-blue"
+                    },
+                    {
+                        "text": "Red escalable para miles de nodos",
+                        "color": "neon-pink"
+                    },
+                    {
+                        "text": "Bajo costo de implementación",
+                        "color": "bright-blue"
+                    }
+                ]
+            },
+            "projects": [
+                {
+                    "title": "Sensores Ambientales",
+                    "description": "Monitoreo de temperatura, humedad y calidad del aire en tiempo real"
+                },
+                {
+                    "title": "Smart Agriculture",
+                    "description": "Control de riego inteligente y monitoreo de cultivos"
+                },
+                {
+                    "title": "Asset Tracking",
+                    "description": "Seguimiento de equipos y vehículos en tiempo real"
+                }
+            ]
+        },
+        {
+            "id": "blockchain",
+            "name": "Blockchain",
+            "icon": "⛓️",
+            "gradient": "from-bright-blue to-neon-pink",
+            "primaryColor": "bright-blue",
+            "description": "Tecnología de libro de contabilidad distribuido que garantiza transparencia, seguridad e inmutabilidad en las transacciones digitales.",
+            "about": {
+                "title": "¿Qué es Blockchain?",
+                "content": [
+                    "Blockchain es una tecnología de registro distribuido que mantiene una lista de registros enlazados y asegurados usando criptografía.",
+                    "Cada bloque contiene un hash criptográfico del bloque anterior, creando una cadena inmutable de información."
+                ]
+            },
+            "features": {
+                "title": "Características",
+                "items": [
+                    {
+                        "text": "Descentralización completa",
+                        "color": "bright-blue"
+                    },
+                    {
+                        "text": "Inmutabilidad de registros",
+                        "color": "neon-pink"
+                    },
+                    {
+                        "text": "Transparencia total",
+                        "color": "bright-blue"
+                    },
+                    {
+                        "text": "Seguridad criptográfica",
+                        "color": "neon-pink"
+                    }
+                ]
+            },
+            "projects": [
+                {
+                    "title": "Smart Contracts",
+                    "description": "Contratos autoejecutables para automatización de procesos"
+                },
+                {
+                    "title": "Supply Chain",
+                    "description": "Trazabilidad completa de productos desde origen hasta destino"
+                },
+                {
+                    "title": "Digital Identity",
+                    "description": "Gestión segura y descentralizada de identidades digitales"
+                }
+            ]
+        },
+        {
+            "id": "esp32",
+            "name": "ESP32 IoT",
+            "icon": "ESP",
+            "gradient": "from-neon-pink to-bright-blue",
+            "primaryColor": "neon-pink",
+            "description": "Microcontrolador potente y versátil con WiFi y Bluetooth integrado, ideal para proyectos IoT y automatización inteligente.",
+            "about": {
+                "title": "¿Qué es ESP32?",
+                "content": [
+                    "ESP32 es un sistema en chip (SoC) de bajo costo y bajo consumo de energía con Wi-Fi y Bluetooth dual mode integrado.",
+                    "Desarrollado por Espressif Systems, es ideal para una amplia variedad de aplicaciones IoT, desde sensores simples hasta sistemas complejos."
+                ]
+            },
+            "features": {
+                "title": "Características",
+                "items": [
+                    {
+                        "text": "WiFi 802.11 b/g/n integrado",
+                        "color": "neon-pink"
+                    },
+                    {
+                        "text": "Bluetooth 4.2 y BLE",
+                        "color": "bright-blue"
+                    },
+                    {
+                        "text": "CPU dual core hasta 240 MHz",
+                        "color": "neon-pink"
+                    },
+                    {
+                        "text": "GPIO programables y ADC",
+                        "color": "bright-blue"
+                    }
+                ]
+            },
+            "projects": [
+                {
+                    "title": "Home Automation",
+                    "description": "Control inteligente de luces, temperatura y seguridad del hogar"
+                },
+                {
+                    "title": "Weather Station",
+                    "description": "Estación meteorológica con sensores y conectividad web"
+                },
+                {
+                    "title": "Security System",
+                    "description": "Sistema de seguridad con cámaras y notificaciones remotas"
+                }
+            ]
+        },
+        {
+            "id": "ai",
+            "name": "Inteligencia Artificial",
+            "icon": "🧠",
+            "gradient": "from-bright-blue to-neon-pink",
+            "primaryColor": "bright-blue",
+            "description": "Desarrollo de sistemas inteligentes que pueden aprender, razonar y tomar decisiones autónomas para resolver problemas complejos.",
+            "about": {
+                "title": "¿Qué es la IA?",
+                "content": [
+                    "La Inteligencia Artificial es una rama de la informática que se centra en crear sistemas capaces de realizar tareas que requieren inteligencia humana.",
+                    "Incluye machine learning, deep learning, procesamiento de lenguaje natural y visión por computadora para automatizar procesos complejos."
+                ]
+            },
+            "features": {
+                "title": "Capacidades",
+                "items": [
+                    {
+                        "text": "Aprendizaje automático",
+                        "color": "bright-blue"
+                    },
+                    {
+                        "text": "Procesamiento de lenguaje natural",
+                        "color": "neon-pink"
+                    },
+                    {
+                        "text": "Visión por computadora",
+                        "color": "bright-blue"
+                    },
+                    {
+                        "text": "Predicción y análisis",
+                        "color": "neon-pink"
+                    }
+                ]
+            },
+            "projects": [
+                {
+                    "title": "Chatbots Inteligentes",
+                    "description": "Asistentes virtuales con procesamiento de lenguaje natural"
+                },
+                {
+                    "title": "Análisis Predictivo",
+                    "description": "Predicción de tendencias y comportamientos futuros"
+                },
+                {
+                    "title": "Automatización",
+                    "description": "Procesos automatizados inteligentes y adaptativos"
+                }
+            ]
+        },
+        {
+            "id": "image-recognition",
+            "name": "Reconocimiento de Imágenes",
+            "icon": "👁️",
+            "gradient": "from-neon-pink to-bright-blue",
+            "primaryColor": "neon-pink",
+            "description": "Tecnología de visión por computadora que permite identificar, clasificar y analizar objetos, patrones y características en imágenes digitales.",
+            "about": {
+                "title": "¿Qué es el Reconocimiento de Imágenes?",
+                "content": [
+                    "Es una tecnología de inteligencia artificial que permite a las computadoras interpretar y entender el contenido visual de imágenes.",
+                    "Utiliza algoritmos de deep learning y redes neuronales convolucionales para identificar patrones, objetos y características específicas."
+                ]
+            },
+            "features": {
+                "title": "Capacidades",
+                "items": [
+                    {
+                        "text": "Detección de objetos en tiempo real",
+                        "color": "neon-pink"
+                    },
+                    {
+                        "text": "Clasificación de imágenes",
+                        "color": "bright-blue"
+                    },
+                    {
+                        "text": "Reconocimiento facial",
+                        "color": "neon-pink"
+                    },
+                    {
+                        "text": "Análisis de patrones complejos",
+                        "color": "bright-blue"
+                    }
+                ]
+            },
+            "projects": [
+                {
+                    "title": "Control de Calidad",
+                    "description": "Inspección automatizada de productos en líneas de producción"
+                },
+                {
+                    "title": "Seguridad Inteligente",
+                    "description": "Sistema de vigilancia con reconocimiento facial y de objetos"
+                },
+                {
+                    "title": "Diagnóstico Médico",
+                    "description": "Análisis de imágenes médicas para detección temprana"
+                }
+            ]
+        },
+        {
+            "id": "inventory-management",
+            "name": "Gestión de Inventario",
+            "icon": "📦",
+            "gradient": "from-bright-blue to-neon-pink",
+            "primaryColor": "bright-blue",
+            "description": "Sistema inteligente para el control, seguimiento y optimización del inventario de equipos y recursos tecnológicos del laboratorio.",
+            "about": {
+                "title": "¿Qué es la Gestión de Inventario?",
+                "content": [
+                    "Sistema digital que permite controlar, rastrear y optimizar todos los recursos físicos del laboratorio de manera eficiente.",
+                    "Incluye seguimiento en tiempo real, alertas automáticas, reportes detallados y integración con códigos QR/RFID."
+                ]
+            },
+            "features": {
+                "title": "Funcionalidades",
+                "items": [
+                    {
+                        "text": "Tracking en tiempo real",
+                        "color": "bright-blue"
+                    },
+                    {
+                        "text": "Códigos QR y RFID",
+                        "color": "neon-pink"
+                    },
+                    {
+                        "text": "Alertas de mantenimiento",
+                        "color": "bright-blue"
+                    },
+                    {
+                        "text": "Reportes automatizados",
+                        "color": "neon-pink"
+                    }
+                ]
+            },
+            "projects": [
+                {
+                    "title": "Control de Stock",
+                    "description": "Monitoreo automático de niveles y disponibilidad de equipos"
+                },
+                {
+                    "title": "Préstamos Inteligentes",
+                    "description": "Sistema de préstamos con seguimiento y recordatorios automáticos"
+                },
+                {
+                    "title": "Dashboard Analítico",
+                    "description": "Métricas y análisis del uso y eficiencia del inventario"
+                }
+            ],
+            "hasDirectLinks": true,
+            "directLinks": [
+                {
+                    "href": "/inventory",
+                    "text": "Ver Inventario",
+                    "primary": true
+                },
+                {
+                    "href": "/loans",
+                    "text": "Gestionar Préstamos",
+                    "primary": false
+                }
+            ]
+        },
+        {
+            "id": "machine-learning",
+            "name": "Machine Learning",
+            "icon": "🤖",
+            "gradient": "from-neon-pink to-bright-blue",
+            "primaryColor": "neon-pink",
+            "description": "Algoritmos y modelos que permiten a las máquinas aprender patrones y hacer predicciones a partir de datos sin programación explícita.",
+            "about": {
+                "title": "¿Qué es Machine Learning?",
+                "content": [
+                    "Machine Learning es una rama de la inteligencia artificial que permite a las computadoras aprender y mejorar automáticamente a través de la experiencia.",
+                    "Utiliza algoritmos estadísticos para identificar patrones en datos y hacer predicciones o decisiones sin ser programado explícitamente."
+                ]
+            },
+            "features": {
+                "title": "Tipos de Aprendizaje",
+                "items": [
+                    {
+                        "text": "Aprendizaje supervisado",
+                        "color": "neon-pink"
+                    },
+                    {
+                        "text": "Aprendizaje no supervisado",
+                        "color": "bright-blue"
+                    },
+                    {
+                        "text": "Aprendizaje por refuerzo",
+                        "color": "neon-pink"
+                    },
+                    {
+                        "text": "Deep Learning",
+                        "color": "bright-blue"
+                    }
+                ]
+            },
+            "projects": [
+                {
+                    "title": "Predicción de Demanda",
+                    "description": "Modelos predictivos para optimizar el uso de recursos del lab"
+                },
+                {
+                    "title": "Clasificación de Datos",
+                    "description": "Algoritmos para categorizar y organizar información automáticamente"
+                },
+                {
+                    "title": "Detección de Anomalías",
+                    "description": "Identificación automática de patrones anormales en sistemas"
+                }
+            ]
+        },
+        {
+            "id": "cloud-computing",
+            "name": "Cloud Computing",
+            "icon": "☁️",
+            "gradient": "from-bright-blue to-neon-pink",
+            "primaryColor": "bright-blue",
+            "description": "Infraestructura de computación distribuida que permite acceso remoto a recursos computacionales escalables y servicios bajo demanda.",
+            "about": {
+                "title": "¿Qué es Cloud Computing?",
+                "content": [
+                    "Cloud Computing es la entrega de servicios de computación a través de Internet, incluyendo servidores, almacenamiento, bases de datos y software.",
+                    "Permite acceso flexible y escalable a recursos computacionales sin necesidad de mantener infraestructura física local."
+                ]
+            },
+            "features": {
+                "title": "Modelos de Servicio",
+                "items": [
+                    {
+                        "text": "IaaS - Infraestructura como Servicio",
+                        "color": "bright-blue"
+                    },
+                    {
+                        "text": "PaaS - Plataforma como Servicio",
+                        "color": "neon-pink"
+                    },
+                    {
+                        "text": "SaaS - Software como Servicio",
+                        "color": "bright-blue"
+                    },
+                    {
+                        "text": "Serverless Computing",
+                        "color": "neon-pink"
+                    }
+                ]
+            },
+            "projects": [
+                {
+                    "title": "Almacenamiento Distribuido",
+                    "description": "Sistemas de backup y sincronización de datos del laboratorio"
+                },
+                {
+                    "title": "Aplicaciones Web",
+                    "description": "Plataformas escalables para gestión de proyectos y recursos"
+                },
+                {
+                    "title": "Microservicios",
+                    "description": "Arquitectura modular para servicios independientes y escalables"
+                }
+            ]
+        }
+    ]
+}
