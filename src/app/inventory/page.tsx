@@ -59,7 +59,7 @@ const equipmentData: Equipment[] = [
     status: 'Disponible',
     brand: 'Sartorius',
     imageUrl:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuC-6U7vS2JN0RkBX4bw1dM84UZoSb4UgiE4l0eDB-KIRd-S38OJc-c8wMZ4VSMPivhvErzlVmxuBzXEXd0FnWQaodKUV5H6R-DHfC8XHiFm-1V_vuRK6G7T-QaaRbej_xfjl2Tm6FKmgzrMdWi8PJwTkJ0OD3n8xVLRNM97qudQLGW7Zwc_CI1ufgUgi7X2nBb1vgvaTFPgEMzlBQeXWhH6p6-z51-oln5TzD3mf-ghe5YETpyD1xlKZSJKEXjwQQizUo8OfIMEH9xA',
+      'https://images.unsplash.com/photo-1629909613654-28e377c37b09?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2068&q=80',
   },
   {
     id: '6',
@@ -68,7 +68,7 @@ const equipmentData: Equipment[] = [
     status: 'En Préstamo',
     brand: 'Bio-Rad',
     imageUrl:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuDMwOrDUmgLzAORBcJtc4FPdhlv_TIa6uI4Y0bpsZejlcre5uSCTWjmGPN17Sz7ENJkhQCsbD-8BANQjbvBEMw7jz_rTtZxIRLALDdOKTPRxRH-GGJQ1p-AtiBf1i7KHNPnUOQDaLGuWNg1k4SnS_f3TOYKMc8vBUytYD7TnzWIbuO6-jzRsbE68-JvBOH8-OQIp4f_JN4C2HzSTteSOjttKwSdCIEVzxPNR0G7DCVSWAvLNNewolWMN355V5U4kZPcPCpL131tXowC',
+      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
   },
 ];
 

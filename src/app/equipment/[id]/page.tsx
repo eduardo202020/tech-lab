@@ -93,6 +93,42 @@ const equipmentData: Equipment[] = [
       Marca: 'Tuttnauer',
     },
   },
+  {
+    id: '5',
+    name: 'Balanza Analítica',
+    category: 'Medición',
+    status: 'Disponible',
+    brand: 'Sartorius',
+    imageUrl:
+      'https://images.unsplash.com/photo-1629909613654-28e377c37b09?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2068&q=80',
+    description:
+      'Balanza analítica de precisión con pantalla táctil y conectividad USB. Ideal para mediciones exactas en análisis químicos y control de calidad.',
+    specifications: {
+      Precisión: '0.1 mg',
+      Capacidad: '220 g',
+      Calibración: 'Interna automática',
+      Interface: 'Pantalla táctil',
+      Marca: 'Sartorius',
+    },
+  },
+  {
+    id: '6',
+    name: 'PCR Thermal Cycler',
+    category: 'Biología Molecular',
+    status: 'En Préstamo',
+    brand: 'Bio-Rad',
+    imageUrl:
+      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
+    description:
+      'Termociclador PCR de alta precisión para amplificación de ADN. Con gradiente de temperatura y múltiples bloques para diferentes volúmenes de muestra.',
+    specifications: {
+      'Capacidad de muestras': '96 pozos',
+      'Rango de temperatura': '4°C - 100°C',
+      Precisión: '±0.2°C',
+      'Velocidad de rampa': '5°C/segundo',
+      Marca: 'Bio-Rad',
+    },
+  },
 ];
 
 interface EquipmentDetailPageProps {
@@ -116,7 +152,7 @@ export default function EquipmentDetailPage({
   };
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col bg-dark-bg text-light-gray font-roboto">
+    <div className="relative flex min-h-screen w-full flex-col bg-theme-bg text-theme-text font-roboto">
       <Header />
 
       <main className="flex flex-1 justify-center py-10 px-4 pt-28 sm:px-6 lg:px-8">
@@ -126,25 +162,27 @@ export default function EquipmentDetailPage({
             <nav className="flex items-center gap-2 text-sm">
               <Link
                 href="/"
-                className="text-light-gray/70 hover:text-white transition-colors"
+                className="text-theme-secondary hover:text-theme-text transition-colors"
               >
                 Inicio
               </Link>
-              <span className="text-light-gray/50">/</span>
+              <span className="text-theme-secondary/50">/</span>
               <Link
                 href="/inventory"
-                className="text-light-gray/70 hover:text-white transition-colors"
+                className="text-theme-secondary hover:text-theme-text transition-colors"
               >
                 Inventario
               </Link>
-              <span className="text-light-gray/50">/</span>
-              <span className="text-white font-medium">{equipment.name}</span>
+              <span className="text-theme-secondary/50">/</span>
+              <span className="text-theme-text font-medium">
+                {equipment.name}
+              </span>
             </nav>
           </div>
 
           {/* Page Title */}
           <div className="mb-8">
-            <h2 className="text-4xl font-bold font-montserrat text-white">
+            <h2 className="text-4xl font-bold font-montserrat text-theme-text">
               Equipo: {equipment.name}
             </h2>
           </div>
@@ -154,7 +192,7 @@ export default function EquipmentDetailPage({
             {/* Equipment Image and Description */}
             <div className="lg:col-span-3">
               {/* Image */}
-              <div className="mb-8 aspect-[4/3] w-full overflow-hidden rounded-lg bg-white/5">
+              <div className="mb-8 aspect-[4/3] w-full overflow-hidden rounded-lg bg-theme-card">
                 <div className="h-full w-full relative">
                   <Image
                     src={equipment.imageUrl}
@@ -168,10 +206,10 @@ export default function EquipmentDetailPage({
 
               {/* Description */}
               <div>
-                <h3 className="text-2xl font-bold font-montserrat text-white mb-4">
+                <h3 className="text-2xl font-bold font-montserrat text-theme-text mb-4">
                   Descripción
                 </h3>
-                <p className="text-base text-light-gray/90 leading-relaxed font-poppins">
+                <p className="text-base text-theme-secondary leading-relaxed font-poppins">
                   {equipment.description}
                 </p>
               </div>
@@ -179,10 +217,10 @@ export default function EquipmentDetailPage({
 
             {/* Equipment Info Panel */}
             <div className="lg:col-span-2">
-              <div className="rounded-lg bg-black/30 p-6 backdrop-blur-xl border border-white/10">
+              <div className="rounded-lg bg-theme-card p-6 backdrop-blur-xl border border-theme-border">
                 {/* Status */}
                 <div className="mb-6">
-                  <h3 className="text-2xl font-bold font-montserrat text-white mb-4">
+                  <h3 className="text-2xl font-bold font-montserrat text-theme-text mb-4">
                     Estado
                   </h3>
                   <div className="flex items-center gap-2">
@@ -207,7 +245,7 @@ export default function EquipmentDetailPage({
 
                 {/* Specifications */}
                 <div className="mb-6">
-                  <h3 className="text-2xl font-bold font-montserrat text-white mb-4">
+                  <h3 className="text-2xl font-bold font-montserrat text-theme-text mb-4">
                     Especificaciones
                   </h3>
                   <div className="space-y-4 text-sm">
@@ -215,12 +253,12 @@ export default function EquipmentDetailPage({
                       ([key, value]) => (
                         <div
                           key={key}
-                          className="flex justify-between border-b border-white/10 pb-2"
+                          className="flex justify-between border-b border-theme-border pb-2"
                         >
-                          <p className="text-light-gray/70 font-poppins">
+                          <p className="text-theme-secondary font-poppins">
                             {key}
                           </p>
-                          <p className="font-medium text-white font-poppins">
+                          <p className="font-medium text-theme-text font-poppins">
                             {value}
                           </p>
                         </div>
@@ -238,27 +276,27 @@ export default function EquipmentDetailPage({
                     Solicitar Préstamo
                   </button>
                 ) : (
-                  <div className="w-full rounded-md bg-gray-600 px-6 py-3 text-lg font-bold text-gray-300 text-center">
+                  <div className="w-full rounded-md bg-theme-secondary/30 px-6 py-3 text-lg font-bold text-theme-secondary text-center">
                     No Disponible
                   </div>
                 )}
 
                 {/* Additional Info */}
-                <div className="mt-6 pt-6 border-t border-white/10">
+                <div className="mt-6 pt-6 border-t border-theme-border">
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-light-gray/70 font-poppins">
+                      <span className="text-theme-secondary font-poppins">
                         Categoría
                       </span>
-                      <span className="text-white font-poppins">
+                      <span className="text-theme-text font-poppins">
                         {equipment.category}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-light-gray/70 font-poppins">
+                      <span className="text-theme-secondary font-poppins">
                         Marca
                       </span>
-                      <span className="text-white font-poppins">
+                      <span className="text-theme-text font-poppins">
                         {equipment.brand}
                       </span>
                     </div>
@@ -272,7 +310,7 @@ export default function EquipmentDetailPage({
           <div className="mt-8">
             <Link
               href="/inventory"
-              className="inline-flex items-center gap-2 rounded-md bg-white/10 px-4 py-2 text-sm font-medium text-light-gray transition-all hover:bg-white/20 hover:text-white"
+              className="inline-flex items-center gap-2 rounded-md bg-theme-card px-4 py-2 text-sm font-medium text-theme-secondary transition-all hover:bg-theme-border hover:text-theme-text"
             >
               <svg
                 className="h-4 w-4"
