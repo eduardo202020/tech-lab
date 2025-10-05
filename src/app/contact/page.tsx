@@ -34,7 +34,7 @@ export default function ContactPage() {
     <div className="relative flex min-h-screen w-full flex-col bg-theme-bg text-theme-text font-roboto">
       <Header />
 
-      <main className="flex flex-1 flex-col items-center py-10 pt-28 md:py-16">
+      <main className="flex flex-1 flex-col items-center py-10 pt-36 md:py-16 md:pt-40">
         <div className="w-full max-w-5xl px-4 sm:px-6 lg:px-8">
           {/* Page Header */}
           <div className="text-center">
@@ -72,17 +72,17 @@ export default function ContactPage() {
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className="block w-full rounded-lg border border-white/10 bg-white/5 p-3 text-white placeholder-gray-500 shadow-sm focus:border-bright-blue focus:ring-bright-blue font-poppins"
+                      className="block w-full rounded-lg border border-theme-border bg-theme-card p-3 text-theme-text placeholder-theme-secondary/60 shadow-sm focus:border-bright-blue focus:ring-bright-blue font-poppins"
                       placeholder="Tu nombre completo"
                     />
                   </div>
                 </div>
-
+                {/* Email Field */}
                 {/* Email Field */}
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium text-light-gray/90 font-poppins"
+                    className="block text-sm font-medium text-theme-text font-poppins"
                   >
                     Correo electrónico
                   </label>
@@ -94,17 +94,16 @@ export default function ContactPage() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="block w-full rounded-lg border border-white/10 bg-white/5 p-3 text-white placeholder-gray-500 shadow-sm focus:border-bright-blue focus:ring-bright-blue font-poppins"
+                      className="block w-full rounded-lg border border-theme-border bg-theme-card p-3 text-theme-text placeholder-theme-secondary/60 shadow-sm focus:border-bright-blue focus:ring-bright-blue font-poppins"
                       placeholder="tu.email@ejemplo.com"
                     />
                   </div>
-                </div>
-
+                </div>{' '}
                 {/* Message Field */}
                 <div>
                   <label
                     htmlFor="message"
-                    className="block text-sm font-medium text-light-gray/90 font-poppins"
+                    className="block text-sm font-medium text-theme-text font-poppins"
                   >
                     Mensaje
                   </label>
@@ -116,12 +115,11 @@ export default function ContactPage() {
                       value={formData.message}
                       onChange={handleChange}
                       required
-                      className="block w-full rounded-lg border border-white/10 bg-white/5 p-3 text-white placeholder-gray-500 shadow-sm focus:border-bright-blue focus:ring-bright-blue font-poppins"
+                      className="block w-full rounded-lg border border-theme-border bg-theme-card p-3 text-theme-text placeholder-theme-secondary/60 shadow-sm focus:border-bright-blue focus:ring-bright-blue font-poppins"
                       placeholder="Escribe tu mensaje aquí..."
                     />
                   </div>
                 </div>
-
                 {/* Submit Button */}
                 <div>
                   <button
@@ -136,7 +134,7 @@ export default function ContactPage() {
 
             {/* Contact Information */}
             <div className="space-y-8">
-              <h2 className="text-2xl font-bold font-montserrat text-white">
+              <h2 className="text-2xl font-bold font-montserrat text-theme-text">
                 Información de Contacto
               </h2>
 
@@ -159,12 +157,12 @@ export default function ContactPage() {
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <p className="text-base text-light-gray/70 font-poppins">
+                    <p className="text-base text-theme-secondary font-poppins">
                       Correo electrónico
                     </p>
                     <a
                       href="mailto:soporte@unitechlab.com"
-                      className="text-base font-medium text-white hover:text-bright-blue transition-colors font-poppins"
+                      className="text-base font-medium text-theme-text hover:text-bright-blue transition-colors font-poppins"
                     >
                       soporte@unitechlab.com
                     </a>
@@ -189,12 +187,12 @@ export default function ContactPage() {
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <p className="text-base text-light-gray/70 font-poppins">
+                    <p className="text-base text-theme-secondary font-poppins">
                       Teléfono
                     </p>
                     <a
                       href="tel:+51014256789"
-                      className="text-base font-medium text-white hover:text-bright-blue transition-colors font-poppins"
+                      className="text-base font-medium text-theme-text hover:text-bright-blue transition-colors font-poppins"
                     >
                       +51 (01) 425-6789
                     </a>
@@ -225,10 +223,10 @@ export default function ContactPage() {
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <p className="text-base text-light-gray/70 font-poppins">
+                    <p className="text-base text-theme-secondary font-poppins">
                       Dirección
                     </p>
-                    <p className="text-base font-medium text-white font-poppins">
+                    <p className="text-base font-medium text-theme-text font-poppins">
                       Av. Túpac Amaru 210
                       <br />
                       Rímac, Lima 15333
@@ -256,10 +254,10 @@ export default function ContactPage() {
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <p className="text-base text-light-gray/70 font-poppins">
+                    <p className="text-base text-theme-secondary font-poppins">
                       Horarios de atención
                     </p>
-                    <p className="text-base font-medium text-white font-poppins">
+                    <p className="text-base font-medium text-theme-text font-poppins">
                       Lunes a Viernes: 8:00 AM - 6:00 PM
                       <br />
                       Sábados: 9:00 AM - 1:00 PM
@@ -271,11 +269,11 @@ export default function ContactPage() {
               </div>
 
               {/* Additional Info Card */}
-              <div className="rounded-lg bg-black/30 p-6 backdrop-blur-xl border border-white/10">
-                <h3 className="text-lg font-semibold font-montserrat text-white mb-3">
+              <div className="rounded-lg bg-theme-card p-6 backdrop-blur-xl border border-theme-border">
+                <h3 className="text-lg font-semibold font-montserrat text-theme-text mb-3">
                   ¿Necesitas ayuda inmediata?
                 </h3>
-                <p className="text-sm text-light-gray/90 mb-4 font-poppins">
+                <p className="text-sm text-theme-secondary mb-4 font-poppins">
                   Para consultas urgentes sobre equipos o préstamos, puedes
                   contactarnos directamente por teléfono durante nuestros
                   horarios de atención.
@@ -289,7 +287,7 @@ export default function ContactPage() {
                   </a>
                   <a
                     href="tel:+51014256789"
-                    className="inline-flex items-center justify-center px-4 py-2 rounded-md border border-white/20 text-white text-sm font-medium hover:bg-white/10 transition-colors font-poppins"
+                    className="inline-flex items-center justify-center px-4 py-2 rounded-md border border-theme-border text-theme-text text-sm font-medium hover:bg-theme-card/50 transition-colors font-poppins"
                   >
                     Llamar Ahora
                   </a>
