@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface Equipment {
   id: string;
@@ -140,6 +141,7 @@ interface EquipmentDetailPageProps {
 export default function EquipmentDetailPage({
   params,
 }: EquipmentDetailPageProps) {
+  const { theme } = useTheme();
   const equipment = equipmentData.find((eq) => eq.id === params.id);
 
   if (!equipment) {
@@ -253,12 +255,26 @@ export default function EquipmentDetailPage({
                       ([key, value]) => (
                         <div
                           key={key}
-                          className="flex justify-between border-b border-theme-border pb-2"
+                          className={`flex justify-between border-b pb-3 ${
+                            theme === 'dark'
+                              ? 'border-white/20 bg-white/5'
+                              : 'border-gray-200 bg-gray-50/50'
+                          } rounded px-3 py-2`}
                         >
-                          <p className="text-theme-secondary font-poppins">
+                          <p
+                            className={`font-medium ${
+                              theme === 'dark'
+                                ? 'text-gray-300'
+                                : 'text-gray-700'
+                            } font-poppins`}
+                          >
                             {key}
                           </p>
-                          <p className="font-medium text-theme-text font-poppins">
+                          <p
+                            className={`font-bold ${
+                              theme === 'dark' ? 'text-white' : 'text-gray-900'
+                            } font-poppins`}
+                          >
                             {value}
                           </p>
                         </div>
