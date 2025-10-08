@@ -1,6 +1,9 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: '/home/eduardo/proyectos/tech-lab',
+  },
   images: {
     remotePatterns: [
       {
