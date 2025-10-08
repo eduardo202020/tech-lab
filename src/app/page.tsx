@@ -137,6 +137,13 @@ export default function Home() {
                 >
                   Cloud Computing
                 </Link>
+                <Link
+                  href="/technologies/smart-parking"
+                  className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer relative"
+                >
+                  🅿️ Smart Parking
+                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                </Link>
                 {/* Duplicate for seamless loop */}
                 <Link
                   href="/technologies/lora"
@@ -161,6 +168,13 @@ export default function Home() {
                   className="bg-gradient-to-r from-bright-blue to-neon-pink bg-clip-text text-transparent font-bold px-6 py-3 border border-bright-blue/30 rounded-full backdrop-blur-sm hover:border-bright-blue/60 hover:shadow-lg hover:shadow-bright-blue/20 transition-all cursor-pointer"
                 >
                   Inteligencia Artificial
+                </Link>
+                <Link
+                  href="/technologies/smart-parking"
+                  className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer relative"
+                >
+                  🅿️ Smart Parking
+                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
                 </Link>
               </div>
             </div>

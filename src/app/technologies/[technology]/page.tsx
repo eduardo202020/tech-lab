@@ -4,8 +4,8 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import technologiesData from '@/data/technologies.json';
 import { notFound } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 interface Technology {
   id: string;
@@ -40,11 +40,53 @@ interface Technology {
 export default function TechnologyPage() {
   const params = useParams();
   const technologyId = params.technology as string;
+  const [technology, setTechnology] = useState<Technology | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Buscar la tecnología en el JSON
-  const technology = technologiesData.technologies.find(
-    (tech: Technology) => tech.id === technologyId
-  );
+  useEffect(() => {
+    // Redirigir Smart Parking a su página especializada
+    if (technologyId === 'smart-parking') {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/technologies/smart-parking';
+      }
+      return;
+    }
+
+    const loadTechnology = async () => {
+      try {
+        const response = await fetch('/data/technologies.json');
+        const data = await response.json();
+        const foundTechnology = data.technologies.find(
+          (tech: Technology) => tech.id === technologyId
+        );
+        setTechnology(foundTechnology || null);
+      } catch (error) {
+        console.error('Error loading technology:', error);
+        setTechnology(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTechnology();
+  }, [technologyId]);
+
+  // Redirigir Smart Parking a su página especializada
+  if (technologyId === 'smart-parking') {
+    return (
+      <div className="min-h-screen bg-dark-bg flex items-center justify-center">
+        <div className="text-white">Redirigiendo a Smart Parking...</div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-dark-bg flex items-center justify-center">
+        <div className="text-white">Cargando...</div>
+      </div>
+    );
+  }
 
   // Si no se encuentra la tecnología, mostrar 404
   if (!technology) {
