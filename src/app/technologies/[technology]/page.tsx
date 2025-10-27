@@ -5,74 +5,21 @@ import Footer from '@/components/Footer';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { notFound } from 'next/navigation';
-import { useEffect, useState } from 'react';
-
-interface Technology {
-  id: string;
-  name: string;
-  icon: string;
-  gradient: string;
-  primaryColor: string;
-  description: string;
-  about: {
-    title: string;
-    content: string[];
-  };
-  features: {
-    title: string;
-    items: {
-      text: string;
-      color: string;
-    }[];
-  };
-  projects: {
-    title: string;
-    description: string;
-  }[];
-  hasDirectLinks?: boolean;
-  directLinks?: {
-    href: string;
-    text: string;
-    primary: boolean;
-  }[];
-}
+import { useTechnologies } from '@/hooks/useTechnologies';
+import { ExternalLink } from 'lucide-react';
 
 export default function TechnologyPage() {
   const params = useParams();
   const technologyId = params.technology as string;
-  const [technology, setTechnology] = useState<Technology | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { getTechnology, loading } = useTechnologies();
 
-  useEffect(() => {
-    // Redirigir Smart Parking a su página especializada
-    if (technologyId === 'smart-parking') {
-      if (typeof window !== 'undefined') {
-        window.location.href = '/technologies/smart-parking';
-      }
-      return;
-    }
-
-    const loadTechnology = async () => {
-      try {
-        const response = await fetch('/data/technologies.json');
-        const data = await response.json();
-        const foundTechnology = data.technologies.find(
-          (tech: Technology) => tech.id === technologyId
-        );
-        setTechnology(foundTechnology || null);
-      } catch (error) {
-        console.error('Error loading technology:', error);
-        setTechnology(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadTechnology();
-  }, [technologyId]);
+  const technology = getTechnology(technologyId);
 
   // Redirigir Smart Parking a su página especializada
   if (technologyId === 'smart-parking') {
+    if (typeof window !== 'undefined') {
+      window.location.href = '/technologies/smart-parking';
+    }
     return (
       <div className="min-h-screen bg-dark-bg flex items-center justify-center">
         <div className="text-white">Redirigiendo a Smart Parking...</div>
@@ -150,22 +97,86 @@ export default function TechnologyPage() {
           <div
             className={`bg-gradient-to-r ${technology.gradient}/10 rounded-xl p-8 border border-white/10 mb-12`}
           >
+            {/* Proyectos Vinculados */}
             <h2 className="font-bebas text-3xl font-bold text-white mb-8 text-center">
-              Proyectos con {technology.name}
+              Proyectos Vinculados con {technology.name}
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {technology.projects.map((project, index) => (
-                <div
-                  key={index}
-                  className="bg-black/30 rounded-lg p-6 border border-white/10"
-                >
-                  <h3 className="font-bold text-white mb-2">{project.title}</h3>
-                  <p className="text-light-gray/80 text-sm">
-                    {project.description}
-                  </p>
+            
+            {technology.relatedProjects && technology.relatedProjects.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {technology.relatedProjects.map((project) => (
+                  <Link
+                    key={project.id}
+                    href={`/projects/${project.id}`}
+                    className="bg-black/30 rounded-lg p-6 border border-white/10 hover:border-white/30 transition-all duration-300 group"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-bold text-white group-hover:text-neon-pink transition-colors">
+                        {project.title}
+                      </h3>
+                      <ExternalLink className="w-4 h-4 text-light-gray/60 group-hover:text-white transition-colors" />
+                    </div>
+                    
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className={`w-3 h-3 rounded-full ${
+                        project.status === 'completed' ? 'bg-green-500' :
+                        project.status === 'active' ? 'bg-blue-500' :
+                        project.status === 'paused' ? 'bg-yellow-500' :
+                        'bg-purple-500'
+                      }`}></div>
+                      <span className="text-sm text-light-gray/80 capitalize">
+                        {project.status}
+                      </span>
+                      <span className="text-sm text-light-gray/60">
+                        {project.progress}% completado
+                      </span>
+                    </div>
+                    
+                    {/* Barra de progreso */}
+                    <div className="w-full bg-white/10 rounded-full h-2">
+                      <div
+                        className={`bg-gradient-to-r ${technology.gradient} h-2 rounded-full transition-all duration-300`}
+                        style={{ width: `${project.progress}%` }}
+                      ></div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="text-light-gray/60 mb-4">
+                  No hay proyectos vinculados actualmente
                 </div>
-              ))}
-            </div>
+                <Link
+                  href="/projects"
+                  className="text-neon-pink hover:text-white transition-colors"
+                >
+                  Ver todos los proyectos →
+                </Link>
+              </div>
+            )}
+            
+            {/* Proyectos del JSON original como ejemplos */}
+            {technology.projects && technology.projects.length > 0 && (
+              <div className="mt-12">
+                <h3 className="font-bebas text-2xl font-bold text-white mb-6 text-center">
+                  Casos de Uso Típicos
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {technology.projects.map((project: any, index: number) => (
+                    <div
+                      key={index}
+                      className="bg-black/20 rounded-lg p-4 border border-white/5"
+                    >
+                      <h4 className="font-medium text-white mb-2 text-sm">{project.title}</h4>
+                      <p className="text-light-gray/70 text-xs">
+                        {project.description}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Direct Links Section (if available) */}

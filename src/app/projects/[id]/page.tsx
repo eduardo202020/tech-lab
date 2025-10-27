@@ -1,317 +1,191 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, notFound } from 'next/navigation';
+import Link from 'next/link';
 import {
   ArrowLeft,
   Calendar,
   Users,
   Target,
-  DollarSign,
-  Play,
-  Pause,
-  CheckCircle,
-  Clock,
-  FolderOpen,
-  User,
+  TrendingUp,
   ExternalLink,
+  GitBranch,
+  FileText,
 } from 'lucide-react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useProjects, TechProject } from '@/contexts/ProjectContext';
-import { useResearchers } from '@/contexts/ResearcherContext';
-import Header from '@/components/Header';
+import { useProjects } from '@/contexts/ProjectContext';
+import RelatedTechnologies from '@/components/RelatedTechnologies';
 
 export default function ProjectDetailPage() {
   const params = useParams();
-  const router = useRouter();
-  const { projects, isLoading } = useProjects();
-  const { researchers } = useResearchers();
-
-  const [project, setProject] = useState<TechProject | null>(null);
-
   const projectId = params.id as string;
+  const { getProject } = useProjects();
 
-  // Encontrar el proyecto por ID
-  useEffect(() => {
-    if (projects.length > 0 && projectId) {
-      const foundProject = projects.find((p) => p.id === projectId);
-      setProject(foundProject || null);
-    }
-  }, [projects, projectId]);
-
-  // Obtener investigadores del proyecto
-  const projectResearchers = researchers.filter(
-    (researcher) =>
-      researcher.currentProjects.includes(projectId) ||
-      researcher.pastProjects.includes(projectId)
-  );
-
-  // Etiquetas de estado
-  const statusLabels = {
-    planning: 'Planificación',
-    active: 'En Progreso',
-    paused: 'Pausado',
-    completed: 'Completado',
-  };
-
-  const priorityLabels = {
-    low: 'Baja',
-    medium: 'Media',
-    high: 'Alta',
-    critical: 'Crítica',
-  };
-
-  // Colores para estados
-  const getStatusColor = (status: TechProject['status']) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-500/10 text-green-400 border-green-500/20';
-      case 'planning':
-        return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
-      case 'paused':
-        return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
-      case 'completed':
-        return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
-      default:
-        return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
-    }
-  };
-
-  const getPriorityColor = (priority: TechProject['priority']) => {
-    switch (priority) {
-      case 'critical':
-        return 'bg-red-500/10 text-red-400 border-red-500/20';
-      case 'high':
-        return 'bg-orange-500/10 text-orange-400 border-orange-500/20';
-      case 'medium':
-        return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
-      case 'low':
-        return 'bg-green-500/10 text-green-400 border-green-500/20';
-      default:
-        return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
-    }
-  };
-
-  const getStatusIcon = (status: TechProject['status']) => {
-    switch (status) {
-      case 'active':
-        return <Play className="w-3 h-3" />;
-      case 'paused':
-        return <Pause className="w-3 h-3" />;
-      case 'completed':
-        return <CheckCircle className="w-3 h-3" />;
-      case 'planning':
-        return <Clock className="w-3 h-3" />;
-      default:
-        return <FolderOpen className="w-3 h-3" />;
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-theme-background">
-        <Header />
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="w-8 h-8 border-2 border-theme-accent border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-theme-text">Cargando proyecto...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const project = getProject(projectId);
 
   if (!project) {
-    return (
-      <div className="min-h-screen bg-theme-background">
-        <Header />
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <FolderOpen className="w-16 h-16 text-theme-secondary mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-theme-text mb-2">
-              Proyecto no encontrado
-            </h1>
-            <p className="text-theme-secondary mb-6">
-              No se pudo encontrar el proyecto solicitado.
-            </p>
-            <button
-              onClick={() => router.push('/projects')}
-              className="flex items-center gap-2 bg-gradient-to-r from-neon-pink to-bright-blue text-white px-6 py-3 rounded-lg hover:opacity-90 transition-opacity mx-auto"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Volver a Proyectos
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+    notFound();
   }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'text-green-500 bg-green-500/20';
+      case 'active':
+        return 'text-blue-500 bg-blue-500/20';
+      case 'paused':
+        return 'text-yellow-500 bg-yellow-500/20';
+      case 'planning':
+        return 'text-purple-500 bg-purple-500/20';
+      default:
+        return 'text-gray-500 bg-gray-500/20';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'critical':
+        return 'text-red-500 bg-red-500/20';
+      case 'high':
+        return 'text-orange-500 bg-orange-500/20';
+      case 'medium':
+        return 'text-yellow-500 bg-yellow-500/20';
+      case 'low':
+        return 'text-green-500 bg-green-500/20';
+      default:
+        return 'text-gray-500 bg-gray-500/20';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-theme-background">
-      <Header />
-
-      <main className="container mx-auto px-4 py-8">
-        {/* Navegación de regreso */}
-        <div className="mb-6">
-          <button
-            onClick={() => router.push('/projects')}
-            className="flex items-center gap-2 text-theme-secondary hover:text-theme-text transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Volver a Proyectos
-          </button>
+      {/* Header */}
+      <header className="bg-theme-card border-b border-theme-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <Link
+              href="/projects"
+              className="flex items-center gap-2 text-theme-secondary hover:text-theme-text transition-colors"
+            >
+              <ArrowLeft size={20} />
+              <span>Volver a Proyectos</span>
+            </Link>
+            <div className="text-sm text-theme-secondary">
+              TechLab • {project.category}
+            </div>
+          </div>
         </div>
+      </header>
 
-        {/* Cabecera del Proyecto */}
-        <div className="bg-theme-card rounded-lg p-6 mb-8 shadow-lg">
-          <div className="flex items-start justify-between mb-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Hero Section */}
+        <div className="mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
             <div className="flex-1">
-              <div className="flex items-center gap-4 mb-4">
-                <FolderOpen className="w-8 h-8 text-theme-accent" />
-                <div>
-                  <h1 className="text-3xl font-bold text-theme-text">
-                    {project.title}
-                  </h1>
-                  <p className="text-theme-secondary">{project.category}</p>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-3 mb-4">
-                <span
-                  className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm border ${getStatusColor(project.status)}`}
-                >
-                  {getStatusIcon(project.status)}
-                  {statusLabels[project.status]}
-                </span>
-                <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm border ${getPriorityColor(project.priority)}`}
-                >
-                  {priorityLabels[project.priority]}
-                </span>
-              </div>
-
-              <p className="text-theme-secondary text-lg leading-relaxed">
+              <h1 className="text-3xl lg:text-4xl font-bold text-theme-text mb-4">
+                {project.title}
+              </h1>
+              <p className="text-xl text-theme-secondary mb-6 leading-relaxed">
                 {project.description}
               </p>
-            </div>
 
-            <div className="ml-8">
-              <div className="text-center p-6 bg-theme-background rounded-lg">
-                <div className="text-4xl font-bold text-theme-text mb-2">
-                  {project.progress}%
+              {/* Status y Priority */}
+              <div className="flex flex-wrap items-center gap-3 mb-6">
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(project.status)}`}
+                >
+                  {project.status.charAt(0).toUpperCase() +
+                    project.status.slice(1)}
+                </span>
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${getPriorityColor(project.priority)}`}
+                >
+                  Prioridad{' '}
+                  {project.priority.charAt(0).toUpperCase() +
+                    project.priority.slice(1)}
+                </span>
+                <div className="flex items-center gap-2 text-theme-secondary">
+                  <TrendingUp size={16} />
+                  <span className="text-sm">
+                    {project.progress}% completado
+                  </span>
                 </div>
-                <div className="text-sm text-theme-secondary">Completado</div>
-                <div className="w-24 bg-theme-border rounded-full h-2 mt-3">
-                  <div
-                    className="bg-gradient-to-r from-neon-pink to-bright-blue h-2 rounded-full transition-all"
-                    style={{ width: `${project.progress}%` }}
-                  ></div>
+              </div>
+            </div>
+
+            {/* Progress Ring */}
+            <div className="flex-shrink-0">
+              <div className="relative w-24 h-24">
+                <svg
+                  className="w-24 h-24 transform -rotate-90"
+                  viewBox="0 0 100 100"
+                >
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    stroke="currentColor"
+                    strokeWidth="8"
+                    fill="transparent"
+                    className="text-theme-border"
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    stroke="currentColor"
+                    strokeWidth="8"
+                    fill="transparent"
+                    strokeDasharray={`${2 * Math.PI * 40}`}
+                    strokeDashoffset={`${2 * Math.PI * 40 * (1 - project.progress / 100)}`}
+                    className="text-theme-accent transition-all duration-500"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-lg font-bold text-theme-text">
+                    {project.progress}%
+                  </span>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Información del Proyecto */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="bg-theme-background p-4 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <Calendar className="w-4 h-4 text-theme-accent" />
-                <span className="text-sm font-medium text-theme-text">
-                  Inicio
-                </span>
-              </div>
-              <div className="text-theme-secondary">
-                {new Date(project.startDate).toLocaleDateString()}
-              </div>
-            </div>
-
-            <div className="bg-theme-background p-4 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <Users className="w-4 h-4 text-theme-accent" />
-                <span className="text-sm font-medium text-theme-text">
-                  Líder
-                </span>
-              </div>
-              <div className="text-theme-secondary">{project.teamLead}</div>
-            </div>
-
-            <div className="bg-theme-background p-4 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <DollarSign className="w-4 h-4 text-theme-accent" />
-                <span className="text-sm font-medium text-theme-text">
-                  Presupuesto
-                </span>
-              </div>
-              <div className="text-theme-secondary">
-                ${project.budget?.toLocaleString()}
-              </div>
-            </div>
-
-            <div className="bg-theme-background p-4 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <Target className="w-4 h-4 text-theme-accent" />
-                <span className="text-sm font-medium text-theme-text">
-                  Objetivos
-                </span>
-              </div>
-              <div className="text-theme-secondary">
-                {project.objectives?.length || 0} metas
               </div>
             </div>
           </div>
         </div>
 
-        {/* Contenido Principal */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Columna Principal */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Contenido Principal */}
           <div className="lg:col-span-2 space-y-8">
             {/* Objetivos */}
-            {project.objectives && project.objectives.length > 0 && (
-              <div className="bg-theme-card rounded-lg p-6">
-                <h2 className="text-xl font-semibold text-theme-text mb-4 flex items-center gap-2">
-                  <Target className="w-5 h-5" />
-                  Objetivos del Proyecto
-                </h2>
-                <ul className="space-y-3">
-                  {project.objectives.map((objective, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-theme-accent rounded-full mt-2"></div>
-                      <span className="text-theme-secondary">{objective}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Tecnologías */}
-            <div className="bg-theme-card rounded-lg p-6">
-              <h2 className="text-xl font-semibold text-theme-text mb-4">
-                Tecnologías Utilizadas
+            <div className="bg-theme-card rounded-xl p-6 border border-theme-border">
+              <h2 className="text-xl font-bold text-theme-text mb-4 flex items-center gap-2">
+                <Target className="text-theme-accent" size={24} />
+                Objetivos del Proyecto
               </h2>
-              <div className="flex flex-wrap gap-3">
-                {project.technologies.map((tech, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-2 bg-theme-accent/10 text-theme-accent rounded-lg text-sm font-medium"
-                  >
-                    {tech}
-                  </span>
+              <ul className="space-y-3">
+                {project.objectives.map((objective, index) => (
+                  <li key={index} className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-theme-accent/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <div className="w-2 h-2 rounded-full bg-theme-accent"></div>
+                    </div>
+                    <span className="text-theme-secondary">{objective}</span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
+
+            {/* Tecnologías Vinculadas */}
+            <RelatedTechnologies projectId={projectId} />
 
             {/* Desafíos */}
             {project.challenges && project.challenges.length > 0 && (
-              <div className="bg-theme-card rounded-lg p-6">
-                <h2 className="text-xl font-semibold text-theme-text mb-4">
-                  Desafíos
+              <div className="bg-theme-card rounded-xl p-6 border border-theme-border">
+                <h2 className="text-xl font-bold text-theme-text mb-4">
+                  Desafíos y Consideraciones
                 </h2>
                 <ul className="space-y-3">
                   {project.challenges.map((challenge, index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-red-400 rounded-full mt-2"></div>
+                      <div className="w-6 h-6 rounded-full bg-yellow-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                      </div>
                       <span className="text-theme-secondary">{challenge}</span>
                     </li>
                   ))}
@@ -320,75 +194,188 @@ export default function ProjectDetailPage() {
             )}
           </div>
 
-          {/* Columna Lateral */}
+          {/* Sidebar */}
           <div className="space-y-6">
-            {/* Equipo de Trabajo */}
-            <div className="bg-theme-card rounded-lg p-6">
-              <h2 className="text-xl font-semibold text-theme-text mb-4 flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                Equipo ({projectResearchers.length})
-              </h2>
-              {projectResearchers.length > 0 ? (
-                <div className="space-y-4">
-                  {projectResearchers.map((researcher) => {
-                    const role =
-                      researcher.projectRoles[projectId] || 'Participante';
-                    return (
-                      <Link
-                        key={researcher.id}
-                        href={`/researchers/${researcher.id}`}
-                        className="flex items-center gap-3 p-3 bg-theme-background rounded-lg hover:bg-theme-accent/5 transition-colors"
-                      >
-                        {researcher.avatar ? (
-                          <Image
-                            src={researcher.avatar}
-                            alt={researcher.name}
-                            width={48}
-                            height={48}
-                            className="w-12 h-12 rounded-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-12 h-12 rounded-full bg-theme-accent/10 flex items-center justify-center">
-                            <User className="w-6 h-6 text-theme-accent" />
-                          </div>
-                        )}
-                        <div className="flex-1">
-                          <h3 className="font-medium text-theme-text">
-                            {researcher.name}
-                          </h3>
-                          <p className="text-sm text-theme-secondary">{role}</p>
-                          <p className="text-xs text-theme-secondary">
-                            {researcher.position}
-                          </p>
-                        </div>
-                        <ExternalLink className="w-4 h-4 text-theme-secondary" />
-                      </Link>
-                    );
-                  })}
+            {/* Información del Proyecto */}
+            <div className="bg-theme-card rounded-xl p-6 border border-theme-border">
+              <h3 className="text-lg font-bold text-theme-text mb-4">
+                Información del Proyecto
+              </h3>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Calendar
+                    className="text-theme-accent flex-shrink-0"
+                    size={18}
+                  />
+                  <div>
+                    <div className="text-sm text-theme-secondary">Inicio</div>
+                    <div className="text-theme-text font-medium">
+                      {new Date(project.startDate).toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                    </div>
+                  </div>
                 </div>
-              ) : (
-                <p className="text-theme-secondary text-sm">
-                  No hay investigadores asignados
-                </p>
-              )}
+
+                {project.endDate && (
+                  <div className="flex items-center gap-3">
+                    <Calendar
+                      className="text-theme-accent flex-shrink-0"
+                      size={18}
+                    />
+                    <div>
+                      <div className="text-sm text-theme-secondary">
+                        Finalización
+                      </div>
+                      <div className="text-theme-text font-medium">
+                        {new Date(project.endDate).toLocaleDateString('es-ES', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-3">
+                  <Users
+                    className="text-theme-accent flex-shrink-0"
+                    size={18}
+                  />
+                  <div>
+                    <div className="text-sm text-theme-secondary">
+                      Líder del Equipo
+                    </div>
+                    <div className="text-theme-text font-medium">
+                      {project.teamLead}
+                    </div>
+                  </div>
+                </div>
+
+                {project.budget && (
+                  <div className="flex items-center gap-3">
+                    <Target
+                      className="text-theme-accent flex-shrink-0"
+                      size={18}
+                    />
+                    <div>
+                      <div className="text-sm text-theme-secondary">
+                        Presupuesto
+                      </div>
+                      <div className="text-theme-text font-medium">
+                        ${project.budget.toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Miembros del Equipo (si existen) */}
-            {project.teamMembers && project.teamMembers.length > 0 && (
-              <div className="bg-theme-card rounded-lg p-6">
-                <h2 className="text-xl font-semibold text-theme-text mb-4">
-                  Otros Miembros
-                </h2>
-                <ul className="space-y-2">
-                  {project.teamMembers.map((member, index) => (
-                    <li key={index} className="flex items-center gap-2">
-                      <User className="w-4 h-4 text-theme-secondary" />
-                      <span className="text-theme-secondary">{member}</span>
-                    </li>
-                  ))}
-                </ul>
+            {/* Equipo */}
+            <div className="bg-theme-card rounded-xl p-6 border border-theme-border">
+              <h3 className="text-lg font-bold text-theme-text mb-4 flex items-center gap-2">
+                <Users className="text-theme-accent" size={20} />
+                Equipo de Trabajo
+              </h3>
+              <div className="space-y-3">
+                <div className="p-3 bg-theme-accent/10 rounded-lg">
+                  <div className="font-medium text-theme-text">
+                    {project.teamLead}
+                  </div>
+                  <div className="text-sm text-theme-secondary">
+                    Líder del Proyecto
+                  </div>
+                </div>
+                {project.teamMembers.map((member, index) => (
+                  <div
+                    key={index}
+                    className="p-3 bg-theme-background rounded-lg"
+                  >
+                    <div className="font-medium text-theme-text">{member}</div>
+                    <div className="text-sm text-theme-secondary">
+                      Miembro del Equipo
+                    </div>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
+
+            {/* Tecnologías Utilizadas */}
+            <div className="bg-theme-card rounded-xl p-6 border border-theme-border">
+              <h3 className="text-lg font-bold text-theme-text mb-4">
+                Tecnologías Utilizadas
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {project.technologies.map((tech, index) => (
+                  <span
+                    key={index}
+                    className="px-3 py-1 bg-theme-accent/20 text-theme-accent rounded-full text-sm font-medium"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Enlaces */}
+            <div className="bg-theme-card rounded-xl p-6 border border-theme-border">
+              <h3 className="text-lg font-bold text-theme-text mb-4">
+                Enlaces del Proyecto
+              </h3>
+              <div className="space-y-3">
+                {project.demoUrl && (
+                  <Link
+                    href={project.demoUrl}
+                    className="flex items-center gap-2 p-3 bg-theme-background rounded-lg hover:bg-theme-accent/10 transition-colors group"
+                  >
+                    <ExternalLink
+                      className="text-theme-accent group-hover:text-theme-text"
+                      size={18}
+                    />
+                    <span className="text-theme-text group-hover:text-theme-accent">
+                      Ver Demo
+                    </span>
+                  </Link>
+                )}
+
+                {project.repositoryUrl && (
+                  <Link
+                    href={project.repositoryUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 p-3 bg-theme-background rounded-lg hover:bg-theme-accent/10 transition-colors group"
+                  >
+                    <GitBranch
+                      className="text-theme-accent group-hover:text-theme-text"
+                      size={18}
+                    />
+                    <span className="text-theme-text group-hover:text-theme-accent">
+                      Repositorio
+                    </span>
+                  </Link>
+                )}
+
+                {project.documentation && (
+                  <div className="flex items-start gap-2 p-3 bg-theme-background rounded-lg">
+                    <FileText
+                      className="text-theme-accent flex-shrink-0 mt-0.5"
+                      size={18}
+                    />
+                    <div>
+                      <div className="text-theme-text font-medium">
+                        Documentación
+                      </div>
+                      <div className="text-sm text-theme-secondary">
+                        {project.documentation}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </main>
