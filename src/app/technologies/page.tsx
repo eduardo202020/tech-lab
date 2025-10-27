@@ -1,59 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ExternalLink, Zap } from 'lucide-react';
-
-interface Technology {
-  id: string;
-  name: string;
-  icon: string;
-  gradient: string;
-  primaryColor: string;
-  description: string;
-  about: {
-    title: string;
-    content: string[];
-  };
-  features: {
-    title: string;
-    items: {
-      text: string;
-      color: string;
-    }[];
-  };
-  projects: {
-    title: string;
-    description: string;
-  }[];
-  hasDirectLinks?: boolean;
-  directLinks?: {
-    href: string;
-    text: string;
-    primary: boolean;
-  }[];
-  hasSmartParkingDemo?: boolean;
-}
+import { ArrowLeft, ExternalLink, Zap, Folder } from 'lucide-react';
+import { useTechnologies } from '@/hooks/useTechnologies';
 
 export default function TechnologiesPage() {
-  const [technologies, setTechnologies] = useState<Technology[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadTechnologies = async () => {
-      try {
-        const response = await fetch('/data/technologies.json');
-        const data = await response.json();
-        setTechnologies(data.technologies || []);
-      } catch (error) {
-        console.error('Error loading technologies:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadTechnologies();
-  }, []);
+  const { technologies, loading } = useTechnologies();
 
   if (loading) {
     return (
@@ -161,16 +113,56 @@ export default function TechnologiesPage() {
                 </div>
               </div>
 
-              {/* Proyectos */}
+              {/* Proyectos Vinculados */}
               <div className="mb-6">
-                <h3 className="text-sm font-semibold text-theme-text mb-2">
-                  Proyectos:
-                </h3>
-                <div className="text-xs text-theme-secondary">
-                  {tech.projects.length} proyecto
-                  {tech.projects.length !== 1 ? 's' : ''} implementado
-                  {tech.projects.length !== 1 ? 's' : ''}
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-semibold text-theme-text">
+                    Proyectos Vinculados:
+                  </h3>
+                  <div className="text-xs text-theme-accent font-medium">
+                    {tech.relatedProjects?.length || 0}
+                  </div>
                 </div>
+                
+                {tech.relatedProjects && tech.relatedProjects.length > 0 ? (
+                  <div className="space-y-2">
+                    {tech.relatedProjects.slice(0, 2).map((project: any) => (
+                      <Link
+                        key={project.id}
+                        href={`/projects/${project.id}`}
+                        className="block p-2 bg-theme-background rounded-md hover:bg-theme-accent/10 transition-colors"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-medium text-theme-text truncate">
+                            {project.title}
+                          </span>
+                          <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                            <div 
+                              className={`w-2 h-2 rounded-full ${
+                                project.status === 'completed' ? 'bg-green-500' :
+                                project.status === 'active' ? 'bg-blue-500' :
+                                project.status === 'paused' ? 'bg-yellow-500' :
+                                'bg-gray-500'
+                              }`}
+                            />
+                            <span className="text-xs text-theme-secondary">
+                              {project.progress}%
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                    {tech.relatedProjects.length > 2 && (
+                      <div className="text-xs text-theme-secondary text-center py-1">
+                        +{tech.relatedProjects.length - 2} proyecto{tech.relatedProjects.length > 3 ? 's' : ''} más
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-xs text-theme-secondary/70 italic text-center py-2">
+                    No hay proyectos vinculados
+                  </div>
+                )}
               </div>
 
               {/* Acciones */}
@@ -228,12 +220,12 @@ export default function TechnologiesPage() {
               <div className="text-center">
                 <div className="text-3xl font-bold text-theme-accent mb-2">
                   {technologies.reduce(
-                    (acc, tech) => acc + tech.projects.length,
+                    (acc: number, tech: any) => acc + (tech.relatedProjects?.length || 0),
                     0
                   )}
                 </div>
                 <div className="text-sm text-theme-secondary">
-                  Proyectos Activos
+                  Proyectos Vinculados
                 </div>
               </div>
               <div className="text-center">
