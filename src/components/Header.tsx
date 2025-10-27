@@ -7,7 +7,10 @@ export default function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-theme-bg/80 backdrop-blur-sm transition-colors duration-300">
       <div className="container mx-auto flex items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-3">
+        <Link
+          href="/"
+          className="flex items-center gap-3 transition-all hover:scale-105"
+        >
           <svg
             className="h-8 w-8 text-neon-pink"
             fill="currentColor"
@@ -19,7 +22,7 @@ export default function Header() {
           <h2 className="text-xl font-bold font-montserrat text-theme-text">
             OTI UNI Tech Lab
           </h2>
-        </div>
+        </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
           <Link
