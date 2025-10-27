@@ -54,7 +54,7 @@ export default function Home() {
                       href="/inventory"
                       className="inline-block rounded-md bg-neon-pink px-8 py-3 text-lg font-bold text-white shadow-lg shadow-neon-pink/40 transition-all hover:scale-105 hover:shadow-neon-pink"
                     >
-                      Explorar Proyectos
+                      Explorar Inventario
                     </Link>
                   </div>
                 </div>

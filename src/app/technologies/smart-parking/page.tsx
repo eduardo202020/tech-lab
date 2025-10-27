@@ -266,29 +266,181 @@ export default function SmartParkingPage() {
           </div>
         </div>
 
-        {/* Call to Action */}
+        {/* Créditos del Proyecto */}
         <div className="mt-12 bg-gradient-to-r from-theme-accent/20 to-theme-secondary/20 rounded-lg p-8 border border-theme-border">
-          <div className="text-center">
+          <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-theme-text mb-4">
-              ¿Interesado en implementar Smart Parking?
+              Equipo de Desarrollo Smart Parking
             </h2>
-            <p className="text-theme-secondary mb-6 max-w-2xl mx-auto">
-              Nuestro sistema de gestión inteligente de estacionamientos puede
-              revolucionar la experiencia de parking en tu ciudad o empresa.
-              Contáctanos para más información.
+            <p className="text-theme-secondary max-w-2xl mx-auto">
+              Reconocimiento al talentoso equipo que hizo posible la
+              implementación de este sistema inteligente de gestión de
+              estacionamientos.
             </p>
-            <div className="flex flex-wrap gap-4 justify-center">
-              <Link
-                href="/contact"
-                className="px-6 py-3 bg-theme-accent text-white rounded-lg hover:bg-theme-accent/80 transition-colors font-medium"
-              >
-                Solicitar Demo
-              </Link>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Monitoreo UNI Campus */}
+            <div className="bg-theme-card/50 rounded-lg p-6 border border-theme-border/50">
+              <h3 className="text-lg font-semibold text-theme-text mb-3 flex items-center gap-2">
+                <Monitor size={20} className="text-theme-accent" />
+                Monitoreo UNI Campus
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
+                    <Cpu size={14} className="text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-theme-text font-medium text-sm">
+                      Dr. Eduardo Martínez
+                    </p>
+                    <p className="text-theme-secondary text-xs">
+                      Computer Vision Lead
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
+                    <Camera size={14} className="text-green-400" />
+                  </div>
+                  <div>
+                    <p className="text-theme-text font-medium text-sm">
+                      Ing. Ana Rodríguez
+                    </p>
+                    <p className="text-theme-secondary text-xs">
+                      IoT Systems Engineer
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-purple-500/20 rounded-full flex items-center justify-center">
+                    <Zap size={14} className="text-purple-400" />
+                  </div>
+                  <div>
+                    <p className="text-theme-text font-medium text-sm">
+                      Carlos Mendoza
+                    </p>
+                    <p className="text-theme-secondary text-xs">
+                      Backend Developer
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Smart City Integration */}
+            <div className="bg-theme-card/50 rounded-lg p-6 border border-theme-border/50">
+              <h3 className="text-lg font-semibold text-theme-text mb-3 flex items-center gap-2">
+                <MapPin size={20} className="text-theme-accent" />
+                Smart City Integration
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-orange-500/20 rounded-full flex items-center justify-center">
+                    <Shield size={14} className="text-orange-400" />
+                  </div>
+                  <div>
+                    <p className="text-theme-text font-medium text-sm">
+                      Mg. Sofia López
+                    </p>
+                    <p className="text-theme-secondary text-xs">
+                      Systems Architect
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-red-500/20 rounded-full flex items-center justify-center">
+                    <Monitor size={14} className="text-red-400" />
+                  </div>
+                  <div>
+                    <p className="text-theme-text font-medium text-sm">
+                      David Chen
+                    </p>
+                    <p className="text-theme-secondary text-xs">
+                      Frontend Specialist
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-cyan-500/20 rounded-full flex items-center justify-center">
+                    <Zap size={14} className="text-cyan-400" />
+                  </div>
+                  <div>
+                    <p className="text-theme-text font-medium text-sm">
+                      María García
+                    </p>
+                    <p className="text-theme-secondary text-xs">
+                      Data Scientist
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile App Companion */}
+            <div className="bg-theme-card/50 rounded-lg p-6 border border-theme-border/50">
+              <h3 className="text-lg font-semibold text-theme-text mb-3 flex items-center gap-2">
+                <Smartphone size={20} className="text-theme-accent" />
+                Mobile App Companion
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-pink-500/20 rounded-full flex items-center justify-center">
+                    <Smartphone size={14} className="text-pink-400" />
+                  </div>
+                  <div>
+                    <p className="text-theme-text font-medium text-sm">
+                      Roberto Silva
+                    </p>
+                    <p className="text-theme-secondary text-xs">
+                      Mobile Developer
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-yellow-500/20 rounded-full flex items-center justify-center">
+                    <Camera size={14} className="text-yellow-400" />
+                  </div>
+                  <div>
+                    <p className="text-theme-text font-medium text-sm">
+                      Lucía Herrera
+                    </p>
+                    <p className="text-theme-secondary text-xs">
+                      UX/UI Designer
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-indigo-500/20 rounded-full flex items-center justify-center">
+                    <Shield size={14} className="text-indigo-400" />
+                  </div>
+                  <div>
+                    <p className="text-theme-text font-medium text-sm">
+                      Alejandro Ruiz
+                    </p>
+                    <p className="text-theme-secondary text-xs">QA Engineer</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Agradecimientos */}
+          <div className="mt-8 pt-6 border-t border-theme-border/50 text-center">
+            <p className="text-theme-secondary text-sm">
+              Agradecimientos especiales al{' '}
+              <span className="text-theme-accent font-medium">Tech Lab</span>
+              por facilitar la infraestructura y recursos necesarios para el
+              desarrollo.
+            </p>
+            <div className="mt-4">
               <Link
                 href="/technologies"
-                className="px-6 py-3 border border-theme-border text-theme-text rounded-lg hover:bg-theme-card transition-colors font-medium"
+                className="inline-flex items-center gap-2 text-theme-accent hover:text-theme-text transition-colors text-sm"
               >
-                Ver Más Tecnologías
+                <ArrowLeft size={16} />
+                Explorar más tecnologías
               </Link>
             </div>
           </div>
