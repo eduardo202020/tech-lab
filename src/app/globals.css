@@ -11,10 +11,11 @@
 :root,
 :root.light {
   --theme-bg: #f8fafc;
-  --theme-text: #0f172a;
-  --theme-secondary: #475569;
-  --theme-border: #cbd5e1;
+  --theme-text: #111827;
+  --theme-secondary: #374151;
+  --theme-border: #4b5563;
   --theme-card: #ffffff;
+  --theme-accent: #2563eb;
 }
 
 /* Tema oscuro */
@@ -22,8 +23,9 @@
   --theme-bg: #0f172a;
   --theme-text: #f1f5f9;
   --theme-secondary: #cbd5e1;
-  --theme-border: rgba(255, 255, 255, 0.1);
-  --theme-card: rgba(15, 23, 42, 0.6);
+  --theme-border: rgba(255, 255, 255, 0.2);
+  --theme-card: rgba(15, 23, 42, 0.8);
+  --theme-accent: #60a5fa;
 }
 
 @theme inline {
@@ -80,4 +82,83 @@ html {
 
 .animate-scroll:hover {
   animation-play-state: paused;
+}
+
+/* Ocultar scrollbar en modales */
+.modal-container {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.modal-container::-webkit-scrollbar {
+  display: none; /* WebKit */
+}
+
+/* Estilos específicos para modales - Fondo oscuro con texto claro */
+.modal-dark-bg {
+  background-color: rgba(15, 23, 42, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.modal-dark-bg .modal-header {
+  background-color: rgba(15, 23, 42, 0.98) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.modal-dark-bg .modal-content {
+  background-color: rgba(15, 23, 42, 0.95) !important;
+}
+
+/* Todos los textos dentro del modal */
+.modal-dark-bg h1,
+.modal-dark-bg h2,
+.modal-dark-bg h3,
+.modal-dark-bg h4,
+.modal-dark-bg h5,
+.modal-dark-bg h6,
+.modal-dark-bg p,
+.modal-dark-bg span,
+.modal-dark-bg div,
+.modal-dark-bg .modal-text {
+  color: #f1f5f9 !important;
+}
+
+.modal-dark-bg .modal-secondary,
+.modal-dark-bg .text-theme-secondary {
+  color: #cbd5e1 !important;
+}
+
+/* Labels específicos */
+.modal-dark-bg label {
+  color: #e2e8f0 !important;
+}
+
+/* Inputs, selects y textareas */
+.modal-dark-bg input,
+.modal-dark-bg select,
+.modal-dark-bg textarea {
+  background-color: rgba(30, 41, 59, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: #f1f5f9 !important;
+}
+
+.modal-dark-bg input:focus,
+.modal-dark-bg select:focus,
+.modal-dark-bg textarea:focus {
+  --tw-ring-color: #60a5fa !important;
+  border-color: #60a5fa !important;
+}
+
+.modal-dark-bg input::placeholder,
+.modal-dark-bg textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Botones dentro del modal */
+.modal-dark-bg button:not(.gradient-button) {
+  color: #e2e8f0 !important;
+}
+
+.modal-dark-bg button:hover:not(.gradient-button) {
+  color: #f1f5f9 !important;
 }
