@@ -53,6 +53,12 @@ export default function Header() {
           </Link>
           <Link
             className="font-poppins text-sm font-medium text-theme-secondary transition-colors hover:text-theme-text"
+            href="/researchers"
+          >
+            Equipo
+          </Link>
+          <Link
+            className="font-poppins text-sm font-medium text-theme-secondary transition-colors hover:text-theme-text"
             href="/loans"
           >
             Préstamos
