@@ -1,47 +1,52 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   Search,
   Plus,
   Edit3,
   Trash2,
-  Filter,
   FolderOpen,
   Calendar,
   Users,
-  Target,
   TrendingUp,
   Eye,
   ExternalLink,
   GitBranch,
-  BookOpen,
   Clock,
-  AlertCircle,
   CheckCircle,
   Pause,
   Play,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects, TechProject } from '@/contexts/ProjectContext';
+import { useResearchers } from '@/contexts/ResearcherContext';
 import Header from '@/components/Header';
 import { AddProjectModal, ViewProjectModal } from '@/components/ProjectModals';
+import Link from 'next/link';
+import Image from 'next/image';
 
 export default function ProjectsPage() {
-  const router = useRouter();
-  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const {
     projects,
     addProject,
-    updateProject,
     deleteProject,
     searchProjects,
-    filterByCategory,
     filterByStatus,
-    filterByPriority,
     isLoading,
   } = useProjects();
+
+  const { researchers } = useResearchers();
+
+  // Función para obtener investigadores de un proyecto
+  const getProjectResearchers = (projectId: string) => {
+    return researchers.filter(
+      (researcher) =>
+        researcher.currentProjects.includes(projectId) ||
+        researcher.pastProjects.includes(projectId)
+    );
+  };
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -52,7 +57,6 @@ export default function ProjectsPage() {
     TechProject['priority'] | ''
   >('');
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState<TechProject | null>(
     null
@@ -96,7 +100,7 @@ export default function ProjectsPage() {
     searchProjects,
   ]);
 
-  if (authLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-theme-background flex items-center justify-center">
         <div className="text-theme-text">Verificando autenticación...</div>
@@ -417,6 +421,83 @@ export default function ProjectsPage() {
                       </span>
                     )}
                   </div>
+
+                  {/* Equipo de Investigadores */}
+                  {(() => {
+                    const projectResearchers = getProjectResearchers(
+                      project.id
+                    );
+                    return projectResearchers.length > 0 ? (
+                      <div className="mb-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Users className="w-4 h-4 text-theme-secondary" />
+                          <span className="text-sm font-medium text-theme-text">
+                            Equipo ({projectResearchers.length})
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="flex -space-x-2">
+                            {projectResearchers
+                              .slice(0, 4)
+                              .map((researcher) => (
+                                <Link
+                                  key={researcher.id}
+                                  href={`/researchers/${researcher.id}`}
+                                  className="relative group"
+                                >
+                                  {researcher.avatar ? (
+                                    <Image
+                                      src={researcher.avatar}
+                                      alt={researcher.name}
+                                      width={32}
+                                      height={32}
+                                      className="w-8 h-8 rounded-full border-2 border-theme-card hover:border-theme-accent transition-colors object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-8 h-8 rounded-full border-2 border-theme-card hover:border-theme-accent bg-theme-accent/10 flex items-center justify-center transition-colors">
+                                      <Users className="w-4 h-4 text-theme-accent" />
+                                    </div>
+                                  )}
+                                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-theme-background border border-theme-border rounded text-xs text-theme-text whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                    {researcher.name}
+                                    <br />
+                                    <span className="text-theme-secondary">
+                                      {researcher.projectRoles[project.id] ||
+                                        'Participante'}
+                                    </span>
+                                  </div>
+                                </Link>
+                              ))}
+                            {projectResearchers.length > 4 && (
+                              <div className="w-8 h-8 rounded-full border-2 border-theme-card bg-theme-secondary/10 flex items-center justify-center">
+                                <span className="text-xs text-theme-secondary font-medium">
+                                  +{projectResearchers.length - 4}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          <Link
+                            href={`/projects/${project.id}`}
+                            className="text-xs text-theme-accent hover:text-theme-text transition-colors ml-2"
+                          >
+                            Ver equipo completo →
+                          </Link>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mb-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Users className="w-4 h-4 text-theme-secondary" />
+                          <span className="text-sm font-medium text-theme-text">
+                            Equipo
+                          </span>
+                        </div>
+                        <p className="text-xs text-theme-secondary">
+                          No hay investigadores asignados
+                        </p>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 <div className="flex items-center gap-2 ml-4">
@@ -460,13 +541,13 @@ export default function ProjectsPage() {
                   {/* Botones Admin */}
                   {isAdmin && (
                     <>
+                      {/* Botón de edición temporalmente deshabilitado */}
                       <button
                         onClick={() => {
-                          setSelectedProject(project);
-                          setShowEditModal(true);
+                          alert('Función de edición en desarrollo');
                         }}
                         className="p-2 text-theme-secondary hover:text-theme-text hover:bg-theme-accent/10 rounded-lg transition-colors"
-                        title="Editar"
+                        title="Editar (próximamente)"
                       >
                         <Edit3 className="w-4 h-4" />
                       </button>

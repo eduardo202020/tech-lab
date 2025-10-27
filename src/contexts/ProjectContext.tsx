@@ -63,7 +63,7 @@ const INITIAL_PROJECTS: TechProject[] = [
     status: 'active',
     priority: 'high',
     startDate: '2024-09-01',
-    teamLead: 'Eduardo Martínez',
+    teamLead: 'Eduardo Guevara Lázaro',
     teamMembers: ['Ana García', 'Carlos López', 'María Rodríguez'],
     budget: 15000,
     progress: 85,
