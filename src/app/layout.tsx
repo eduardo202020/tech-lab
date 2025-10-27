@@ -10,6 +10,7 @@ import './globals.css';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { InventoryProvider } from '@/contexts/InventoryContext';
+import { ProjectProvider } from '@/contexts/ProjectContext';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -80,7 +81,11 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <AuthProvider>
-            <InventoryProvider>{children}</InventoryProvider>
+            <InventoryProvider>
+              <ProjectProvider>
+                {children}
+              </ProjectProvider>
+            </InventoryProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
