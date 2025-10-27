@@ -11,6 +11,7 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { InventoryProvider } from '@/contexts/InventoryContext';
 import { ProjectProvider } from '@/contexts/ProjectContext';
+import { ResearcherProvider } from '@/contexts/ResearcherContext';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -83,7 +84,7 @@ export default function RootLayout({
           <AuthProvider>
             <InventoryProvider>
               <ProjectProvider>
-                {children}
+                <ResearcherProvider>{children}</ResearcherProvider>
               </ProjectProvider>
             </InventoryProvider>
           </AuthProvider>
