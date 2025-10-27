@@ -44,11 +44,8 @@ export default function InventoryPage() {
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
   const [filteredItems, setFilteredItems] = useState<InventoryItem[]>(items);
 
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isAuthenticated, authLoading, router]);
+  // Permitir acceso sin autenticación pero con funcionalidades limitadas
+  // No redirigir automáticamente al login
 
   useEffect(() => {
     let result = items;
@@ -76,10 +73,6 @@ export default function InventoryPage() {
     );
   }
 
-  if (!isAuthenticated) {
-    return null;
-  }
-
   const categories = [...new Set(items.map((item) => item.category))];
   const statuses: InventoryItem['status'][] = [
     'available',
@@ -88,7 +81,8 @@ export default function InventoryPage() {
     'damaged',
   ];
 
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = isAuthenticated && user?.role === 'admin';
+  const isLoggedIn = isAuthenticated && user;
 
   const getStatusIcon = (status: InventoryItem['status']) => {
     switch (status) {
@@ -135,14 +129,29 @@ export default function InventoryPage() {
           <p className="text-theme-secondary">
             {isAdmin
               ? 'Administra el inventario del Tech Lab'
-              : 'Consulta el inventario y solicita préstamos de equipos'}
+              : isAuthenticated
+                ? 'Consulta el inventario y solicita préstamos de equipos'
+                : 'Explora el inventario de equipos disponibles en el Tech Lab'}
           </p>
           {!isAdmin && (
             <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
               <p className="text-blue-400 text-sm">
-                <strong>Modo Usuario:</strong> Puedes ver detalles de equipos y
-                solicitar préstamos. Solo los administradores pueden modificar
-                el inventario.
+                {isAuthenticated ? (
+                  <>
+                    <strong>Modo Usuario:</strong> Puedes ver detalles de
+                    equipos y solicitar préstamos. Solo los administradores
+                    pueden modificar el inventario.
+                  </>
+                ) : (
+                  <>
+                    <strong>Modo Visitante:</strong> Puedes explorar el
+                    inventario.{' '}
+                    <a href="/login" className="underline hover:text-blue-300">
+                      Inicia sesión
+                    </a>{' '}
+                    para solicitar préstamos de equipos.
+                  </>
+                )}
               </p>
             </div>
           )}
@@ -302,18 +311,31 @@ export default function InventoryPage() {
                     <Eye className="w-4 h-4" />
                   </button>
 
-                  {/* Botón Pedir Prestado - Usuarios normales */}
-                  {!isAdmin && item.status === 'available' && (
-                    <button
-                      onClick={() => {
-                        // TODO: Implementar funcionalidad de préstamo
-                        alert('Funcionalidad de préstamo en desarrollo');
-                      }}
-                      className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-lg transition-colors"
-                      title="Pedir prestado"
+                  {/* Botón Pedir Prestado - Solo usuarios autenticados no admin */}
+                  {isAuthenticated &&
+                    !isAdmin &&
+                    item.status === 'available' && (
+                      <button
+                        onClick={() => {
+                          // TODO: Implementar funcionalidad de préstamo
+                          alert('Funcionalidad de préstamo en desarrollo');
+                        }}
+                        className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-lg transition-colors"
+                        title="Pedir prestado"
+                      >
+                        <Clock className="w-4 h-4" />
+                      </button>
+                    )}
+
+                  {/* Botón Login para visitantes */}
+                  {!isAuthenticated && item.status === 'available' && (
+                    <a
+                      href="/login"
+                      className="p-2 text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10 rounded-lg transition-colors"
+                      title="Inicia sesión para solicitar préstamo"
                     >
                       <Clock className="w-4 h-4" />
-                    </button>
+                    </a>
                   )}
 
                   {/* Botones Editar y Eliminar - Solo administradores */}
