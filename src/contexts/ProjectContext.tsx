@@ -8,6 +8,7 @@ export interface TechProject {
   description: string;
   category: string;
   technologies: string[];
+  relatedTechnologyIds: string[]; // IDs de tecnologías vinculadas
   status: 'active' | 'completed' | 'paused' | 'planning';
   priority: 'low' | 'medium' | 'high' | 'critical';
   startDate: string;
@@ -39,6 +40,8 @@ interface ProjectContextType {
   filterByCategory: (category: string) => TechProject[];
   filterByStatus: (status: TechProject['status']) => TechProject[];
   filterByPriority: (priority: TechProject['priority']) => TechProject[];
+  getProjectsByTechnology: (technologyId: string) => TechProject[];
+  getTechnologiesForProject: (projectId: string) => string[];
   isLoading: boolean;
 }
 
@@ -60,6 +63,7 @@ const INITIAL_PROJECTS: TechProject[] = [
       'MongoDB',
       'WebSocket',
     ],
+    relatedTechnologyIds: ['smart-parking', 'esp32', 'ai', 'image-recognition'],
     status: 'active',
     priority: 'high',
     startDate: '2024-09-01',
@@ -95,6 +99,7 @@ const INITIAL_PROJECTS: TechProject[] = [
       'Laboratorio de reconocimiento de imágenes usando deep learning para clasificación automática',
     category: 'Artificial Intelligence',
     technologies: ['Python', 'TensorFlow', 'OpenCV', 'Flask', 'Docker', 'CUDA'],
+    relatedTechnologyIds: ['ai', 'image-recognition', 'machine-learning', 'cloud-computing'],
     status: 'completed',
     priority: 'high',
     startDate: '2024-06-01',
@@ -133,6 +138,7 @@ const INITIAL_PROJECTS: TechProject[] = [
       'IPFS',
       'Metamask',
     ],
+    relatedTechnologyIds: ['blockchain', 'cloud-computing'],
     status: 'planning',
     priority: 'medium',
     startDate: '2025-01-15',
@@ -258,6 +264,23 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     [projects]
   );
 
+  const getProjectsByTechnology = useCallback(
+    (technologyId: string) => {
+      return projects.filter((project) => 
+        project.relatedTechnologyIds.includes(technologyId)
+      );
+    },
+    [projects]
+  );
+
+  const getTechnologiesForProject = useCallback(
+    (projectId: string) => {
+      const project = projects.find(p => p.id === projectId);
+      return project ? project.relatedTechnologyIds : [];
+    },
+    [projects]
+  );
+
   const value: ProjectContextType = {
     projects,
     addProject,
@@ -268,6 +291,8 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     filterByCategory,
     filterByStatus,
     filterByPriority,
+    getProjectsByTechnology,
+    getTechnologiesForProject,
     isLoading,
   };
 
