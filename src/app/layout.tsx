@@ -8,6 +8,8 @@ import {
 } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { InventoryProvider } from '@/contexts/InventoryContext';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -76,7 +78,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} ${roboto.variable} ${poppins.variable} antialiased`}
       >
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <InventoryProvider>{children}</InventoryProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
