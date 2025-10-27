@@ -48,8 +48,14 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* CTA Button */}
-                  <div className="mt-12">
+                  {/* CTA Buttons */}
+                  <div className="mt-12 flex flex-col sm:flex-row gap-4">
+                    <Link
+                      href="/technologies"
+                      className="inline-block rounded-md bg-gradient-to-r from-bright-blue to-neon-pink px-8 py-3 text-lg font-bold text-white shadow-lg shadow-bright-blue/40 transition-all hover:scale-105 hover:shadow-bright-blue"
+                    >
+                      Explorar Tecnologías
+                    </Link>
                     <Link
                       href="/inventory"
                       className="inline-block rounded-md bg-neon-pink px-8 py-3 text-lg font-bold text-white shadow-lg shadow-neon-pink/40 transition-all hover:scale-105 hover:shadow-neon-pink"
