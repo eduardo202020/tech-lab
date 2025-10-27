@@ -36,7 +36,7 @@ export default function LoginPage() {
       const success = await login(username, password);
 
       if (success) {
-        router.push('/inventory');
+        router.push('/');
       } else {
         setLoginError('Credenciales incorrectas');
       }
