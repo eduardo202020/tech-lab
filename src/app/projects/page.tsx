@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   Search,
   Plus,
@@ -25,6 +26,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects, TechProject } from '@/contexts/ProjectContext';
+import { useTechnologies } from '@/hooks/useTechnologies';
 import Header from '@/components/Header';
 import { AddProjectModal, ViewProjectModal } from '@/components/ProjectModals';
 
@@ -427,10 +429,19 @@ export default function ProjectsPage() {
                       setShowViewModal(true);
                     }}
                     className="p-2 text-theme-secondary hover:text-theme-text hover:bg-theme-accent/10 rounded-lg transition-colors"
-                    title="Ver detalles"
+                    title="Ver modal"
                   >
                     <Eye className="w-4 h-4" />
                   </button>
+
+                  {/* Enlace a página individual */}
+                  <Link
+                    href={`/projects/${project.id}`}
+                    className="p-2 text-theme-accent hover:text-theme-text hover:bg-theme-accent/10 rounded-lg transition-colors"
+                    title="Ver detalles completos"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                  </Link>
 
                   {/* Enlaces externos */}
                   {project.demoUrl && (
