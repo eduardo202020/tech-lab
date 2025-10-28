@@ -90,7 +90,6 @@ const INITIAL_PROJECTS: TechProject[] = [
       'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
       'https://images.unsplash.com/photo-1558618047-3c8c76ca7a1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
     ],
-    demoUrl: '/projects/1',
     repositoryUrl: 'https://github.com/techlab/smart-parking',
     documentation: 'Documentación completa disponible en el repositorio',
     createdAt: '2024-09-01T10:00:00Z',

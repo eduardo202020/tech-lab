@@ -181,8 +181,9 @@ export default function ProjectDetailPage() {
                   Simulación 3D en Tiempo Real
                 </h2>
                 <p className="text-theme-secondary mb-6">
-                  Visualización interactiva del sistema de estacionamiento inteligente que muestra 
-                  la ocupación de espacios en tiempo real utilizando tecnología IoT y sensores.
+                  Visualización interactiva del sistema de estacionamiento
+                  inteligente que muestra la ocupación de espacios en tiempo
+                  real utilizando tecnología IoT y sensores.
                 </p>
                 <div className="bg-theme-background rounded-lg p-4 border border-theme-border">
                   <SmartParkingViewer />
