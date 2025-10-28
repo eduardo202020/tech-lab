@@ -4,7 +4,6 @@ import { Canvas } from '@react-three/fiber';
 import {
   OrbitControls,
   useGLTF,
-  Environment,
   ContactShadows,
 } from '@react-three/drei';
 import { Suspense } from 'react';
@@ -49,8 +48,11 @@ export default function Model3DViewer() {
             color="#00ffff"
           />
 
-          {/* Subtle environment for soft reflections */}
-          <Environment preset="dawn" />
+          {/* Custom environment lighting - no external dependencies */}
+          <ambientLight intensity={0.4} color="#ffffff" />
+          <hemisphereLight
+            args={['#87CEEB', '#654321', 0.6]} // sky color, ground color, intensity
+          />
 
           {/* Contact Shadows */}
           <ContactShadows
