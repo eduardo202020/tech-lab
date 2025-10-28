@@ -11,13 +11,13 @@ export function useAuthRedirect() {
   // Función para redirigir al login guardando la ruta actual
   const redirectToLogin = (currentPath?: string) => {
     const pathToSave = currentPath || pathname;
-    
+
     // No guardar ciertas rutas como redirect
     const excludePaths = ['/login', '/'];
     if (!excludePaths.includes(pathToSave)) {
       setRedirectPath(pathToSave);
     }
-    
+
     router.push('/login');
   };
 
@@ -25,7 +25,7 @@ export function useAuthRedirect() {
   const redirectAfterLogin = () => {
     const savedPath = getRedirectPath();
     clearRedirectPath();
-    
+
     if (savedPath && savedPath !== '/login') {
       router.push(savedPath);
     } else {

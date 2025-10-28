@@ -13,12 +13,12 @@ interface AuthAwareLinkProps {
   onClick?: () => void;
 }
 
-export default function AuthAwareLink({ 
-  href, 
-  children, 
-  className, 
+export default function AuthAwareLink({
+  href,
+  children,
+  className,
   requireAuth = false,
-  onClick
+  onClick,
 }: AuthAwareLinkProps) {
   const { isAuthenticated } = useAuth();
   const { redirectToLogin } = useAuthRedirect();
@@ -27,7 +27,7 @@ export default function AuthAwareLink({
     if (onClick) {
       onClick();
     }
-    
+
     if (requireAuth && !isAuthenticated) {
       e.preventDefault();
       redirectToLogin(href);

@@ -1,49 +1,38 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   Search,
   Plus,
-  Edit3,
   Trash2,
-  Filter,
   FolderOpen,
   Calendar,
   Users,
-  Target,
   TrendingUp,
   Eye,
   ExternalLink,
   GitBranch,
-  BookOpen,
   Clock,
-  AlertCircle,
   CheckCircle,
   Pause,
   Play,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects, TechProject } from '@/contexts/ProjectContext';
-import { useTechnologies } from '@/hooks/useTechnologies';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import Header from '@/components/Header';
 import { AddProjectModal, ViewProjectModal } from '@/components/ProjectModals';
 
 export default function ProjectsPage() {
-  const router = useRouter();
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const { redirectToLogin } = useAuthRedirect();
   const {
     projects,
     addProject,
-    updateProject,
     deleteProject,
     searchProjects,
-    filterByCategory,
     filterByStatus,
-    filterByPriority,
     isLoading,
   } = useProjects();
 
@@ -56,7 +45,6 @@ export default function ProjectsPage() {
     TechProject['priority'] | ''
   >('');
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState<TechProject | null>(
     null
@@ -208,7 +196,7 @@ export default function ProjectsPage() {
               <p className="text-blue-400 text-sm">
                 <strong>Modo Público:</strong> Estás viendo los proyectos en
                 modo de solo lectura.
-                <button 
+                <button
                   onClick={handleLoginRedirect}
                   className="ml-1 underline hover:text-blue-300 cursor-pointer"
                 >
@@ -482,6 +470,7 @@ export default function ProjectsPage() {
                   {/* Botones Admin */}
                   {isAdmin && (
                     <>
+                      {/* TODO: Implementar modal de edición
                       <button
                         onClick={() => {
                           setSelectedProject(project);
@@ -492,6 +481,7 @@ export default function ProjectsPage() {
                       >
                         <Edit3 className="w-4 h-4" />
                       </button>
+                      */}
                       <button
                         onClick={() => deleteProject(project.id)}
                         className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"

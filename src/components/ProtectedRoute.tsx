@@ -9,13 +9,13 @@ interface ProtectedRouteProps {
   fallback?: ReactNode;
 }
 
-export default function ProtectedRoute({ 
-  children, 
+export default function ProtectedRoute({
+  children,
   fallback = (
     <div className="min-h-screen bg-theme-background flex items-center justify-center">
       <div className="text-theme-text">Redirigiendo al login...</div>
     </div>
-  )
+  ),
 }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading } = useAuth();
   const { redirectToLogin } = useAuthRedirect();

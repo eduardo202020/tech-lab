@@ -1,13 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   Search,
   Plus,
   Edit3,
   Trash2,
-  Filter,
   Package,
   AlertCircle,
   CheckCircle,
@@ -21,7 +19,6 @@ import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import Header from '@/components/Header';
 
 export default function InventoryPage() {
-  const router = useRouter();
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const { redirectToLogin } = useAuthRedirect();
   const {
@@ -30,7 +27,6 @@ export default function InventoryPage() {
     updateItem,
     deleteItem,
     searchItems,
-    filterByCategory,
     filterByStatus,
     isLoading,
   } = useInventory();
@@ -47,7 +43,7 @@ export default function InventoryPage() {
   const [filteredItems, setFilteredItems] = useState<InventoryItem[]>(items);
 
   // Permitir acceso sin autenticación pero con funcionalidades limitadas
-    // No permitir acceso sin autenticación
+  // No permitir acceso sin autenticación
   // No redirigir automáticamente al login
 
   // Función para manejar la redirección al login
@@ -91,7 +87,6 @@ export default function InventoryPage() {
   ];
 
   const isAdmin = isAuthenticated && user?.role === 'admin';
-  const isLoggedIn = isAuthenticated && user;
 
   const getStatusIcon = (status: InventoryItem['status']) => {
     switch (status) {
@@ -155,7 +150,7 @@ export default function InventoryPage() {
                   <>
                     <strong>Modo Visitante:</strong> Puedes explorar el
                     inventario.{' '}
-                    <button 
+                    <button
                       onClick={handleLoginRedirect}
                       className="underline hover:text-blue-300 cursor-pointer"
                     >
