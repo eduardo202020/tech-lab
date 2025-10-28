@@ -6,7 +6,6 @@ import {
   ArrowLeft,
   Mail,
   Phone,
-  MapPin,
   Calendar,
   Award,
   BookOpen,

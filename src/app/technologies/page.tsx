@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink, Zap } from 'lucide-react';
-import { useTechnologies } from '@/hooks/useTechnologies';
+import { useTechnologies, Technology } from '@/hooks/useTechnologies';
 
 export default function TechnologiesPage() {
   const { technologies, loading } = useTechnologies();
@@ -118,35 +118,44 @@ export default function TechnologiesPage() {
 
                 {tech.relatedProjects && tech.relatedProjects.length > 0 ? (
                   <div className="space-y-2">
-                    {tech.relatedProjects.slice(0, 2).map((project: any) => (
-                      <Link
-                        key={project.id}
-                        href={`/projects/${project.id}`}
-                        className="block p-2 bg-theme-background rounded-md hover:bg-theme-accent/10 transition-colors"
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-medium text-theme-text truncate">
-                            {project.title}
-                          </span>
-                          <div className="flex items-center gap-2 ml-2 flex-shrink-0">
-                            <div
-                              className={`w-2 h-2 rounded-full ${
-                                project.status === 'completed'
-                                  ? 'bg-green-500'
-                                  : project.status === 'active'
-                                    ? 'bg-blue-500'
-                                    : project.status === 'paused'
-                                      ? 'bg-yellow-500'
-                                      : 'bg-gray-500'
-                              }`}
-                            />
-                            <span className="text-xs text-theme-secondary">
-                              {project.progress}%
-                            </span>
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
+                    {tech.relatedProjects
+                      .slice(0, 2)
+                      .map(
+                        (project: {
+                          id: string;
+                          title: string;
+                          status: string;
+                          progress: number;
+                        }) => (
+                          <Link
+                            key={project.id}
+                            href={`/projects/${project.id}`}
+                            className="block p-2 bg-theme-background rounded-md hover:bg-theme-accent/10 transition-colors"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-medium text-theme-text truncate">
+                                {project.title}
+                              </span>
+                              <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                                <div
+                                  className={`w-2 h-2 rounded-full ${
+                                    project.status === 'completed'
+                                      ? 'bg-green-500'
+                                      : project.status === 'active'
+                                        ? 'bg-blue-500'
+                                        : project.status === 'paused'
+                                          ? 'bg-yellow-500'
+                                          : 'bg-gray-500'
+                                  }`}
+                                />
+                                <span className="text-xs text-theme-secondary">
+                                  {project.progress}%
+                                </span>
+                              </div>
+                            </div>
+                          </Link>
+                        )
+                      )}
                     {tech.relatedProjects.length > 2 && (
                       <div className="text-xs text-theme-secondary text-center py-1">
                         +{tech.relatedProjects.length - 2} proyecto
@@ -206,7 +215,7 @@ export default function TechnologiesPage() {
               <div className="text-center">
                 <div className="text-3xl font-bold text-theme-accent mb-2">
                   {technologies.reduce(
-                    (acc: number, tech: any) =>
+                    (acc: number, tech: Technology) =>
                       acc + (tech.relatedProjects?.length || 0),
                     0
                   )}

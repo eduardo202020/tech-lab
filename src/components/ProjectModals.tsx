@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { X, Calendar, Users, Target, Upload, Link as LinkIcon, Image } from 'lucide-react';
+import { useState } from 'react';
+import { X, Target, Link as LinkIcon } from 'lucide-react';
 import { TechProject } from '@/contexts/ProjectContext';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -12,7 +12,11 @@ interface AddProjectModalProps {
   onAdd: (project: Omit<TechProject, 'id' | 'createdAt' | 'updatedAt'>) => void;
 }
 
-export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps) {
+export function AddProjectModal({
+  isOpen,
+  onClose,
+  onAdd,
+}: AddProjectModalProps) {
   const { user } = useAuth();
   const [formData, setFormData] = useState({
     title: '',
@@ -33,7 +37,8 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
     demoUrl: '',
     repositoryUrl: '',
     documentation: '',
-    createdBy: user?.username || 'admin'
+    relatedTechnologyIds: [] as string[],
+    createdBy: user?.username || 'admin',
   });
 
   const [currentTech, setCurrentTech] = useState('');
@@ -66,17 +71,21 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
         demoUrl: '',
         repositoryUrl: '',
         documentation: '',
-        createdBy: user?.username || 'admin'
+        relatedTechnologyIds: [],
+        createdBy: user?.username || 'admin',
       });
       onClose();
     }
   };
 
   const addTechnology = () => {
-    if (currentTech.trim() && !formData.technologies.includes(currentTech.trim())) {
+    if (
+      currentTech.trim() &&
+      !formData.technologies.includes(currentTech.trim())
+    ) {
       setFormData({
         ...formData,
-        technologies: [...formData.technologies, currentTech.trim()]
+        technologies: [...formData.technologies, currentTech.trim()],
       });
       setCurrentTech('');
     }
@@ -85,7 +94,7 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
   const removeTechnology = (index: number) => {
     setFormData({
       ...formData,
-      technologies: formData.technologies.filter((_, i) => i !== index)
+      technologies: formData.technologies.filter((_, i) => i !== index),
     });
   };
 
@@ -93,7 +102,7 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
     if (currentObjective.trim()) {
       setFormData({
         ...formData,
-        objectives: [...formData.objectives, currentObjective.trim()]
+        objectives: [...formData.objectives, currentObjective.trim()],
       });
       setCurrentObjective('');
     }
@@ -102,7 +111,7 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
   const removeObjective = (index: number) => {
     setFormData({
       ...formData,
-      objectives: formData.objectives.filter((_, i) => i !== index)
+      objectives: formData.objectives.filter((_, i) => i !== index),
     });
   };
 
@@ -110,7 +119,7 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
     if (currentChallenge.trim()) {
       setFormData({
         ...formData,
-        challenges: [...formData.challenges, currentChallenge.trim()]
+        challenges: [...formData.challenges, currentChallenge.trim()],
       });
       setCurrentChallenge('');
     }
@@ -119,15 +128,18 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
   const removeChallenge = (index: number) => {
     setFormData({
       ...formData,
-      challenges: formData.challenges.filter((_, i) => i !== index)
+      challenges: formData.challenges.filter((_, i) => i !== index),
     });
   };
 
   const addTeamMember = () => {
-    if (currentMember.trim() && !formData.teamMembers.includes(currentMember.trim())) {
+    if (
+      currentMember.trim() &&
+      !formData.teamMembers.includes(currentMember.trim())
+    ) {
       setFormData({
         ...formData,
-        teamMembers: [...formData.teamMembers, currentMember.trim()]
+        teamMembers: [...formData.teamMembers, currentMember.trim()],
       });
       setCurrentMember('');
     }
@@ -136,15 +148,18 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
   const removeTeamMember = (index: number) => {
     setFormData({
       ...formData,
-      teamMembers: formData.teamMembers.filter((_, i) => i !== index)
+      teamMembers: formData.teamMembers.filter((_, i) => i !== index),
     });
   };
 
   const addImage = () => {
-    if (currentImageUrl.trim() && !formData.gallery.includes(currentImageUrl.trim())) {
+    if (
+      currentImageUrl.trim() &&
+      !formData.gallery.includes(currentImageUrl.trim())
+    ) {
       setFormData({
         ...formData,
-        gallery: [...formData.gallery, currentImageUrl.trim()]
+        gallery: [...formData.gallery, currentImageUrl.trim()],
       });
       setCurrentImageUrl('');
     }
@@ -153,7 +168,7 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
   const removeImage = (index: number) => {
     setFormData({
       ...formData,
-      gallery: formData.gallery.filter((_, i) => i !== index)
+      gallery: formData.gallery.filter((_, i) => i !== index),
     });
   };
 
@@ -163,7 +178,9 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
     <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
       <div className="rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl backdrop-blur-sm modal-container modal-dark-bg">
         <div className="p-6 border-b modal-header flex justify-between items-center">
-          <h2 className="text-xl font-semibold modal-text">Crear Nuevo Proyecto</h2>
+          <h2 className="text-xl font-semibold modal-text">
+            Crear Nuevo Proyecto
+          </h2>
           <button
             onClick={onClose}
             className="text-theme-secondary hover:text-theme-text"
@@ -175,8 +192,10 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
         <form onSubmit={handleSubmit} className="p-6 space-y-6 modal-content">
           {/* Información Básica */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-theme-text">Información Básica</h3>
-            
+            <h3 className="text-lg font-medium text-theme-text">
+              Información Básica
+            </h3>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-theme-text mb-1">
@@ -186,7 +205,9 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
                   type="text"
                   required
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
                   placeholder="ej. Sistema de IA Avanzado"
                 />
@@ -200,7 +221,9 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
                   type="text"
                   required
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, category: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
                   placeholder="ej. Artificial Intelligence, IoT, Blockchain"
                 />
@@ -214,7 +237,9 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
               <textarea
                 required
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text h-24"
                 placeholder="Describe el objetivo y alcance del proyecto..."
               />
@@ -227,7 +252,12 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
                 </label>
                 <select
                   value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value as TechProject['status'] })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      status: e.target.value as TechProject['status'],
+                    })
+                  }
                   className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
                 >
                   <option value="planning">Planificación</option>
@@ -243,7 +273,12 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
                 </label>
                 <select
                   value={formData.priority}
-                  onChange={(e) => setFormData({ ...formData, priority: e.target.value as TechProject['priority'] })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      priority: e.target.value as TechProject['priority'],
+                    })
+                  }
                   className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
                 >
                   <option value="low">Baja</option>
@@ -262,7 +297,12 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
                   min="0"
                   max="100"
                   value={formData.progress}
-                  onChange={(e) => setFormData({ ...formData, progress: parseInt(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      progress: parseInt(e.target.value) || 0,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
                 />
               </div>
@@ -271,8 +311,10 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
 
           {/* Fechas y Equipo */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-theme-text">Fechas y Equipo</h3>
-            
+            <h3 className="text-lg font-medium text-theme-text">
+              Fechas y Equipo
+            </h3>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-theme-text mb-1">
@@ -281,7 +323,9 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
                 <input
                   type="date"
                   value={formData.startDate}
-                  onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, startDate: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
                 />
               </div>
@@ -293,7 +337,9 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
                 <input
                   type="date"
                   value={formData.endDate}
-                  onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, endDate: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
                 />
               </div>
@@ -306,7 +352,12 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
                   type="number"
                   min="0"
                   value={formData.budget}
-                  onChange={(e) => setFormData({ ...formData, budget: parseInt(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      budget: parseInt(e.target.value) || 0,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
                   placeholder="0"
                 />
@@ -320,7 +371,9 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
               <input
                 type="text"
                 value={formData.teamLead}
-                onChange={(e) => setFormData({ ...formData, teamLead: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, teamLead: e.target.value })
+                }
                 className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
                 placeholder="Nombre del líder del proyecto"
               />
@@ -338,7 +391,9 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
                   onChange={(e) => setCurrentMember(e.target.value)}
                   className="flex-1 px-3 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
                   placeholder="Nombre del miembro"
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTeamMember())}
+                  onKeyPress={(e) =>
+                    e.key === 'Enter' && (e.preventDefault(), addTeamMember())
+                  }
                 />
                 <button
                   type="button"
@@ -371,7 +426,7 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
           {/* Tecnologías */}
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-theme-text">Tecnologías</h3>
-            
+
             <div>
               <div className="flex gap-2 mb-2">
                 <input
@@ -380,7 +435,9 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
                   onChange={(e) => setCurrentTech(e.target.value)}
                   className="flex-1 px-3 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
                   placeholder="ej. React, Python, Arduino"
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTechnology())}
+                  onKeyPress={(e) =>
+                    e.key === 'Enter' && (e.preventDefault(), addTechnology())
+                  }
                 />
                 <button
                   type="button"
@@ -412,8 +469,10 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
 
           {/* Enlaces */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-theme-text">Enlaces y Recursos</h3>
-            
+            <h3 className="text-lg font-medium text-theme-text">
+              Enlaces y Recursos
+            </h3>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-theme-text mb-1">
@@ -422,7 +481,9 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
                 <input
                   type="url"
                   value={formData.demoUrl}
-                  onChange={(e) => setFormData({ ...formData, demoUrl: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, demoUrl: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
                   placeholder="https://demo.ejemplo.com"
                 />
@@ -435,7 +496,9 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
                 <input
                   type="url"
                   value={formData.repositoryUrl}
-                  onChange={(e) => setFormData({ ...formData, repositoryUrl: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, repositoryUrl: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
                   placeholder="https://github.com/usuario/proyecto"
                 />
@@ -448,7 +511,9 @@ export function AddProjectModal({ isOpen, onClose, onAdd }: AddProjectModalProps
               </label>
               <textarea
                 value={formData.documentation}
-                onChange={(e) => setFormData({ ...formData, documentation: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, documentation: e.target.value })
+                }
                 className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text h-20"
                 placeholder="Enlaces a documentación, papers, etc..."
               />
@@ -484,7 +549,11 @@ interface ViewProjectModalProps {
   project: TechProject | null;
 }
 
-export function ViewProjectModal({ isOpen, onClose, project }: ViewProjectModalProps) {
+export function ViewProjectModal({
+  isOpen,
+  onClose,
+  project,
+}: ViewProjectModalProps) {
   if (!isOpen || !project) return null;
 
   const statusLabels = {
@@ -506,7 +575,9 @@ export function ViewProjectModal({ isOpen, onClose, project }: ViewProjectModalP
       <div className="rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl backdrop-blur-sm modal-container modal-dark-bg">
         <div className="p-6 border-b modal-header flex justify-between items-center">
           <div>
-            <h2 className="text-xl font-semibold modal-text">{project.title}</h2>
+            <h2 className="text-xl font-semibold modal-text">
+              {project.title}
+            </h2>
             <p className="text-theme-secondary text-sm">{project.category}</p>
           </div>
           <button
@@ -520,7 +591,9 @@ export function ViewProjectModal({ isOpen, onClose, project }: ViewProjectModalP
         <div className="p-6 space-y-6 modal-content">
           {/* Información Principal */}
           <div>
-            <h3 className="text-lg font-medium text-theme-text mb-3">Descripción</h3>
+            <h3 className="text-lg font-medium text-theme-text mb-3">
+              Descripción
+            </h3>
             <p className="text-theme-secondary">{project.description}</p>
           </div>
 
@@ -528,23 +601,33 @@ export function ViewProjectModal({ isOpen, onClose, project }: ViewProjectModalP
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <span className="text-theme-secondary text-sm">Estado:</span>
-              <div className="text-theme-text font-medium">{statusLabels[project.status]}</div>
+              <div className="text-theme-text font-medium">
+                {statusLabels[project.status]}
+              </div>
             </div>
             <div>
               <span className="text-theme-secondary text-sm">Prioridad:</span>
-              <div className="text-theme-text font-medium">{priorityLabels[project.priority]}</div>
+              <div className="text-theme-text font-medium">
+                {priorityLabels[project.priority]}
+              </div>
             </div>
             <div>
               <span className="text-theme-secondary text-sm">Progreso:</span>
-              <div className="text-theme-text font-medium">{project.progress}%</div>
+              <div className="text-theme-text font-medium">
+                {project.progress}%
+              </div>
             </div>
           </div>
 
           {/* Barra de Progreso */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-theme-secondary">Progreso del Proyecto</span>
-              <span className="text-sm text-theme-text">{project.progress}%</span>
+              <span className="text-sm text-theme-secondary">
+                Progreso del Proyecto
+              </span>
+              <span className="text-sm text-theme-text">
+                {project.progress}%
+              </span>
             </div>
             <div className="w-full bg-theme-background rounded-full h-3">
               <div
@@ -560,11 +643,15 @@ export function ViewProjectModal({ isOpen, onClose, project }: ViewProjectModalP
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <span className="text-theme-secondary text-sm">Team Lead:</span>
-                <div className="text-theme-text font-medium">{project.teamLead}</div>
+                <div className="text-theme-text font-medium">
+                  {project.teamLead}
+                </div>
               </div>
               <div>
                 <span className="text-theme-secondary text-sm">Miembros:</span>
-                <div className="text-theme-text">{project.teamMembers.join(', ') || 'Sin miembros asignados'}</div>
+                <div className="text-theme-text">
+                  {project.teamMembers.join(', ') || 'Sin miembros asignados'}
+                </div>
               </div>
             </div>
           </div>
@@ -572,7 +659,9 @@ export function ViewProjectModal({ isOpen, onClose, project }: ViewProjectModalP
           {/* Tecnologías */}
           {project.technologies.length > 0 && (
             <div>
-              <h3 className="text-lg font-medium text-theme-text mb-3">Tecnologías</h3>
+              <h3 className="text-lg font-medium text-theme-text mb-3">
+                Tecnologías
+              </h3>
               <div className="flex flex-wrap gap-2">
                 {project.technologies.map((tech, index) => (
                   <span
@@ -589,7 +678,9 @@ export function ViewProjectModal({ isOpen, onClose, project }: ViewProjectModalP
           {/* Objetivos */}
           {project.objectives.length > 0 && (
             <div>
-              <h3 className="text-lg font-medium text-theme-text mb-3">Objetivos</h3>
+              <h3 className="text-lg font-medium text-theme-text mb-3">
+                Objetivos
+              </h3>
               <ul className="space-y-2">
                 {project.objectives.map((objective, index) => (
                   <li key={index} className="flex items-start gap-2">
@@ -630,7 +721,9 @@ export function ViewProjectModal({ isOpen, onClose, project }: ViewProjectModalP
           {/* Documentación */}
           {project.documentation && (
             <div>
-              <h3 className="text-lg font-medium text-theme-text mb-3">Documentación</h3>
+              <h3 className="text-lg font-medium text-theme-text mb-3">
+                Documentación
+              </h3>
               <p className="text-theme-secondary">{project.documentation}</p>
             </div>
           )}

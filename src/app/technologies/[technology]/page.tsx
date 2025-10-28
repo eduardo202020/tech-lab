@@ -157,19 +157,24 @@ export default function TechnologyPage() {
                   Casos de Uso Típicos
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {technology.projects.map((project: any, index: number) => (
-                    <div
-                      key={index}
-                      className="bg-black/20 rounded-lg p-4 border border-white/5"
-                    >
-                      <h4 className="font-medium text-white mb-2 text-sm">
-                        {project.title}
-                      </h4>
-                      <p className="text-light-gray/70 text-xs">
-                        {project.description}
-                      </p>
-                    </div>
-                  ))}
+                  {technology.projects.map(
+                    (
+                      project: { title: string; description: string },
+                      index: number
+                    ) => (
+                      <div
+                        key={index}
+                        className="bg-black/20 rounded-lg p-4 border border-white/5"
+                      >
+                        <h4 className="font-medium text-white mb-2 text-sm">
+                          {project.title}
+                        </h4>
+                        <p className="text-light-gray/70 text-xs">
+                          {project.description}
+                        </p>
+                      </div>
+                    )
+                  )}
                 </div>
               </div>
             )}
