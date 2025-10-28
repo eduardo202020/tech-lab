@@ -58,6 +58,25 @@ OTI UNI Tech Lab es una plataforma web moderna y futurista diseñada para la ges
   - 🔒 **Cybersecurity**: Seguridad informática
   - 📊 **Big Data**: Análisis de grandes volúmenes de datos
 
+### 📋 **Gestión de Proyectos** *(Nuevo)*
+
+- **Catálogo completo** de proyectos tecnológicos con información detallada
+- **Sistema de vinculación** bidireccional entre proyectos y tecnologías
+- **Páginas individuales** de proyectos con vista completa
+- **Componente RelatedTechnologies** reutilizable para mostrar vinculaciones
+- **Filtros avanzados** por categoría, estado y prioridad
+- **Búsqueda en tiempo real** con múltiples criterios
+- **Simulación 3D integrada** para proyectos con demos interactivos
+
+### 🎯 **Smart Parking System - Proyecto Destacado** *(Nuevo)*
+
+- **Simulación 3D en tiempo real** con React Three Fiber
+- **Visualización interactiva** de 12 espacios de estacionamiento (A0-A11)
+- **Estados de ocupación dinámicos** con colores diferenciados
+- **Controles de cámara 3D** para navegación inmersiva
+- **Integración completa** en la página del proyecto
+- **Tecnologías vinculadas**: ESP32, IA, Reconocimiento de Imágenes, Cloud Computing
+
 ### 🎨 **Sistema de Temas**
 
 - **Tema claro/oscuro** con transiciones suaves
@@ -65,11 +84,15 @@ OTI UNI Tech Lab es una plataforma web moderna y futurista diseñada para la ges
 - **Detección automática** de preferencias del sistema
 - **Variables CSS dinámicas** para consistencia visual
 
-### 🔐 **Autenticación**
+### 🔐 **Sistema de Autenticación Avanzado** *(Actualizado)*
 
 - **Sistema de login** con validación de formularios
 - **UI moderna** con efectos glassmorphism
 - **Manejo de estados** y validación en tiempo real
+- **🎯 Redirección inteligente** - El usuario vuelve automáticamente donde estaba antes del login
+- **Hook useAuthRedirect** personalizado para gestión de rutas
+- **Componentes ProtectedRoute y AuthAwareLink** para navegación segura
+- **Persistencia de rutas** en localStorage con limpieza automática
 
 ### 📞 **Página de Contacto**
 
@@ -96,6 +119,8 @@ OTI UNI Tech Lab es una plataforma web moderna y futurista diseñada para la ges
 - **Three.js** - Biblioteca para gráficos 3D
 - **@react-three/fiber** - Renderer React para Three.js
 - **@react-three/drei** - Utilidades adicionales para Three.js
+- **React Three Fiber Canvas** - Simulaciones 3D interactivas
+- **OrbitControls** - Controles de cámara 3D intuitivos
 
 ### **Fuentes y Tipografía**
 
@@ -104,9 +129,13 @@ OTI UNI Tech Lab es una plataforma web moderna y futurista diseñada para la ges
 
 ### **Gestión de Estado**
 
-- **React Context API** - Estado global de temas
-- **React Hooks** - useState, useEffect, useContext
-- **localStorage** - Persistencia de preferencias
+- **React Context API** - Estado global multiples contextos
+- **ThemeContext** - Gestión de temas claro/oscuro
+- **AuthContext** - Sistema de autenticación y redirección
+- **ProjectContext** - Gestión completa de proyectos
+- **InventoryContext** - Estado del inventario de equipos
+- **React Hooks** - useState, useEffect, useContext, hooks personalizados
+- **localStorage** - Persistencia de preferencias y rutas de redirección
 
 ## 📁 Estructura del Proyecto
 
@@ -122,20 +151,33 @@ tech-lab/
 │   │   ├── 📄 globals.css  # Estilos globales y variables CSS
 │   │   ├── 📁 contact/     # Página de contacto
 │   │   ├── 📁 inventory/   # Gestión de inventario
-│   │   ├── 📁 loans/       # Sistema de préstamos
-│   │   ├── 📁 login/       # Autenticación
+│   │   ├── 📁 loans/       # Sistema de préstamos  
+│   │   ├── 📁 login/       # Autenticación avanzada
+│   │   ├── 📁 projects/    # 🆕 Gestión de proyectos
+│   │   │   ├── 📄 page.tsx # Lista de proyectos
+│   │   │   └── 📁 [id]/    # Páginas individuales de proyectos
 │   │   ├── 📁 equipment/   # Detalles de equipos
 │   │   └── 📁 technologies/
-│   │       └── 📁 [technology]/ # Routing dinámico
+│   │       └── 📁 [technology]/ # Routing dinámico actualizado
 │   ├── 📁 components/      # Componentes reutilizables
 │   │   ├── 📄 Header.tsx   # Navegación principal
 │   │   ├── 📄 Footer.tsx   # Pie de página
-│   │   ├── 📄 ThemeToggle.tsx    # Selector de temas
-│   │   └── 📄 Model3DViewer.tsx  # Visor 3D
+│   │   ├── 📄 ThemeToggle.tsx       # Selector de temas
+│   │   ├── 📄 Model3DViewer.tsx     # Visor 3D
+│   │   ├── 📄 SmartParkingViewer.tsx # 🆕 Simulación 3D Smart Parking
+│   │   ├── 📄 RelatedTechnologies.tsx # 🆕 Componente de vinculaciones
+│   │   ├── 📄 ProtectedRoute.tsx    # 🆕 Rutas protegidas
+│   │   └── 📄 AuthAwareLink.tsx     # 🆕 Enlaces inteligentes
 │   ├── 📁 contexts/        # React Contexts
-│   │   └── 📄 ThemeContext.tsx   # Contexto de temas
+│   │   ├── 📄 ThemeContext.tsx      # Contexto de temas
+│   │   ├── 📄 AuthContext.tsx       # 🆕 Contexto de autenticación
+│   │   ├── 📄 ProjectContext.tsx    # 🆕 Contexto de proyectos
+│   │   └── � InventoryContext.tsx  # Contexto de inventario
+│   ├── �📁 hooks/           # 🆕 Hooks personalizados
+│   │   ├── 📄 useAuthRedirect.ts    # Hook de redirección inteligente
+│   │   └── 📄 useTechnologies.ts    # Hook para gestión de tecnologías
 │   └── 📁 data/           # Datos estáticos
-│       └── 📄 technologies.json  # Base de datos de tecnologías
+│       └── 📄 technologies.json     # Base de datos de tecnologías
 ├── 📄 tailwind.config.js  # Configuración de Tailwind
 ├── 📄 next.config.ts      # Configuración de Next.js
 └── 📄 package.json        # Dependencias del proyecto
@@ -289,6 +331,35 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 - GitHub: [@eduardo202020](https://github.com/eduardo202020)
 - LinkedIn: [Eduardo Guevara](https://www.linkedin.com/in/jhunior-guevara-889483162/)
 
+## 🆕 Novedades - Octubre 2025
+
+### **🎉 Nuevas Funcionalidades Implementadas**
+
+#### **📋 Sistema Completo de Gestión de Proyectos**
+- Catálogo integral con información detallada de cada proyecto
+- Sistema de vinculación bidireccional con tecnologías
+- Páginas individuales con vistas completas y organizadas
+- Componente reutilizable `RelatedTechnologies` para mostrar conexiones
+
+#### **🎯 Sistema de Redirección Inteligente**  
+- Los usuarios regresan automáticamente donde estaban antes del login
+- Hook personalizado `useAuthRedirect` para gestión de navegación
+- Componentes `ProtectedRoute` y `AuthAwareLink` para seguridad
+- Persistencia inteligente de rutas en localStorage
+
+#### **🚀 Smart Parking System - Proyecto Destacado**
+- Simulación 3D interactiva con React Three Fiber
+- 12 espacios de estacionamiento virtuales (A0-A11) 
+- Estados de ocupación en tiempo real con colores dinámicos
+- Controles de cámara 3D para navegación inmersiva
+- Integración completa en página individual del proyecto
+
+#### **🔧 Mejoras Técnicas**
+- Hooks personalizados para funcionalidades específicas
+- Limpieza completa de código (eliminación de imports/variables no usados)
+- Sistema de commits organizados con convenciones estándar
+- Navegación mejorada sin elementos duplicados
+
 ## 🙏 Reconocimientos
 
 - **Universidad Nacional de Ingeniería (UNI)** - Institución educativa
@@ -299,18 +370,30 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 
 ## 🔮 Roadmap Futuro
 
+### **✅ Versión 1.5 - Completada (Octubre 2025)**
+
+- [x] 📋 **Sistema de gestión de proyectos** completo
+- [x] 🎯 **Redirección inteligente** después del login  
+- [x] 🔗 **Sistema de vinculación** proyectos-tecnologías
+- [x] 🚀 **Simulación 3D Smart Parking** integrada
+- [x] 📄 **Páginas individuales** de proyectos detalladas
+- [x] 🔍 **Búsqueda y filtros** avanzados en proyectos
+- [x] 🛠️ **Hooks personalizados** para funcionalidades específicas
+
 ### **Versión 2.0**
 
-- [ ] 🔐 **Autenticación JWT** completa
-- [ ] 📊 **Dashboard administrativo** con métricas
+- [ ] 🔐 **Autenticación JWT** completa con roles avanzados
+- [ ] 📊 **Dashboard administrativo** con métricas en tiempo real
 - [ ] 📱 **App móvil** con React Native
 - [ ] 🔔 **Sistema de notificaciones** en tiempo real
-- [ ] 📈 **Analytics** y reportes avanzados
+- [ ] 📈 **Analytics** y reportes avanzados  
 - [ ] 🌐 **PWA** (Progressive Web App)
-- [ ] 🤖 **Chatbot IA** para soporte
-- [ ] 📦 **API REST** completa
+- [ ] 🤖 **Chatbot IA** para soporte técnico
+- [ ] 📦 **API REST** completa con documentación
 - [ ] 🧪 **Testing** automatizado (Jest, Cypress)
-- [ ] 🐳 **Dockerización** y CI/CD
+- [ ] 🐳 **Dockerización** y CI/CD pipeline
+- [ ] 📝 **Sistema de reservas** avanzado con calendario
+- [ ] 🎨 **Editor de simulaciones 3D** personalizable
 
 ---
 
