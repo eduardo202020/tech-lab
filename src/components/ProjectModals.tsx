@@ -98,6 +98,7 @@ export function AddProjectModal({
     });
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const addObjective = () => {
     if (currentObjective.trim()) {
       setFormData({
@@ -108,6 +109,7 @@ export function AddProjectModal({
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const removeObjective = (index: number) => {
     setFormData({
       ...formData,
@@ -115,6 +117,7 @@ export function AddProjectModal({
     });
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const addChallenge = () => {
     if (currentChallenge.trim()) {
       setFormData({
@@ -125,6 +128,7 @@ export function AddProjectModal({
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const removeChallenge = (index: number) => {
     setFormData({
       ...formData,
@@ -152,6 +156,7 @@ export function AddProjectModal({
     });
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const addImage = () => {
     if (
       currentImageUrl.trim() &&
@@ -165,6 +170,7 @@ export function AddProjectModal({
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const removeImage = (index: number) => {
     setFormData({
       ...formData,

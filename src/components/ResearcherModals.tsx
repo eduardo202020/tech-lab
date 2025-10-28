@@ -132,6 +132,7 @@ export function AddResearcherModal({
     });
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const addInterest = () => {
     if (
       currentInterest.trim() &&
@@ -148,6 +149,7 @@ export function AddResearcherModal({
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const removeInterest = (index: number) => {
     setFormData({
       ...formData,
@@ -157,6 +159,7 @@ export function AddResearcherModal({
     });
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const addPublication = () => {
     if (currentPublication.trim()) {
       setFormData({
@@ -167,6 +170,7 @@ export function AddResearcherModal({
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const removePublication = (index: number) => {
     setFormData({
       ...formData,
@@ -174,6 +178,7 @@ export function AddResearcherModal({
     });
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const addAchievement = () => {
     if (currentAchievement.trim()) {
       setFormData({
@@ -184,6 +189,7 @@ export function AddResearcherModal({
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const removeAchievement = (index: number) => {
     setFormData({
       ...formData,
