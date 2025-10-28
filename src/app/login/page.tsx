@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { LogIn, ArrowLeft } from 'lucide-react';
 import { useAuth, HARDCODED_CREDENTIALS } from '@/contexts/AuthContext';
+import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 
 export default function LoginPage() {
-  const router = useRouter();
   const { login, isAuthenticated, isLoading } = useAuth();
+  const { redirectAfterLogin } = useAuthRedirect();
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -17,9 +17,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
-      router.push('/inventory');
+      redirectAfterLogin();
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isLoading, redirectAfterLogin]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +36,7 @@ export default function LoginPage() {
       const success = await login(username, password);
 
       if (success) {
-        router.push('/');
+        redirectAfterLogin();
       } else {
         setLoginError('Credenciales incorrectas');
       }

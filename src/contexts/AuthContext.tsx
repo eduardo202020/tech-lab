@@ -22,6 +22,9 @@ interface AuthContextType {
   logout: () => void;
   isLoading: boolean;
   isAuthenticated: boolean;
+  setRedirectPath: (path: string) => void;
+  getRedirectPath: () => string | null;
+  clearRedirectPath: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -138,7 +141,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = () => {
     localStorage.removeItem('techlab_user');
+    localStorage.removeItem('techlab_redirect_path');
     setUser(null);
+  };
+
+  // Funciones para manejar la redirección
+  const setRedirectPath = (path: string) => {
+    localStorage.setItem('techlab_redirect_path', path);
+  };
+
+  const getRedirectPath = (): string | null => {
+    return localStorage.getItem('techlab_redirect_path');
+  };
+
+  const clearRedirectPath = () => {
+    localStorage.removeItem('techlab_redirect_path');
   };
 
   const value: AuthContextType = {
@@ -147,6 +164,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     logout,
     isLoading,
     isAuthenticated: !!user,
+    setRedirectPath,
+    getRedirectPath,
+    clearRedirectPath,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

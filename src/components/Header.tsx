@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { LogOut, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import ThemeToggle from './ThemeToggle';
 
 export default function Header() {

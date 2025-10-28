@@ -27,12 +27,14 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects, TechProject } from '@/contexts/ProjectContext';
 import { useTechnologies } from '@/hooks/useTechnologies';
+import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import Header from '@/components/Header';
 import { AddProjectModal, ViewProjectModal } from '@/components/ProjectModals';
 
 export default function ProjectsPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
+  const { redirectToLogin } = useAuthRedirect();
   const {
     projects,
     addProject,
@@ -64,6 +66,12 @@ export default function ProjectsPage() {
 
   // Permitir acceso sin autenticación pero con funcionalidades limitadas
   // No redirigir automáticamente al login
+
+  // Función para manejar la redirección al login
+  const handleLoginRedirect = (e: React.MouseEvent) => {
+    e.preventDefault();
+    redirectToLogin();
+  };
 
   useEffect(() => {
     let result = projects;
@@ -179,7 +187,7 @@ export default function ProjectsPage() {
     <div className="min-h-screen bg-theme-background">
       <Header />
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-4 py-8 pt-24">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-theme-text mb-2">
             {isAdmin
@@ -200,9 +208,12 @@ export default function ProjectsPage() {
               <p className="text-blue-400 text-sm">
                 <strong>Modo Público:</strong> Estás viendo los proyectos en
                 modo de solo lectura.
-                <a href="/login" className="ml-1 underline hover:text-blue-300">
+                <button 
+                  onClick={handleLoginRedirect}
+                  className="ml-1 underline hover:text-blue-300 cursor-pointer"
+                >
                   Inicia sesión
-                </a>{' '}
+                </button>{' '}
                 para acceder a funciones avanzadas.
               </p>
             </div>

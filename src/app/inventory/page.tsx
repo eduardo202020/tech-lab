@@ -17,11 +17,13 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useInventory, InventoryItem } from '@/contexts/InventoryContext';
+import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import Header from '@/components/Header';
 
 export default function InventoryPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
+  const { redirectToLogin } = useAuthRedirect();
   const {
     items,
     addItem,
@@ -45,7 +47,14 @@ export default function InventoryPage() {
   const [filteredItems, setFilteredItems] = useState<InventoryItem[]>(items);
 
   // Permitir acceso sin autenticación pero con funcionalidades limitadas
+    // No permitir acceso sin autenticación
   // No redirigir automáticamente al login
+
+  // Función para manejar la redirección al login
+  const handleLoginRedirect = (e: React.MouseEvent) => {
+    e.preventDefault();
+    redirectToLogin();
+  };
 
   useEffect(() => {
     let result = items;
@@ -146,9 +155,12 @@ export default function InventoryPage() {
                   <>
                     <strong>Modo Visitante:</strong> Puedes explorar el
                     inventario.{' '}
-                    <a href="/login" className="underline hover:text-blue-300">
+                    <button 
+                      onClick={handleLoginRedirect}
+                      className="underline hover:text-blue-300 cursor-pointer"
+                    >
                       Inicia sesión
-                    </a>{' '}
+                    </button>{' '}
                     para solicitar préstamos de equipos.
                   </>
                 )}
@@ -329,13 +341,13 @@ export default function InventoryPage() {
 
                   {/* Botón Login para visitantes */}
                   {!isAuthenticated && item.status === 'available' && (
-                    <a
-                      href="/login"
+                    <button
+                      onClick={handleLoginRedirect}
                       className="p-2 text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10 rounded-lg transition-colors"
                       title="Inicia sesión para solicitar préstamo"
                     >
                       <Clock className="w-4 h-4" />
-                    </a>
+                    </button>
                   )}
 
                   {/* Botones Editar y Eliminar - Solo administradores */}
