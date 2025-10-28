@@ -37,7 +37,6 @@ export interface Technology {
     text: string;
     primary: boolean;
   }[];
-  hasSmartParkingDemo?: boolean;
 }
 
 export function useTechnologies() {

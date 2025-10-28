@@ -412,65 +412,6 @@
                     "description": "Arquitectura modular para servicios independientes y escalables"
                 }
             ]
-        },
-        {
-            "id": "smart-parking",
-            "name": "Smart Parking",
-            "icon": "🅿️",
-            "gradient": "from-neon-pink to-bright-blue",
-            "primaryColor": "neon-pink",
-            "description": "Sistema inteligente de gestión de estacionamientos que utiliza visión por computadora, IoT y IA para monitorear espacios en tiempo real.",
-            "about": {
-                "title": "¿Qué es Smart Parking?",
-                "content": [
-                    "Smart Parking es un sistema avanzado que combina cámaras de seguridad, sensores IoT, y algoritmos de visión por computadora para detectar automáticamente la ocupación de espacios de estacionamiento.",
-                    "Utiliza modelos YOLO para detección de objetos y algoritmos de segmentación para identificar vehículos en tiempo real, enviando información actualizada sobre disponibilidad de espacios."
-                ]
-            },
-            "features": {
-                "title": "Características Principales",
-                "items": [
-                    {
-                        "text": "Detección automática con YOLO",
-                        "color": "neon-pink"
-                    },
-                    {
-                        "text": "Monitoreo en tiempo real 24/7",
-                        "color": "bright-blue"
-                    },
-                    {
-                        "text": "Visualización 3D interactiva",
-                        "color": "neon-pink"
-                    },
-                    {
-                        "text": "API REST para integración",
-                        "color": "bright-blue"
-                    },
-                    {
-                        "text": "Dashboard de administración",
-                        "color": "neon-pink"
-                    },
-                    {
-                        "text": "Notificaciones automáticas",
-                        "color": "bright-blue"
-                    }
-                ]
-            },
-            "projects": [
-                {
-                    "title": "Monitoreo UNI Campus",
-                    "description": "Sistema de control de estacionamientos del campus universitario con 120+ espacios monitoreados"
-                },
-                {
-                    "title": "Smart City Integration",
-                    "description": "Integración con sistemas municipales de gestión de tráfico y movilidad urbana"
-                },
-                {
-                    "title": "Mobile App Companion",
-                    "description": "Aplicación móvil para encontrar espacios disponibles y realizar reservas"
-                }
-            ],
-            "hasSmartParkingDemo": true
         }
     ]
 }

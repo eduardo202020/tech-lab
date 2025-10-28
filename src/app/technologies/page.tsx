@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, ExternalLink, Zap, Folder } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Zap } from 'lucide-react';
 import { useTechnologies } from '@/hooks/useTechnologies';
 
 export default function TechnologiesPage() {
@@ -76,13 +76,7 @@ export default function TechnologiesPage() {
                   </div>
                 </div>
 
-                {/* Badge especial para Smart Parking */}
-                {tech.hasSmartParkingDemo && (
-                  <div className="flex items-center gap-1 px-2 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-medium">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    3D Demo
-                  </div>
-                )}
+
               </div>
 
               {/* Descripción */}
@@ -168,23 +162,13 @@ export default function TechnologiesPage() {
               {/* Acciones */}
               <div className="flex gap-2">
                 {/* Enlace principal */}
-                {tech.hasSmartParkingDemo ? (
-                  <Link
-                    href={`/technologies/smart-parking`}
-                    className={`flex-1 bg-gradient-to-r ${tech.gradient} text-white text-sm font-medium px-4 py-2 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2`}
-                  >
-                    Ver Demo 3D
-                    <ExternalLink size={14} />
-                  </Link>
-                ) : (
-                  <Link
-                    href={`/technologies/${tech.id}`}
-                    className={`flex-1 bg-gradient-to-r ${tech.gradient} text-white text-sm font-medium px-4 py-2 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2`}
-                  >
-                    Ver Detalles
-                    <ExternalLink size={14} />
-                  </Link>
-                )}
+                <Link
+                  href={`/technologies/${tech.id}`}
+                  className={`flex-1 bg-gradient-to-r ${tech.gradient} text-white text-sm font-medium px-4 py-2 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2`}
+                >
+                  Ver Detalles
+                  <ExternalLink size={14} />
+                </Link>
 
                 {/* Enlace directo para tecnologías con sistemas */}
                 {tech.hasDirectLinks && tech.directLinks && (
@@ -208,7 +192,7 @@ export default function TechnologiesPage() {
             <h2 className="text-2xl font-bold text-theme-text mb-4">
               Ecosistema Tecnológico
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
               <div className="text-center">
                 <div className="text-3xl font-bold text-theme-accent mb-2">
                   {technologies.length}
@@ -226,17 +210,6 @@ export default function TechnologiesPage() {
                 </div>
                 <div className="text-sm text-theme-secondary">
                   Proyectos Vinculados
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-theme-accent mb-2">
-                  {
-                    technologies.filter((tech) => tech.hasSmartParkingDemo)
-                      .length
-                  }
-                </div>
-                <div className="text-sm text-theme-secondary">
-                  Demos Interactivos
                 </div>
               </div>
               <div className="text-center">

@@ -144,7 +144,7 @@ export default function Home() {
                   Cloud Computing
                 </Link>
                 <Link
-                  href="/technologies/smart-parking"
+                  href="/projects/1"
                   className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer relative"
                 >
                   🅿️ Smart Parking
@@ -176,7 +176,7 @@ export default function Home() {
                   Inteligencia Artificial
                 </Link>
                 <Link
-                  href="/technologies/smart-parking"
+                  href="/projects/1"
                   className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer relative"
                 >
                   🅿️ Smart Parking

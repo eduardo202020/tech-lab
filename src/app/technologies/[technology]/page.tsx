@@ -15,17 +15,7 @@ export default function TechnologyPage() {
 
   const technology = getTechnology(technologyId);
 
-  // Redirigir Smart Parking a su página especializada
-  if (technologyId === 'smart-parking') {
-    if (typeof window !== 'undefined') {
-      window.location.href = '/technologies/smart-parking';
-    }
-    return (
-      <div className="min-h-screen bg-dark-bg flex items-center justify-center">
-        <div className="text-white">Redirigiendo a Smart Parking...</div>
-      </div>
-    );
-  }
+
 
   if (loading) {
     return (
