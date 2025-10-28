@@ -11,9 +11,11 @@ import {
   ExternalLink,
   GitBranch,
   FileText,
+  Monitor,
 } from 'lucide-react';
 import { useProjects } from '@/contexts/ProjectContext';
 import RelatedTechnologies from '@/components/RelatedTechnologies';
+import SmartParkingViewer from '@/components/SmartParkingViewer';
 
 export default function ProjectDetailPage() {
   const params = useParams();
@@ -170,6 +172,34 @@ export default function ProjectDetailPage() {
                 ))}
               </ul>
             </div>
+
+            {/* Simulación 3D - Solo para Smart Parking System */}
+            {project.id === '1' && (
+              <div className="bg-theme-card rounded-xl p-6 border border-theme-border">
+                <h2 className="text-xl font-bold text-theme-text mb-4 flex items-center gap-2">
+                  <Monitor className="text-theme-accent" size={24} />
+                  Simulación 3D en Tiempo Real
+                </h2>
+                <p className="text-theme-secondary mb-6">
+                  Visualización interactiva del sistema de estacionamiento inteligente que muestra 
+                  la ocupación de espacios en tiempo real utilizando tecnología IoT y sensores.
+                </p>
+                <div className="bg-theme-background rounded-lg p-4 border border-theme-border">
+                  <SmartParkingViewer />
+                </div>
+                <div className="mt-4 text-sm text-theme-secondary">
+                  <p>
+                    <strong>Características de la simulación:</strong>
+                  </p>
+                  <ul className="mt-2 space-y-1 list-disc list-inside">
+                    <li>12 espacios de estacionamiento (A0-A11)</li>
+                    <li>Estado de ocupación en tiempo real</li>
+                    <li>Visualización 3D interactiva</li>
+                    <li>Colores diferenciados por disponibilidad</li>
+                  </ul>
+                </div>
+              </div>
+            )}
 
             {/* Tecnologías Vinculadas */}
             <RelatedTechnologies projectId={projectId} />

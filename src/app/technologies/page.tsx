@@ -75,8 +75,6 @@ export default function TechnologiesPage() {
                     </h2>
                   </div>
                 </div>
-
-
               </div>
 
               {/* Descripción */}
@@ -117,7 +115,7 @@ export default function TechnologiesPage() {
                     {tech.relatedProjects?.length || 0}
                   </div>
                 </div>
-                
+
                 {tech.relatedProjects && tech.relatedProjects.length > 0 ? (
                   <div className="space-y-2">
                     {tech.relatedProjects.slice(0, 2).map((project: any) => (
@@ -131,12 +129,15 @@ export default function TechnologiesPage() {
                             {project.title}
                           </span>
                           <div className="flex items-center gap-2 ml-2 flex-shrink-0">
-                            <div 
+                            <div
                               className={`w-2 h-2 rounded-full ${
-                                project.status === 'completed' ? 'bg-green-500' :
-                                project.status === 'active' ? 'bg-blue-500' :
-                                project.status === 'paused' ? 'bg-yellow-500' :
-                                'bg-gray-500'
+                                project.status === 'completed'
+                                  ? 'bg-green-500'
+                                  : project.status === 'active'
+                                    ? 'bg-blue-500'
+                                    : project.status === 'paused'
+                                      ? 'bg-yellow-500'
+                                      : 'bg-gray-500'
                               }`}
                             />
                             <span className="text-xs text-theme-secondary">
@@ -148,7 +149,8 @@ export default function TechnologiesPage() {
                     ))}
                     {tech.relatedProjects.length > 2 && (
                       <div className="text-xs text-theme-secondary text-center py-1">
-                        +{tech.relatedProjects.length - 2} proyecto{tech.relatedProjects.length > 3 ? 's' : ''} más
+                        +{tech.relatedProjects.length - 2} proyecto
+                        {tech.relatedProjects.length > 3 ? 's' : ''} más
                       </div>
                     )}
                   </div>
@@ -204,7 +206,8 @@ export default function TechnologiesPage() {
               <div className="text-center">
                 <div className="text-3xl font-bold text-theme-accent mb-2">
                   {technologies.reduce(
-                    (acc: number, tech: any) => acc + (tech.relatedProjects?.length || 0),
+                    (acc: number, tech: any) =>
+                      acc + (tech.relatedProjects?.length || 0),
                     0
                   )}
                 </div>

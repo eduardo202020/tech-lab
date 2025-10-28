@@ -15,8 +15,6 @@ export default function TechnologyPage() {
 
   const technology = getTechnology(technologyId);
 
-
-
   if (loading) {
     return (
       <div className="min-h-screen bg-dark-bg flex items-center justify-center">
@@ -91,8 +89,9 @@ export default function TechnologyPage() {
             <h2 className="font-bebas text-3xl font-bold text-white mb-8 text-center">
               Proyectos Vinculados con {technology.name}
             </h2>
-            
-            {technology.relatedProjects && technology.relatedProjects.length > 0 ? (
+
+            {technology.relatedProjects &&
+            technology.relatedProjects.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {technology.relatedProjects.map((project) => (
                   <Link
@@ -106,14 +105,19 @@ export default function TechnologyPage() {
                       </h3>
                       <ExternalLink className="w-4 h-4 text-light-gray/60 group-hover:text-white transition-colors" />
                     </div>
-                    
+
                     <div className="flex items-center gap-3 mb-3">
-                      <div className={`w-3 h-3 rounded-full ${
-                        project.status === 'completed' ? 'bg-green-500' :
-                        project.status === 'active' ? 'bg-blue-500' :
-                        project.status === 'paused' ? 'bg-yellow-500' :
-                        'bg-purple-500'
-                      }`}></div>
+                      <div
+                        className={`w-3 h-3 rounded-full ${
+                          project.status === 'completed'
+                            ? 'bg-green-500'
+                            : project.status === 'active'
+                              ? 'bg-blue-500'
+                              : project.status === 'paused'
+                                ? 'bg-yellow-500'
+                                : 'bg-purple-500'
+                        }`}
+                      ></div>
                       <span className="text-sm text-light-gray/80 capitalize">
                         {project.status}
                       </span>
@@ -121,7 +125,7 @@ export default function TechnologyPage() {
                         {project.progress}% completado
                       </span>
                     </div>
-                    
+
                     {/* Barra de progreso */}
                     <div className="w-full bg-white/10 rounded-full h-2">
                       <div
@@ -145,7 +149,7 @@ export default function TechnologyPage() {
                 </Link>
               </div>
             )}
-            
+
             {/* Proyectos del JSON original como ejemplos */}
             {technology.projects && technology.projects.length > 0 && (
               <div className="mt-12">
@@ -158,7 +162,9 @@ export default function TechnologyPage() {
                       key={index}
                       className="bg-black/20 rounded-lg p-4 border border-white/5"
                     >
-                      <h4 className="font-medium text-white mb-2 text-sm">{project.title}</h4>
+                      <h4 className="font-medium text-white mb-2 text-sm">
+                        {project.title}
+                      </h4>
                       <p className="text-light-gray/70 text-xs">
                         {project.description}
                       </p>
