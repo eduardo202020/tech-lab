@@ -77,7 +77,7 @@ export default function LoansPage() {
   const isAuthenticated = !!sbUser;
   const user = { role: profile?.role } as { role?: string };
   const [statusFilter, setStatusFilter] = useState('Todos');
-  
+
   // Variables disponibles para futuras funcionalidades
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const isAdmin = isAuthenticated && user.role === 'admin';

@@ -109,7 +109,7 @@ export default function Header() {
                   </div>
                 )}
               </div>
-              
+
               <div className="flex items-center gap-2 text-theme-text">
                 <User className="w-4 h-4" />
                 <span className="text-sm font-medium">

@@ -144,11 +144,11 @@ export default function EquipmentDetailPage({
 }: EquipmentDetailPageProps) {
   const { theme } = useTheme();
   const [id, setId] = React.useState<string>('');
-  
+
   React.useEffect(() => {
-    params.then(resolved => setId(resolved.id));
+    params.then((resolved) => setId(resolved.id));
   }, [params]);
-  
+
   const equipment = equipmentData.find((eq) => eq.id === id);
 
   if (!id) {

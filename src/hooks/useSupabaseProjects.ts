@@ -27,7 +27,7 @@ export interface SupabaseProject {
   created_by?: string;
   created_at: string;
   updated_at: string;
-  
+
   // Relaciones populadas
   researchers?: Array<{
     id: string;
@@ -35,7 +35,7 @@ export interface SupabaseProject {
     role: string;
     is_current: boolean;
   }>;
-  
+
   related_technologies?: Array<{
     id: string;
     name: string;
@@ -65,7 +65,8 @@ export function useSupabaseProjects() {
 
       const { data: projectsData, error: projectsError } = await supabase
         .from('projects')
-        .select(`
+        .select(
+          `
           *,
           project_researchers (
             researcher_id,
@@ -85,7 +86,8 @@ export function useSupabaseProjects() {
               icon
             )
           )
-        `)
+        `
+        )
         .order('created_at', { ascending: false });
 
       if (projectsError) {
@@ -93,23 +95,26 @@ export function useSupabaseProjects() {
       }
 
       // Transformar datos para que coincidan con la interfaz
-      const transformedProjects: SupabaseProject[] = projectsData?.map(project => ({
-        ...project,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        researchers: project.project_researchers?.map((pr: any) => ({
-          id: pr.researchers?.id || '',
-          name: pr.researchers?.name || '',
-          role: pr.role,
-          is_current: pr.is_current
-        })) || [],
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        related_technologies: project.project_technologies?.map((pt: any) => ({
-          id: pt.technologies?.id || '',
-          name: pt.technologies?.name || '',
-          icon: pt.technologies?.icon || '',
-          usage_type: pt.usage_type
-        })) || []
-      })) || [];
+      const transformedProjects: SupabaseProject[] =
+        projectsData?.map((project) => ({
+          ...project,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          researchers:
+            project.project_researchers?.map((pr: any) => ({
+              id: pr.researchers?.id || '',
+              name: pr.researchers?.name || '',
+              role: pr.role,
+              is_current: pr.is_current,
+            })) || [],
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          related_technologies:
+            project.project_technologies?.map((pt: any) => ({
+              id: pt.technologies?.id || '',
+              name: pt.technologies?.name || '',
+              icon: pt.technologies?.icon || '',
+              usage_type: pt.usage_type,
+            })) || [],
+        })) || [];
 
       setProjects(transformedProjects);
     } catch (err) {
@@ -121,11 +126,13 @@ export function useSupabaseProjects() {
   }, []);
 
   // Obtener proyecto por ID
-  const getProject = useCallback(async (id: string): Promise<SupabaseProject | null> => {
-    try {
-      const { data, error } = await supabase
-        .from('projects')
-        .select(`
+  const getProject = useCallback(
+    async (id: string): Promise<SupabaseProject | null> => {
+      try {
+        const { data, error } = await supabase
+          .from('projects')
+          .select(
+            `
           *,
           project_researchers (
             researcher_id,
@@ -149,157 +156,185 @@ export function useSupabaseProjects() {
               primary_color
             )
           )
-        `)
-        .eq('id', id)
-        .single();
+        `
+          )
+          .eq('id', id)
+          .single();
 
-      if (error) {
-        throw new Error(error.message);
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        if (!data) return null;
+
+        return {
+          ...data,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          researchers:
+            data.project_researchers?.map((pr: any) => ({
+              id: pr.researchers?.id || '',
+              name: pr.researchers?.name || '',
+              role: pr.role,
+              is_current: pr.is_current,
+            })) || [],
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          related_technologies:
+            data.project_technologies?.map((pt: any) => ({
+              id: pt.technologies?.id || '',
+              name: pt.technologies?.name || '',
+              icon: pt.technologies?.icon || '',
+              usage_type: pt.usage_type,
+            })) || [],
+        };
+      } catch (err) {
+        console.error('Error fetching project:', err);
+        return null;
       }
-
-      if (!data) return null;
-
-      return {
-        ...data,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        researchers: data.project_researchers?.map((pr: any) => ({
-          id: pr.researchers?.id || '',
-          name: pr.researchers?.name || '',
-          role: pr.role,
-          is_current: pr.is_current
-        })) || [],
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        related_technologies: data.project_technologies?.map((pt: any) => ({
-          id: pt.technologies?.id || '',
-          name: pt.technologies?.name || '',
-          icon: pt.technologies?.icon || '',
-          usage_type: pt.usage_type
-        })) || []
-      };
-    } catch (err) {
-      console.error('Error fetching project:', err);
-      return null;
-    }
-  }, []);
+    },
+    []
+  );
 
   // Filtrar proyectos
-  const filterProjects = useCallback((filters: ProjectFilters): SupabaseProject[] => {
-    return projects.filter(project => {
-      if (filters.status && project.status !== filters.status) return false;
-      if (filters.category && project.category !== filters.category) return false;
-      if (filters.priority && project.priority !== filters.priority) return false;
-      if (filters.technology && !project.related_technology_ids.includes(filters.technology)) return false;
-      if (filters.search) {
-        const searchTerm = filters.search.toLowerCase();
-        return (
-          project.title.toLowerCase().includes(searchTerm) ||
-          project.description.toLowerCase().includes(searchTerm) ||
-          project.category.toLowerCase().includes(searchTerm) ||
-          project.technologies.some(tech => tech.toLowerCase().includes(searchTerm))
-        );
-      }
-      return true;
-    });
-  }, [projects]);
+  const filterProjects = useCallback(
+    (filters: ProjectFilters): SupabaseProject[] => {
+      return projects.filter((project) => {
+        if (filters.status && project.status !== filters.status) return false;
+        if (filters.category && project.category !== filters.category)
+          return false;
+        if (filters.priority && project.priority !== filters.priority)
+          return false;
+        if (
+          filters.technology &&
+          !project.related_technology_ids.includes(filters.technology)
+        )
+          return false;
+        if (filters.search) {
+          const searchTerm = filters.search.toLowerCase();
+          return (
+            project.title.toLowerCase().includes(searchTerm) ||
+            project.description.toLowerCase().includes(searchTerm) ||
+            project.category.toLowerCase().includes(searchTerm) ||
+            project.technologies.some((tech) =>
+              tech.toLowerCase().includes(searchTerm)
+            )
+          );
+        }
+        return true;
+      });
+    },
+    [projects]
+  );
 
   // Obtener proyectos por tecnología
-  const getProjectsByTechnology = useCallback((technologyId: string): SupabaseProject[] => {
-    return projects.filter(project => 
-      project.related_technology_ids.includes(technologyId)
-    );
-  }, [projects]);
+  const getProjectsByTechnology = useCallback(
+    (technologyId: string): SupabaseProject[] => {
+      return projects.filter((project) =>
+        project.related_technology_ids.includes(technologyId)
+      );
+    },
+    [projects]
+  );
 
   // Crear proyecto
-  const createProject = useCallback(async (
-    projectData: Omit<SupabaseProject, 'id' | 'created_at' | 'updated_at'>
-  ): Promise<SupabaseProject | null> => {
-    try {
-      const { data, error } = await supabase
-        .from('projects')
-        .insert([projectData])
-        .select()
-        .single();
+  const createProject = useCallback(
+    async (
+      projectData: Omit<SupabaseProject, 'id' | 'created_at' | 'updated_at'>
+    ): Promise<SupabaseProject | null> => {
+      try {
+        const { data, error } = await supabase
+          .from('projects')
+          .insert([projectData])
+          .select()
+          .single();
 
-      if (error) {
-        throw new Error(error.message);
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        // Recargar la lista
+        await fetchProjects();
+
+        return data;
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error creando proyecto');
+        console.error('Error creating project:', err);
+        return null;
       }
-
-      // Recargar la lista
-      await fetchProjects();
-      
-      return data;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error creando proyecto');
-      console.error('Error creating project:', err);
-      return null;
-    }
-  }, [fetchProjects]);
+    },
+    [fetchProjects]
+  );
 
   // Actualizar proyecto
-  const updateProject = useCallback(async (
-    id: string, 
-    updates: Partial<SupabaseProject>
-  ): Promise<boolean> => {
-    try {
-      const { error } = await supabase
-        .from('projects')
-        .update(updates)
-        .eq('id', id);
+  const updateProject = useCallback(
+    async (id: string, updates: Partial<SupabaseProject>): Promise<boolean> => {
+      try {
+        const { error } = await supabase
+          .from('projects')
+          .update(updates)
+          .eq('id', id);
 
-      if (error) {
-        throw new Error(error.message);
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        // Recargar la lista
+        await fetchProjects();
+
+        return true;
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : 'Error actualizando proyecto'
+        );
+        console.error('Error updating project:', err);
+        return false;
       }
-
-      // Recargar la lista
-      await fetchProjects();
-      
-      return true;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error actualizando proyecto');
-      console.error('Error updating project:', err);
-      return false;
-    }
-  }, [fetchProjects]);
+    },
+    [fetchProjects]
+  );
 
   // Eliminar proyecto
-  const deleteProject = useCallback(async (id: string): Promise<boolean> => {
-    try {
-      const { error } = await supabase
-        .from('projects')
-        .delete()
-        .eq('id', id);
+  const deleteProject = useCallback(
+    async (id: string): Promise<boolean> => {
+      try {
+        const { error } = await supabase.from('projects').delete().eq('id', id);
 
-      if (error) {
-        throw new Error(error.message);
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        // Recargar la lista
+        await fetchProjects();
+
+        return true;
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : 'Error eliminando proyecto'
+        );
+        console.error('Error deleting project:', err);
+        return false;
       }
-
-      // Recargar la lista
-      await fetchProjects();
-      
-      return true;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error eliminando proyecto');
-      console.error('Error deleting project:', err);
-      return false;
-    }
-  }, [fetchProjects]);
+    },
+    [fetchProjects]
+  );
 
   // Obtener estadísticas
   const getProjectStats = useCallback(() => {
     const total = projects.length;
-    const active = projects.filter(p => p.status === 'active').length;
-    const completed = projects.filter(p => p.status === 'completed').length;
-    const avgProgress = projects.reduce((sum, p) => sum + p.progress, 0) / total || 0;
+    const active = projects.filter((p) => p.status === 'active').length;
+    const completed = projects.filter((p) => p.status === 'completed').length;
+    const avgProgress =
+      projects.reduce((sum, p) => sum + p.progress, 0) / total || 0;
 
     return {
       total,
       active,
       completed,
-      paused: projects.filter(p => p.status === 'paused').length,
-      planning: projects.filter(p => p.status === 'planning').length,
+      paused: projects.filter((p) => p.status === 'paused').length,
+      planning: projects.filter((p) => p.status === 'planning').length,
       avgProgress: Math.round(avgProgress),
-      categories: [...new Set(projects.map(p => p.category))].length,
-      technologies: [...new Set(projects.flatMap(p => p.technologies))].length
+      categories: [...new Set(projects.map((p) => p.category))].length,
+      technologies: [...new Set(projects.flatMap((p) => p.technologies))]
+        .length,
     };
   }, [projects]);
 
@@ -319,6 +354,6 @@ export function useSupabaseProjects() {
     createProject,
     updateProject,
     deleteProject,
-    getProjectStats
+    getProjectStats,
   };
 }

@@ -294,7 +294,9 @@ export default function ResearchersPage() {
             {/* Botón Agregar - Solo para administradores */}
             {isAdmin && (
               <button
-                onClick={() => alert('Funcionalidad de agregar investigador próximamente')}
+                onClick={() =>
+                  alert('Funcionalidad de agregar investigador próximamente')
+                }
                 className="flex items-center gap-2 bg-gradient-to-r from-neon-pink to-bright-blue text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
               >
                 <Plus className="w-4 h-4" />
