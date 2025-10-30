@@ -20,7 +20,7 @@ export default function AuthCallback() {
 
         if (data.session) {
           // Usuario autenticado exitosamente
-          router.push('/dashboard');
+          router.push('/');
         } else {
           // No hay sesión válida
           router.push('/login?error=no_session');
