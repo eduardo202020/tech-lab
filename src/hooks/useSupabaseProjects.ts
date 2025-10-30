@@ -98,16 +98,16 @@ export function useSupabaseProjects() {
       const transformedProjects: SupabaseProject[] =
         projectsData?.map((project) => ({
           ...project,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           researchers:
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             project.project_researchers?.map((pr: any) => ({
               id: pr.researchers?.id || '',
               name: pr.researchers?.name || '',
               role: pr.role,
               is_current: pr.is_current,
             })) || [],
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           related_technologies:
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             project.project_technologies?.map((pt: any) => ({
               id: pt.technologies?.id || '',
               name: pt.technologies?.name || '',
@@ -169,16 +169,16 @@ export function useSupabaseProjects() {
 
         return {
           ...data,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           researchers:
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             data.project_researchers?.map((pr: any) => ({
               id: pr.researchers?.id || '',
               name: pr.researchers?.name || '',
               role: pr.role,
               is_current: pr.is_current,
             })) || [],
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           related_technologies:
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             data.project_technologies?.map((pt: any) => ({
               id: pt.technologies?.id || '',
               name: pt.technologies?.name || '',
