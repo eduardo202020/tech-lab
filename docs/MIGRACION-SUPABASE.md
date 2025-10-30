@@ -95,7 +95,14 @@ Los nuevos hooks están disponibles:
 
 ### **Investigadores Iniciales**
 
-- **Eduardo Guevara Lázaro** - Líder de proyectos IoT y Web
+**Equipo Core Tech Lab Platform:**
+- **Jhunior Eduardo Guevara Lázaro** - Líder de Proyecto y Arquitecto Principal
+- **Renzo Quispe Villena** - Desarrollador Full Stack
+- **Diego Leandro Leon Francia** - Desarrollador Frontend Especializado  
+- **Albert Ken Argumedo Rosales** - Especialista Backend y APIs
+- **Jorge Luis Parishuñaña Ortega** - DevOps y Deployment Engineer
+
+**Investigadores Especializados:**
 - **Dra. Ana Silva** - Investigadora Principal IA
 - **Carlos López** - Desarrollador Senior Full Stack
 - **María Rodríguez** - Especialista Hardware IoT

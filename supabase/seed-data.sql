@@ -422,8 +422,8 @@ INSERT INTO public.projects (
  'Desarrollo Web',
  ARRAY['Next.js 15', 'React 19', 'TypeScript', 'Supabase', 'Tailwind CSS', 'Vercel'],
  ARRAY['web-platform'],
- 'active', 'critical', '2024-12-01', '2025-06-30', 'Eduardo Guevara Lázaro',
- ARRAY['Desarrolladores Full Stack', 'Diseñadores UX/UI', 'Especialistas en Seguridad'],
+ 'active', 'critical', '2024-12-01', '2025-06-30', 'Jhunior Eduardo Guevara Lázaro',
+ ARRAY['Renzo Quispe Villena', 'Diego Leandro Leon Francia', 'Albert Ken Argumedo Rosales', 'Jorge Luis Parishuñaña Ortega'],
  15000.00, 85,
  ARRAY[
    'Crear infraestructura web escalable',
@@ -455,7 +455,7 @@ INSERT INTO public.researchers (
 ) VALUES
 
 -- Investigador Principal - Eduardo Guevara
-('Eduardo Guevara Lázaro', 'eduardo.guevara.l@uni.edu.pe', 
+('Jhunior Eduardo Guevara Lázaro', 'eduardo.guevara.l@uni.edu.pe', 
  'https://media.licdn.com/dms/image/v2/D4E03AQFpAYoEscpQdA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1672683113167?e=1762992000&v=beta&t=ljLjvnPW8tKPSC8bY5ECvmpOHwJWU28-LwmUcoBABIk',
  'Estudiante de Ingeniería Electrónica - Líder de Proyectos', 'Ingeniería Electrónica',
  ARRAY['Sistemas Embebidos', 'Microcontroladores', 'IoT', 'Desarrollo Web', 'Gestión de Proyectos'],
@@ -602,7 +602,88 @@ INSERT INTO public.researchers (
    'Hackathon Blockchain Winner 2023',
    'Solidity Expert Certification'
  ],
- 4, 7, 3);
+ 4, 7, 3),
+
+-- Miembros del Equipo Tech Lab Platform
+('Renzo Quispe Villena', 'renzo.quispe@techlab.uni.edu.pe',
+ 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+ 'Desarrollador Full Stack', 'Ingeniería de Sistemas',
+ ARRAY['React', 'Node.js', 'TypeScript', 'Database Design', 'API Development'],
+ 'Desarrollador full stack especializado en tecnologías web modernas. Experto en React, Node.js y diseño de bases de datos. Miembro clave del equipo de desarrollo de la Plataforma Tech Lab.',
+ 'undergraduate', 'active', '2024-01-15', '+51 987 111 222',
+ 'https://linkedin.com/in/renzo-quispe-dev',
+ 'Universidad Nacional de Ingeniería', 'Ingeniería de Sistemas (en curso)',
+ ARRAY['Full Stack Development', 'Database Architecture', 'REST APIs', 'Web Performance Optimization'],
+ ARRAY[
+   'Modern Web Development Patterns (2024)',
+   'Database Optimization Techniques (2024)'
+ ],
+ ARRAY[
+   'Miembro destacado equipo Tech Lab',
+   'Especialista en arquitectura de datos',
+   'Contribuidor activo proyectos UNI'
+ ],
+ 3, 2, 2),
+
+('Diego Leandro Leon Francia', 'diego.leon@techlab.uni.edu.pe',
+ 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face',
+ 'Desarrollador Frontend Especializado', 'Ingeniería de Software',
+ ARRAY['React', 'Next.js', 'UI/UX Design', 'TypeScript', 'Responsive Design'],
+ 'Desarrollador frontend especializado en React y Next.js. Experto en diseño de interfaces de usuario y experiencia del usuario. Responsable del desarrollo de componentes reutilizables en la Plataforma Tech Lab.',
+ 'undergraduate', 'active', '2024-02-01', '+51 987 222 333',
+ 'https://linkedin.com/in/diego-leon-frontend',
+ 'Universidad Nacional de Ingeniería', 'Ingeniería de Software (en curso)',
+ ARRAY['Frontend Architecture', 'Component Design', 'User Experience', 'Performance Optimization'],
+ ARRAY[
+   'Component-Based Architecture in React (2024)',
+   'Modern Frontend Development Practices (2024)'
+ ],
+ ARRAY[
+   'Especialista en componentes React',
+   'Diseñador de interfaces UNI Tech Lab',
+   'Experto en optimización frontend'
+ ],
+ 2, 2, 2),
+
+('Albert Ken Argumedo Rosales', 'albert.argumedo@techlab.uni.edu.pe',
+ 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&h=150&fit=crop&crop=face',
+ 'Especialista en Backend y APIs', 'Ingeniería de Computación',
+ ARRAY['Node.js', 'Express', 'PostgreSQL', 'API Design', 'Microservices'],
+ 'Especialista en desarrollo backend y arquitectura de APIs. Experto en Node.js, bases de datos y microservicios. Responsable de la arquitectura backend de la Plataforma Tech Lab.',
+ 'undergraduate', 'active', '2024-01-20', '+51 987 333 444',
+ 'https://linkedin.com/in/albert-argumedo-backend',
+ 'Universidad Nacional de Ingeniería', 'Ingeniería de Computación (en curso)',
+ ARRAY['Backend Architecture', 'API Development', 'Database Design', 'Microservices Architecture'],
+ ARRAY[
+   'Microservices Architecture Patterns (2024)',
+   'RESTful API Best Practices (2024)'
+ ],
+ ARRAY[
+   'Arquitecto backend Tech Lab Platform',
+   'Especialista en APIs RESTful',
+   'Experto en PostgreSQL y Supabase'
+ ],
+ 2, 2, 2),
+
+('Jorge Luis Parishuñaña Ortega', 'jorge.parishunana@techlab.uni.edu.pe',
+ 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+ 'DevOps y Especialista en Deployment', 'Ingeniería de Sistemas',
+ ARRAY['DevOps', 'CI/CD', 'Docker', 'Vercel', 'Git Workflows'],
+ 'Especialista en DevOps y procesos de deployment. Experto en CI/CD, containerización y gestión de infraestructura. Responsable del deployment y mantenimiento de la Plataforma Tech Lab.',
+ 'undergraduate', 'active', '2024-01-10', '+51 987 444 555',
+ 'https://linkedin.com/in/jorge-parishunana-devops',
+ 'Universidad Nacional de Ingeniería', 'Ingeniería de Sistemas (en curso)',
+ ARRAY['DevOps Engineering', 'Continuous Integration', 'Infrastructure Management', 'Deployment Automation'],
+ ARRAY[
+   'Modern DevOps Practices for Web Applications (2024)',
+   'CI/CD Pipeline Optimization (2024)'
+ ],
+ ARRAY[
+   'DevOps Engineer Tech Lab Platform',
+   'Especialista en Vercel y deployment',
+   'Experto en automatización de procesos'
+ ],
+ 2, 2, 2);
 
 -- =============================================
 -- 4. INSERTAR RELACIONES PROYECTO-INVESTIGADOR
@@ -618,9 +699,26 @@ DECLARE
 BEGIN
     -- Eduardo Guevara en Plataforma Tech Lab (líder)
     SELECT id INTO project_id FROM public.projects WHERE title = 'Tech Lab Platform';
-    SELECT id INTO researcher_id FROM public.researchers WHERE name = 'Eduardo Guevara Lázaro';
+    SELECT id INTO researcher_id FROM public.researchers WHERE name = 'Jhunior Eduardo Guevara Lázaro';
     INSERT INTO public.project_researchers (project_id, researcher_id, role, is_current) 
     VALUES (project_id, researcher_id, 'Líder de Proyecto', true);
+
+    -- Equipo completo Plataforma Tech Lab
+    SELECT id INTO researcher_id FROM public.researchers WHERE name = 'Renzo Quispe Villena';
+    INSERT INTO public.project_researchers (project_id, researcher_id, role, is_current) 
+    VALUES (project_id, researcher_id, 'Desarrollador Full Stack', true);
+
+    SELECT id INTO researcher_id FROM public.researchers WHERE name = 'Diego Leandro Leon Francia';
+    INSERT INTO public.project_researchers (project_id, researcher_id, role, is_current) 
+    VALUES (project_id, researcher_id, 'Desarrollador Frontend', true);
+
+    SELECT id INTO researcher_id FROM public.researchers WHERE name = 'Albert Ken Argumedo Rosales';
+    INSERT INTO public.project_researchers (project_id, researcher_id, role, is_current) 
+    VALUES (project_id, researcher_id, 'Especialista Backend', true);
+
+    SELECT id INTO researcher_id FROM public.researchers WHERE name = 'Jorge Luis Parishuñaña Ortega';
+    INSERT INTO public.project_researchers (project_id, researcher_id, role, is_current) 
+    VALUES (project_id, researcher_id, 'DevOps Engineer', true);
 
     -- Dra. Ana Silva en Reconocimiento Facial (investigadora principal)
     SELECT id INTO project_id FROM public.projects WHERE title = 'Sistema de Acceso Inteligente';
