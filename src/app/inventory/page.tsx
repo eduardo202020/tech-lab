@@ -14,22 +14,69 @@ import {
   Eye,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useInventory, InventoryItem } from '@/contexts/InventoryContext';
+import {
+  useSupabaseEquipment,
+  SupabaseEquipment,
+} from '@/hooks/useSupabaseEquipment';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
+
+// Tipo legacy para compatibilidad
+type InventoryItem = SupabaseEquipment;
 import Header from '@/components/Header';
 
 export default function InventoryPage() {
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const { redirectToLogin } = useAuthRedirect();
   const {
-    items,
-    addItem,
-    updateItem,
-    deleteItem,
-    searchItems,
-    filterByStatus,
-    isLoading,
-  } = useInventory();
+    equipment: items,
+    createEquipment: addItem,
+    updateEquipment: updateItem,
+    deleteEquipment: deleteItem,
+    searchEquipment: searchItems,
+    fetchEquipment,
+    loading: isLoading,
+  } = useSupabaseEquipment();
+
+    // Funciones auxiliares para filtros
+  const filterByStatus = (condition: InventoryItem['condition']) => {
+    return items.filter(item => item.condition === condition);
+  };
+
+  // Wrapper para convertir datos legacy a Supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleAddItem = async (legacyData: any) => {
+    const supabaseData: Omit<
+      SupabaseEquipment,
+      'id' | 'created_at' | 'updated_at'
+    > = {
+      name: String(legacyData.name),
+      category: String(legacyData.category),
+      brand: legacyData.brand ? String(legacyData.brand) : undefined,
+      model: legacyData.model ? String(legacyData.model) : undefined,
+      serial_number: legacyData.serialNumber
+        ? String(legacyData.serialNumber)
+        : undefined,
+      status: legacyData.status as SupabaseEquipment['status'],
+      location: legacyData.location ? String(legacyData.location) : undefined,
+      description: legacyData.description
+        ? String(legacyData.description)
+        : undefined,
+      specifications: {},
+      purchase_date: legacyData.purchaseDate
+        ? String(legacyData.purchaseDate)
+        : undefined,
+      last_maintenance: legacyData.lastMaintenance
+        ? String(legacyData.lastMaintenance)
+        : undefined,
+      notes: legacyData.notes ? String(legacyData.notes) : undefined,
+      responsible_person: legacyData.assignedTo
+        ? String(legacyData.assignedTo)
+        : undefined,
+      created_by: user?.username || 'unknown',
+    };
+
+    await addItem(supabaseData);
+  };
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -242,7 +289,7 @@ export default function InventoryPage() {
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-400">
-                {filterByStatus('in-use').length}
+                {filterByStatus('in_use').length}
               </div>
               <div className="text-sm text-theme-secondary">En Uso</div>
             </div>
@@ -403,7 +450,7 @@ export default function InventoryPage() {
           <AddItemModal
             isOpen={showAddModal}
             onClose={() => setShowAddModal(false)}
-            onAdd={addItem}
+            onAdd={handleAddItem}
           />
         )}
 

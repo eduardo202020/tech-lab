@@ -1,7 +1,12 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useCallback, useMemo } from 'react';
+import {
+  useSupabaseProjects,
+  SupabaseProject,
+} from '@/hooks/useSupabaseProjects';
 
+// Interfaz legacy para mantener compatibilidad
 export interface TechProject {
   id: string;
   title: string;
@@ -32,9 +37,12 @@ interface ProjectContextType {
   projects: TechProject[];
   addProject: (
     project: Omit<TechProject, 'id' | 'createdAt' | 'updatedAt'>
-  ) => void;
-  updateProject: (id: string, updates: Partial<TechProject>) => void;
-  deleteProject: (id: string) => void;
+  ) => Promise<boolean>;
+  updateProject: (
+    id: string,
+    updates: Partial<TechProject>
+  ) => Promise<boolean>;
+  deleteProject: (id: string) => Promise<boolean>;
   getProject: (id: string) => TechProject | undefined;
   searchProjects: (query: string) => TechProject[];
   filterByCategory: (category: string) => TechProject[];
@@ -43,187 +51,160 @@ interface ProjectContextType {
   getProjectsByTechnology: (technologyId: string) => TechProject[];
   getTechnologiesForProject: (projectId: string) => string[];
   isLoading: boolean;
+  error: string | null;
+  refreshProjects: () => Promise<void>;
+}
+
+// Función para convertir SupabaseProject a TechProject
+function convertSupabaseProjectToLegacy(
+  supabaseProject: SupabaseProject
+): TechProject {
+  return {
+    id: supabaseProject.id,
+    title: supabaseProject.title,
+    description: supabaseProject.description,
+    category: supabaseProject.category,
+    technologies: supabaseProject.technologies,
+    relatedTechnologyIds: supabaseProject.related_technology_ids,
+    status: supabaseProject.status,
+    priority: supabaseProject.priority,
+    startDate: supabaseProject.start_date,
+    endDate: supabaseProject.end_date,
+    teamLead: supabaseProject.team_lead,
+    teamMembers: supabaseProject.team_members,
+    budget: supabaseProject.budget,
+    progress: supabaseProject.progress,
+    objectives: supabaseProject.objectives,
+    challenges: supabaseProject.challenges,
+    gallery: supabaseProject.gallery,
+    demoUrl: supabaseProject.demo_url,
+    repositoryUrl: supabaseProject.repository_url,
+    documentation: supabaseProject.documentation,
+    createdAt: supabaseProject.created_at,
+    updatedAt: supabaseProject.updated_at,
+    createdBy: supabaseProject.created_by || 'unknown',
+  };
+}
+
+// Función para convertir TechProject a datos para Supabase
+function convertLegacyProjectToSupabase(
+  legacyProject: Omit<TechProject, 'id' | 'createdAt' | 'updatedAt'>
+): Omit<
+  SupabaseProject,
+  'id' | 'created_at' | 'updated_at' | 'researchers' | 'related_technologies'
+> {
+  return {
+    title: legacyProject.title,
+    description: legacyProject.description,
+    category: legacyProject.category,
+    technologies: legacyProject.technologies,
+    related_technology_ids: legacyProject.relatedTechnologyIds,
+    status: legacyProject.status,
+    priority: legacyProject.priority,
+    start_date: legacyProject.startDate,
+    end_date: legacyProject.endDate,
+    team_lead: legacyProject.teamLead,
+    team_members: legacyProject.teamMembers,
+    budget: legacyProject.budget,
+    progress: legacyProject.progress,
+    objectives: legacyProject.objectives,
+    challenges: legacyProject.challenges || [],
+    gallery: legacyProject.gallery,
+    demo_url: legacyProject.demoUrl,
+    repository_url: legacyProject.repositoryUrl,
+    documentation: legacyProject.documentation,
+    created_by: legacyProject.createdBy,
+  };
 }
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
-
-// Proyectos de demostración
-const INITIAL_PROJECTS: TechProject[] = [
-  {
-    id: '1',
-    title: 'Smart Parking System',
-    description:
-      'Sistema inteligente de gestión de estacionamientos con sensores IoT y visualización en tiempo real',
-    category: 'IoT & Smart Cities',
-    technologies: [
-      'React',
-      'Node.js',
-      'Arduino',
-      'Sensores Ultrasónicos',
-      'MongoDB',
-      'WebSocket',
-    ],
-    relatedTechnologyIds: [
-      'esp32',
-      'ai',
-      'image-recognition',
-      'cloud-computing',
-    ],
-    status: 'active',
-    priority: 'high',
-    startDate: '2024-09-01',
-    teamLead: 'Eduardo Guevara Lázaro',
-    teamMembers: ['Ana García', 'Carlos López', 'María Rodríguez'],
-    budget: 15000,
-    progress: 85,
-    objectives: [
-      'Implementar sistema de detección de espacios libres',
-      'Crear dashboard web en tiempo real',
-      'Desarrollar app móvil para usuarios',
-      'Integrar sistema de pagos digitales',
-    ],
-    challenges: [
-      'Precisión de sensores en diferentes condiciones climáticas',
-      'Optimización del consumo energético',
-    ],
-    gallery: [
-      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1558618047-3c8c76ca7a1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-    ],
-    repositoryUrl: 'https://github.com/techlab/smart-parking',
-    documentation: 'Documentación completa disponible en el repositorio',
-    createdAt: '2024-09-01T10:00:00Z',
-    updatedAt: '2024-12-20T15:30:00Z',
-    createdBy: 'admin',
-  },
-  {
-    id: '2',
-    title: 'AI Image Recognition Lab',
-    description:
-      'Laboratorio de reconocimiento de imágenes usando deep learning para clasificación automática',
-    category: 'Artificial Intelligence',
-    technologies: ['Python', 'TensorFlow', 'OpenCV', 'Flask', 'Docker', 'CUDA'],
-    relatedTechnologyIds: [
-      'ai',
-      'image-recognition',
-      'machine-learning',
-      'cloud-computing',
-    ],
-    status: 'completed',
-    priority: 'high',
-    startDate: '2024-06-01',
-    endDate: '2024-11-30',
-    teamLead: 'Dr. Ana Silva',
-    teamMembers: ['Pedro Morales', 'Lucía Fernández', 'Roberto Chen'],
-    budget: 25000,
-    progress: 100,
-    objectives: [
-      'Desarrollar modelo CNN para clasificación de imágenes',
-      'Crear API REST para procesamiento',
-      'Implementar interfaz web de demostración',
-      'Optimizar modelo para dispositivos móviles',
-    ],
-    gallery: [
-      'https://images.unsplash.com/photo-1555255707-c07966088b7b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1507146426996-ef05306b995a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-    ],
-    repositoryUrl: 'https://github.com/techlab/ai-image-recognition',
-    documentation: 'Paper publicado en conferencia internacional de AI',
-    createdAt: '2024-06-01T08:00:00Z',
-    updatedAt: '2024-11-30T17:45:00Z',
-    createdBy: 'eduardo',
-  },
-  {
-    id: '3',
-    title: 'Blockchain Supply Chain',
-    description:
-      'Sistema de trazabilidad de cadena de suministro usando blockchain para garantizar autenticidad',
-    category: 'Blockchain & Fintech',
-    technologies: [
-      'Solidity',
-      'Web3.js',
-      'React',
-      'Ethereum',
-      'IPFS',
-      'Metamask',
-    ],
-    relatedTechnologyIds: ['blockchain', 'cloud-computing'],
-    status: 'planning',
-    priority: 'medium',
-    startDate: '2025-01-15',
-    teamLead: 'Carlos Blockchain',
-    teamMembers: ['Sofia Crypto', 'Miguel Smart'],
-    budget: 30000,
-    progress: 15,
-    objectives: [
-      'Diseñar smart contracts para trazabilidad',
-      'Crear interfaz web descentralizada',
-      'Implementar sistema de tokens de recompensa',
-      'Desarrollar scanner QR para productos',
-    ],
-    challenges: [
-      'Costos de transacción en Ethereum',
-      'Adopción por parte de proveedores tradicionales',
-    ],
-    gallery: [
-      'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
-    ],
-    repositoryUrl: 'https://github.com/techlab/blockchain-supply',
-    createdAt: '2024-12-01T09:00:00Z',
-    updatedAt: '2024-12-20T11:20:00Z',
-    createdBy: 'admin',
-  },
-];
-
 export function ProjectProvider({ children }: { children: React.ReactNode }) {
-  const [projects, setProjects] = useState<TechProject[]>(INITIAL_PROJECTS);
-  const [isLoading, setIsLoading] = useState(false);
+  const {
+    projects: supabaseProjects,
+    loading,
+    error,
+    createProject,
+    updateProject: updateSupabaseProject,
+    deleteProject: deleteSupabaseProject,
+    fetchProjects,
+  } = useSupabaseProjects();
+
+  // Convertir proyectos de Supabase al formato legacy
+  const projects = useMemo(() => {
+    return supabaseProjects.map(convertSupabaseProjectToLegacy);
+  }, [supabaseProjects]);
 
   const addProject = useCallback(
-    (newProject: Omit<TechProject, 'id' | 'createdAt' | 'updatedAt'>) => {
-      setIsLoading(true);
-      setTimeout(() => {
-        const id = Date.now().toString();
-        const now = new Date().toISOString();
-        setProjects((prev) => [
-          ...prev,
-          {
-            ...newProject,
-            id,
-            createdAt: now,
-            updatedAt: now,
-          },
-        ]);
-        setIsLoading(false);
-      }, 500);
+    async (
+      newProject: Omit<TechProject, 'id' | 'createdAt' | 'updatedAt'>
+    ): Promise<boolean> => {
+      try {
+        const supabaseData = convertLegacyProjectToSupabase(newProject);
+        const result = await createProject(supabaseData);
+        return result !== null;
+      } catch (err) {
+        console.error('Error adding project:', err);
+        return false;
+      }
     },
-    []
+    [createProject]
   );
 
   const updateProject = useCallback(
-    (id: string, updates: Partial<TechProject>) => {
-      setIsLoading(true);
-      setTimeout(() => {
-        setProjects((prev) =>
-          prev.map((project) =>
-            project.id === id
-              ? { ...project, ...updates, updatedAt: new Date().toISOString() }
-              : project
-          )
-        );
-        setIsLoading(false);
-      }, 300);
+    async (id: string, updates: Partial<TechProject>): Promise<boolean> => {
+      try {
+        // Convertir updates al formato de Supabase
+        const supabaseUpdates: Partial<SupabaseProject> = {};
+
+        if (updates.title) supabaseUpdates.title = updates.title;
+        if (updates.description)
+          supabaseUpdates.description = updates.description;
+        if (updates.category) supabaseUpdates.category = updates.category;
+        if (updates.technologies)
+          supabaseUpdates.technologies = updates.technologies;
+        if (updates.relatedTechnologyIds)
+          supabaseUpdates.related_technology_ids = updates.relatedTechnologyIds;
+        if (updates.status) supabaseUpdates.status = updates.status;
+        if (updates.priority) supabaseUpdates.priority = updates.priority;
+        if (updates.startDate) supabaseUpdates.start_date = updates.startDate;
+        if (updates.endDate) supabaseUpdates.end_date = updates.endDate;
+        if (updates.teamLead) supabaseUpdates.team_lead = updates.teamLead;
+        if (updates.teamMembers)
+          supabaseUpdates.team_members = updates.teamMembers;
+        if (updates.budget !== undefined)
+          supabaseUpdates.budget = updates.budget;
+        if (updates.progress !== undefined)
+          supabaseUpdates.progress = updates.progress;
+        if (updates.objectives) supabaseUpdates.objectives = updates.objectives;
+        if (updates.challenges) supabaseUpdates.challenges = updates.challenges;
+        if (updates.gallery) supabaseUpdates.gallery = updates.gallery;
+        if (updates.demoUrl) supabaseUpdates.demo_url = updates.demoUrl;
+        if (updates.repositoryUrl)
+          supabaseUpdates.repository_url = updates.repositoryUrl;
+        if (updates.documentation)
+          supabaseUpdates.documentation = updates.documentation;
+
+        const result = await updateSupabaseProject(id, supabaseUpdates);
+        return result !== null;
+      } catch (err) {
+        console.error('Error updating project:', err);
+        return false;
+      }
     },
-    []
+    [updateSupabaseProject]
   );
 
-  const deleteProject = useCallback((id: string) => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setProjects((prev) => prev.filter((project) => project.id !== id));
-      setIsLoading(false);
-    }, 200);
-  }, []);
+  const deleteProject = useCallback(
+    async (id: string): Promise<boolean> => {
+      try {
+        return await deleteSupabaseProject(id);
+      } catch (err) {
+        console.error('Error deleting project:', err);
+        return false;
+      }
+    },
+    [deleteSupabaseProject]
+  );
 
   const getProject = useCallback(
     (id: string) => {
@@ -302,7 +283,9 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     filterByPriority,
     getProjectsByTechnology,
     getTechnologiesForProject,
-    isLoading,
+    isLoading: loading,
+    error,
+    refreshProjects: fetchProjects,
   };
 
   return (

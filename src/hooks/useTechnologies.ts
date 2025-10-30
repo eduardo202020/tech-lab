@@ -1,8 +1,38 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useProjects, TechProject } from '../contexts/ProjectContext';
+import { supabase } from '@/lib/supabase';
+import { useSupabaseProjects, SupabaseProject } from './useSupabaseProjects';
 
+export interface SupabaseTechnology {
+  id: string;
+  name: string;
+  icon: string;
+  gradient: string;
+  primary_color: string;
+  description: string;
+  about_title: string;
+  about_content: string[];
+  features_title: string;
+  features_items: Array<{
+    text: string;
+    color: string;
+  }>;
+  example_projects: Array<{
+    title: string;
+    description: string;
+  }>;
+  has_direct_links: boolean;
+  direct_links?: Array<{
+    href: string;
+    text: string;
+    primary: boolean;
+  }>;
+  created_at: string;
+  updated_at: string;
+}
+
+// Interfaz legacy para compatibilidad
 export interface Technology {
   id: string;
   name: string;
@@ -39,43 +69,88 @@ export interface Technology {
   }[];
 }
 
+// Función para convertir datos de Supabase al formato legacy
+function convertSupabaseTechnologyToLegacy(
+  supabaseTech: SupabaseTechnology,
+  relatedProjects: SupabaseProject[]
+): Technology {
+  return {
+    id: supabaseTech.id,
+    name: supabaseTech.name,
+    icon: supabaseTech.icon,
+    gradient: supabaseTech.gradient,
+    primaryColor: supabaseTech.primary_color,
+    description: supabaseTech.description,
+    about: {
+      title: supabaseTech.about_title,
+      content: supabaseTech.about_content,
+    },
+    features: {
+      title: supabaseTech.features_title,
+      items: supabaseTech.features_items,
+    },
+    projects: supabaseTech.example_projects,
+    relatedProjects: relatedProjects.map((project) => ({
+      id: project.id,
+      title: project.title,
+      status: project.status,
+      progress: project.progress,
+    })),
+    hasDirectLinks: supabaseTech.has_direct_links,
+    directLinks: supabaseTech.direct_links,
+  };
+}
+
 export function useTechnologies() {
   const [technologies, setTechnologies] = useState<Technology[]>([]);
   const [loading, setLoading] = useState(true);
-  const { projects, getProjectsByTechnology } = useProjects();
+  const [error, setError] = useState<string | null>(null);
+  const { projects } = useSupabaseProjects();
 
   const loadTechnologies = useCallback(async () => {
     try {
-      const response = await fetch('/data/technologies.json');
-      const data = await response.json();
+      setLoading(true);
+      setError(null);
 
-      // Enriquecer tecnologías con proyectos reales
-      const enrichedTechnologies = data.technologies.map((tech: Technology) => {
-        const relatedProjects = getProjectsByTechnology(tech.id);
+      // Cargar tecnologías desde Supabase
+      const { data: technologiesData, error: techError } = await supabase
+        .from('technologies')
+        .select('*')
+        .order('name', { ascending: true });
 
-        return {
-          ...tech,
-          relatedProjects: relatedProjects.map((project: TechProject) => ({
-            id: project.id,
-            title: project.title,
-            status: project.status,
-            progress: project.progress,
-          })),
-        };
-      });
+      if (techError) {
+        console.error('Error loading technologies:', techError);
+        setError(techError.message);
+        return;
+      }
+
+      // Convertir y enriquecer con proyectos relacionados
+      const enrichedTechnologies = technologiesData.map(
+        (supabaseTech: SupabaseTechnology) => {
+          // Encontrar proyectos relacionados por technology IDs
+          const relatedProjects = projects.filter((project) =>
+            project.related_technology_ids?.includes(supabaseTech.id)
+          );
+
+          return convertSupabaseTechnologyToLegacy(
+            supabaseTech,
+            relatedProjects
+          );
+        }
+      );
 
       setTechnologies(enrichedTechnologies);
-    } catch (error) {
-      console.error('Error loading technologies:', error);
-      setTechnologies([]);
+    } catch (err) {
+      console.error('Error in loadTechnologies:', err);
+      setError(err instanceof Error ? err.message : 'Error desconocido');
     } finally {
       setLoading(false);
     }
-  }, [getProjectsByTechnology]);
+  }, [projects]);
 
   useEffect(() => {
     loadTechnologies();
-  }, [loadTechnologies, projects]); // Recargar cuando cambien los proyectos
+  }, [loadTechnologies]);
 
   const getTechnology = useCallback(
     (id: string) => {
@@ -113,9 +188,11 @@ export function useTechnologies() {
   return {
     technologies,
     loading,
+    error,
     getTechnology,
     getTechnologiesByProject,
     searchTechnologies,
     refreshTechnologies: loadTechnologies,
+    clearError: () => setError(null),
   };
 }

@@ -55,7 +55,7 @@ export default function Header() {
             className="font-poppins text-sm font-medium text-theme-secondary transition-colors hover:text-theme-text"
             href="/researchers"
           >
-            Equipo
+            Investigadores
           </Link>
           <Link
             className="font-poppins text-sm font-medium text-theme-secondary transition-colors hover:text-theme-text"
