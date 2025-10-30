@@ -8,7 +8,7 @@ import {
 } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AuthProvider } from '@/contexts/AuthContext';
+import { AuthProvider } from '@/contexts/SupabaseAuthContext';
 import { InventoryProvider } from '@/contexts/InventoryContext';
 import { ProjectProvider } from '@/contexts/ProjectContext';
 import { ResearcherProvider } from '@/contexts/ResearcherContext';

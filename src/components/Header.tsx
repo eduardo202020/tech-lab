@@ -1,17 +1,21 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { LogOut, User } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/SupabaseAuthContext';
 import ThemeToggle from './ThemeToggle';
 
 export default function Header() {
-  const { isAuthenticated, user, logout, isLoading } = useAuth();
+  const router = useRouter();
+  const { user, profile, signOut, loading } = useAuth();
+  const isAuthenticated = !!user && !!profile;
+  const isLoading = loading;
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await signOut();
+    router.push('/');
   };
-
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-theme-bg/80 backdrop-blur-sm transition-colors duration-300">
       <div className="container mx-auto flex items-center justify-between px-6 py-4">
@@ -80,7 +84,9 @@ export default function Header() {
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 text-theme-text">
                 <User className="w-4 h-4" />
-                <span className="text-sm font-medium">{user.name}</span>
+                <span className="text-sm font-medium">
+                  {profile?.full_name || profile?.username}
+                </span>
               </div>
               <button
                 onClick={handleLogout}
