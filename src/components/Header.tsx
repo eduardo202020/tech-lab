@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User, Shield, GraduationCap, Search, Eye } from 'lucide-react';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 import ThemeToggle from './ThemeToggle';
 
@@ -82,6 +82,34 @@ export default function Header() {
             <div className="w-8 h-8 border-2 border-theme-accent border-t-transparent rounded-full animate-spin"></div>
           ) : isAuthenticated && user ? (
             <div className="flex items-center gap-3">
+              {/* Indicador de Rol */}
+              <div className="flex items-center gap-1">
+                {profile?.role === 'admin' && (
+                  <div className="flex items-center gap-1 bg-red-500/10 text-red-400 px-2 py-1 rounded-md border border-red-500/20">
+                    <Shield className="w-3 h-3" />
+                    <span className="text-xs font-medium">Admin</span>
+                  </div>
+                )}
+                {profile?.role === 'researcher' && (
+                  <div className="flex items-center gap-1 bg-blue-500/10 text-blue-400 px-2 py-1 rounded-md border border-blue-500/20">
+                    <GraduationCap className="w-3 h-3" />
+                    <span className="text-xs font-medium">Investigador</span>
+                  </div>
+                )}
+                {profile?.role === 'student' && (
+                  <div className="flex items-center gap-1 bg-green-500/10 text-green-400 px-2 py-1 rounded-md border border-green-500/20">
+                    <Search className="w-3 h-3" />
+                    <span className="text-xs font-medium">Estudiante</span>
+                  </div>
+                )}
+                {profile?.role === 'visitor' && (
+                  <div className="flex items-center gap-1 bg-gray-500/10 text-gray-400 px-2 py-1 rounded-md border border-gray-500/20">
+                    <Eye className="w-3 h-3" />
+                    <span className="text-xs font-medium">Visitante</span>
+                  </div>
+                )}
+              </div>
+              
               <div className="flex items-center gap-2 text-theme-text">
                 <User className="w-4 h-4" />
                 <span className="text-sm font-medium">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 import {
@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import Header from '@/components/Header';
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { signInWithGoogle, signInWithGitHub, signInWithEmail, signUp, user } =
@@ -327,5 +327,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Cargando...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 }

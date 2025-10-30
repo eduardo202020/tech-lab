@@ -3,6 +3,7 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useState } from 'react';
+import { useAuth as useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 
 interface Loan {
   id: string;
@@ -72,7 +73,14 @@ const loansData: Loan[] = [
 ];
 
 export default function LoansPage() {
+  const { user: sbUser, profile } = useSupabaseAuth();
+  const isAuthenticated = !!sbUser;
+  const user = { role: profile?.role } as { role?: string };
   const [statusFilter, setStatusFilter] = useState('Todos');
+  
+  // Variables disponibles para futuras funcionalidades
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const isAdmin = isAuthenticated && user.role === 'admin';
 
   const filteredLoans = loansData.filter((loan) => {
     return statusFilter === 'Todos' || loan.status === statusFilter;

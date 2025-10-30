@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import {
   Search,
   Plus,
@@ -13,7 +14,7 @@ import {
   Wrench,
   Eye,
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth as useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import {
   useSupabaseEquipment,
   SupabaseEquipment,
@@ -22,7 +23,9 @@ import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import Header from '@/components/Header';
 
 export default function InventoryPage() {
-  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
+  const { user: sbUser, profile, loading: authLoading } = useSupabaseAuth();
+  const isAuthenticated = !!sbUser;
+  const user = { role: profile?.role } as { role?: string };
   const { redirectToLogin } = useAuthRedirect();
   const {
     equipment: items,
@@ -522,9 +525,11 @@ function ViewItemModal({
 
         {item.image_url && (
           <div className="mb-6">
-            <img
+            <Image
               src={item.image_url}
               alt={item.name}
+              width={400}
+              height={200}
               className="w-full h-48 object-cover rounded-lg"
             />
           </div>

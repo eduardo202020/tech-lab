@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
@@ -133,16 +134,26 @@ const equipmentData: Equipment[] = [
 ];
 
 interface EquipmentDetailPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function EquipmentDetailPage({
   params,
 }: EquipmentDetailPageProps) {
   const { theme } = useTheme();
-  const equipment = equipmentData.find((eq) => eq.id === params.id);
+  const [id, setId] = React.useState<string>('');
+  
+  React.useEffect(() => {
+    params.then(resolved => setId(resolved.id));
+  }, [params]);
+  
+  const equipment = equipmentData.find((eq) => eq.id === id);
+
+  if (!id) {
+    return <div>Cargando...</div>;
+  }
 
   if (!equipment) {
     notFound();

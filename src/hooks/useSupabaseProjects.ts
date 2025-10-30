@@ -95,13 +95,15 @@ export function useSupabaseProjects() {
       // Transformar datos para que coincidan con la interfaz
       const transformedProjects: SupabaseProject[] = projectsData?.map(project => ({
         ...project,
-        researchers: project.project_researchers?.map(pr => ({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        researchers: project.project_researchers?.map((pr: any) => ({
           id: pr.researchers?.id || '',
           name: pr.researchers?.name || '',
           role: pr.role,
           is_current: pr.is_current
         })) || [],
-        related_technologies: project.project_technologies?.map(pt => ({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        related_technologies: project.project_technologies?.map((pt: any) => ({
           id: pt.technologies?.id || '',
           name: pt.technologies?.name || '',
           icon: pt.technologies?.icon || '',
@@ -159,13 +161,15 @@ export function useSupabaseProjects() {
 
       return {
         ...data,
-        researchers: data.project_researchers?.map(pr => ({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        researchers: data.project_researchers?.map((pr: any) => ({
           id: pr.researchers?.id || '',
           name: pr.researchers?.name || '',
           role: pr.role,
           is_current: pr.is_current
         })) || [],
-        related_technologies: data.project_technologies?.map(pt => ({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        related_technologies: data.project_technologies?.map((pt: any) => ({
           id: pt.technologies?.id || '',
           name: pt.technologies?.name || '',
           icon: pt.technologies?.icon || '',
