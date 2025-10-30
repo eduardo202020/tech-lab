@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { LogOut, User, Shield, GraduationCap, Search, Eye } from 'lucide-react';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
@@ -111,10 +112,37 @@ export default function Header() {
               </div>
 
               <div className="flex items-center gap-2 text-theme-text">
-                <User className="w-4 h-4" />
-                <span className="text-sm font-medium">
-                  {profile?.full_name || profile?.username}
-                </span>
+                <div className="relative group">
+                  {profile?.avatar_url ? (
+                    <Image
+                      src={profile.avatar_url}
+                      alt={profile.full_name || profile.username || 'Usuario'}
+                      width={32}
+                      height={32}
+                      className="w-8 h-8 rounded-full object-cover border-2 border-theme-accent/20 hover:border-theme-accent/50 transition-all cursor-pointer group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 bg-theme-accent/10 rounded-full flex items-center justify-center border-2 border-theme-accent/20 hover:border-theme-accent/50 transition-all cursor-pointer group-hover:scale-105">
+                      <User className="w-4 h-4 text-theme-accent" />
+                    </div>
+                  )}
+
+                  {/* Tooltip con información del usuario */}
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-2 py-1 bg-theme-card border border-theme-border rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 whitespace-nowrap">
+                    <p className="text-xs text-theme-text font-medium">
+                      {profile?.full_name || profile?.username}
+                    </p>
+                    <p className="text-xs text-theme-secondary">
+                      {profile?.email}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="hidden md:block">
+                  <span className="text-sm font-medium">
+                    {profile?.full_name || profile?.username}
+                  </span>
+                </div>
               </div>
               <button
                 onClick={handleLogout}
