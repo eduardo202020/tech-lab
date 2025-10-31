@@ -66,8 +66,8 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* 3D Model Viewer */}
-              <div className="flex justify-center items-center order-1 lg:order-2 lg:-ml-8">
+              {/* 3D Model Viewer - Hidden on mobile for better performance */}
+              <div className="hidden lg:flex justify-center items-center order-1 lg:order-2 lg:-ml-8">
                 <div className="w-full max-w-2xl h-[700px]">
                   <Model3DViewer />
                 </div>
