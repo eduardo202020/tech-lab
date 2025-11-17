@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { X, Target, Link as LinkIcon } from 'lucide-react';
 import { TechProject } from '@/contexts/ProjectContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextLegacy';
 
 // Modal para agregar proyecto
 interface AddProjectModalProps {

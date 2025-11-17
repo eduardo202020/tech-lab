@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextLegacy';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import { useEffect, ReactNode } from 'react';
 

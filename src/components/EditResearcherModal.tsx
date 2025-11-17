@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { X, Plus } from 'lucide-react';
 import { Researcher } from '@/contexts/ResearcherContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextLegacy';
 
 // Modal para editar investigador
 interface EditResearcherModalProps {

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { X, User, Link as LinkIcon, Plus } from 'lucide-react';
 import Image from 'next/image';
 import { Researcher } from '@/contexts/ResearcherContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextLegacy';
 
 // Modal para agregar investigador
 interface AddResearcherModalProps {

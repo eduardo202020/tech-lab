@@ -25,7 +25,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useResearchers, Researcher } from '@/contexts/ResearcherContext';
 import { useProjects } from '@/contexts/ProjectContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextLegacy';
 import Header from '@/components/Header';
 import { EditResearcherModal } from '@/components/index';
 

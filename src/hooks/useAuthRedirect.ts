@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextLegacy';
 
 export function useAuthRedirect() {
   const { setRedirectPath, getRedirectPath, clearRedirectPath } = useAuth();

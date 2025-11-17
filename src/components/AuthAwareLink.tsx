@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextLegacy';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import { ReactNode } from 'react';
 
