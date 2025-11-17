@@ -12,6 +12,7 @@ import { AuthProvider as SupabaseAuthProvider } from '@/contexts/SupabaseAuthCon
 import { InventoryProvider } from '@/contexts/InventoryContext';
 import { ProjectProvider } from '@/contexts/ProjectContext';
 import { ResearcherProvider } from '@/contexts/ResearcherContext';
+import AuthGate from '@/components/AuthGate';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -83,11 +84,13 @@ export default function RootLayout({
       >
         <ThemeProvider>
             <SupabaseAuthProvider>
-              <InventoryProvider>
-                <ProjectProvider>
-                  <ResearcherProvider>{children}</ResearcherProvider>
-                </ProjectProvider>
-              </InventoryProvider>
+              <AuthGate>
+                <InventoryProvider>
+                  <ProjectProvider>
+                    <ResearcherProvider>{children}</ResearcherProvider>
+                  </ProjectProvider>
+                </InventoryProvider>
+              </AuthGate>
             </SupabaseAuthProvider>
         </ThemeProvider>
       </body>

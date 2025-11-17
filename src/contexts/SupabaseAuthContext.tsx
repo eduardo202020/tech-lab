@@ -60,13 +60,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single();
 
       if (error) {
-        console.error('Error loading user profile:', error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error loading user profile:', error);
+        }
         return null;
       }
 
       return data as UserProfile;
     } catch (error) {
-      console.error('Error loading user profile:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error loading user profile:', error);
+      }
       return null;
     }
   };
@@ -105,13 +109,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single();
 
       if (error) {
-        console.error('Error creating user profile:', error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error creating user profile:', error);
+        }
         return null;
       }
 
       return data as UserProfile;
     } catch (error) {
-      console.error('Error creating user profile:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error creating user profile:', error);
+      }
       return null;
     }
   };
@@ -126,8 +134,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           error,
         } = await supabase.auth.getSession();
 
+
         if (error) {
-          console.error('Error getting session:', error);
+          if (process.env.NODE_ENV === 'development') {
+            console.error('Error getting session:', error);
+          }
           setLoading(false);
           return;
         }
@@ -147,7 +158,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setProfile(userProfile);
         }
       } catch (error) {
-        console.error('Error initializing auth:', error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error initializing auth:', error);
+        }
       } finally {
         setLoading(false);
       }
