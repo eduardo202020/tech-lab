@@ -6,8 +6,8 @@
 
 **Plataforma moderna para la gestión integral del Laboratorio Tecnológico OTI UNI**
 
-
-k
+a
+kasfd
 
 [🚀 Demo en Vivo](#) | [📖 Documentación](#características) | [🛠️ Instalación](#instalación)
 
