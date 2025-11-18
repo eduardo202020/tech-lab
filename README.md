@@ -7,7 +7,8 @@
 **Plataforma moderna para la gestión integral del Laboratorio Tecnológico OTI UNI**
  
 as daf
- dsfasd 
+ dsfasd fasdf
+ sdasf
 
 [🚀 Demo en Vivo](#) | [📖 Documentación](#características) | [🛠️ Instalación](#instalación)
 
