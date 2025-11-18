@@ -11,6 +11,8 @@ as daf
  sdasf
  fsd
 
+> Nota temporal: Este cambio es para verificar la solicitud de autenticación al hacer push. Elimina esta línea si lo deseas.
+
 [🚀 Demo en Vivo](#) | [📖 Documentación](#características) | [🛠️ Instalación](#instalación)
 
 </div>
