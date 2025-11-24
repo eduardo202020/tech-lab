@@ -154,6 +154,31 @@ html {
   color: #94a3b8 !important;
 }
 
+/* Fix select/option contrast in dark mode across the app */
+select,
+select:focus,
+select:hover {
+  background-color: var(--theme-card);
+  color: var(--theme-text);
+  border-color: var(--theme-border);
+}
+
+/* Options are hard to style on some platforms; enforce colors for better contrast */
+select option {
+  background-color: var(--theme-card) !important;
+  color: var(--theme-text) !important;
+}
+
+/* Ensure dark class (Tailwind dark mode) also gets correct styling */
+.dark select,
+.dark select:focus,
+.dark select:hover,
+.dark select option {
+  background-color: var(--theme-card) !important;
+  color: var(--theme-text) !important;
+  border-color: var(--theme-border) !important;
+}
+
 /* Botones dentro del modal */
 .modal-dark-bg button:not(.gradient-button) {
   color: #e2e8f0 !important;
