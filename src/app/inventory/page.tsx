@@ -21,6 +21,7 @@ import {
 } from '@/hooks/useSupabaseEquipment';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import Header from '@/components/Header';
+import useDebounce from '@/hooks/useDebounce';
 
 export default function InventoryPage() {
   const { user: sbUser, profile, loading: authLoading } = useSupabaseAuth();
@@ -70,12 +71,15 @@ export default function InventoryPage() {
     redirectToLogin();
   };
 
+  // Debounce search to avoid filtering on every keystroke
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
   // Efecto para filtrar elementos
   useEffect(() => {
     let result = items;
 
-    if (searchQuery) {
-      result = searchItems(searchQuery);
+    if (debouncedSearchQuery) {
+      result = searchItems(debouncedSearchQuery);
     }
 
     if (selectedCategory) {
@@ -87,7 +91,7 @@ export default function InventoryPage() {
     }
 
     setFilteredItems(result);
-  }, [searchQuery, selectedCategory, selectedCondition, items, searchItems]);
+  }, [debouncedSearchQuery, selectedCategory, selectedCondition, items, searchItems]);
 
   // Loading state
   if (authLoading) {
@@ -230,8 +234,17 @@ export default function InventoryPage() {
                   placeholder="Buscar equipos..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
+                  className="w-full pl-10 pr-10 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
                 />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    title="Limpiar búsqueda"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-theme-secondary hover:text-theme-text"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
             </div>
 
