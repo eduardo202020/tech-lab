@@ -39,7 +39,7 @@ export function useSupabaseEquipment() {
   const [error, setError] = useState<string | null>(null);
 
   // Cargar todos los equipos
-  const fetchEquipment = useCallback(async (filters?: EquipmentFilters) => {
+  const fetchEquipment = useCallback(async (filters?: EquipmentFilters, search?: string) => {
     try {
       setLoading(true);
       setError(null);
@@ -48,6 +48,13 @@ export function useSupabaseEquipment() {
         .from('inventory_items')
         .select('*')
         .order('created_at', { ascending: false });
+
+      // Si se envía búsqueda, usar ilike server-side para varios campos
+      if (search && search.trim()) {
+        const like = `%${search.trim()}%`;
+        const orCondition = `name.ilike.${like},brand.ilike.${like},model.ilike.${like},category.ilike.${like},serial_number.ilike.${like},description.ilike.${like},location.ilike.${like}`;
+        query = query.or(orCondition);
+      }
 
       // Aplicar filtros
       if (filters?.condition) {

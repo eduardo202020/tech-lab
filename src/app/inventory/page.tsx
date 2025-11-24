@@ -22,6 +22,7 @@ import {
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import Header from '@/components/Header';
 import useDebounce from '@/hooks/useDebounce';
+import SearchBar from '@/components/SearchBar';
 
 export default function InventoryPage() {
   const { user: sbUser, profile, loading: authLoading } = useSupabaseAuth();
@@ -43,6 +44,8 @@ export default function InventoryPage() {
   const [selectedCondition, setSelectedCondition] = useState<
     SupabaseEquipment['condition'] | ''
   >('');
+  const [locationQuery, setLocationQuery] = useState('');
+  const [availableOnly, setAvailableOnly] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
@@ -73,25 +76,26 @@ export default function InventoryPage() {
 
   // Debounce search to avoid filtering on every keystroke
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const debouncedLocationQuery = useDebounce(locationQuery, 300);
 
-  // Efecto para filtrar elementos
+  // Efecto para pedir datos al servidor cuando cambian filtros/búsqueda
   useEffect(() => {
-    let result = items;
+    const filters = {
+      condition: selectedCondition || undefined,
+      category: selectedCategory || undefined,
+      location: debouncedLocationQuery || undefined,
+      available_only: availableOnly || undefined,
+    };
 
-    if (debouncedSearchQuery) {
-      result = searchItems(debouncedSearchQuery);
-    }
+    // fetchEquipment viene del hook
+    fetchEquipment(filters, debouncedSearchQuery);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchQuery, selectedCategory, selectedCondition, debouncedLocationQuery, availableOnly]);
 
-    if (selectedCategory) {
-      result = result.filter((item) => item.category === selectedCategory);
-    }
-
-    if (selectedCondition) {
-      result = result.filter((item) => item.condition === selectedCondition);
-    }
-
-    setFilteredItems(result);
-  }, [debouncedSearchQuery, selectedCategory, selectedCondition, items, searchItems]);
+  // Mantener filteredItems sincronizado con items que vienen del servidor
+  useEffect(() => {
+    setFilteredItems(items);
+  }, [items]);
 
   // Loading state
   if (authLoading) {
