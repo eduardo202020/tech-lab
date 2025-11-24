@@ -327,8 +327,8 @@ export default function ProjectsPage() {
               key={project.id}
               className="bg-theme-card border border-theme-border rounded-lg p-6 hover:border-theme-accent/50 transition-colors"
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
+                <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">
                     <FolderOpen className="w-5 h-5 text-theme-accent" />
                     <h3 className="text-xl font-bold text-theme-text">
@@ -422,7 +422,7 @@ export default function ProjectsPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 ml-4">
+                <div className="flex items-center gap-2 ml-0 sm:ml-4 mt-3 sm:mt-0 flex-shrink-0">
                   {/* Botón Ver - Todos los usuarios */}
                   <button
                     onClick={() => {

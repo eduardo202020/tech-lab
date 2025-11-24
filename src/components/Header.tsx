@@ -21,7 +21,7 @@ export default function Header() {
   };
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-theme-bg/80 backdrop-blur-sm transition-colors duration-300">
-      <div className="container mx-auto flex items-center justify-between px-6 py-4">
+      <div className="container mx-auto flex flex-wrap items-center justify-between px-6 py-4">
         {/* Mobile Menu Button & Logo */}
         <div className="flex items-center gap-3">
           {/* Hamburger Menu Button - Only visible on mobile */}
@@ -53,39 +53,39 @@ export default function Header() {
           </Link>
         </div>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden md:flex md:flex-wrap items-center gap-6">
           <Link
-            className="font-poppins text-sm font-medium text-theme-secondary transition-colors hover:text-theme-text"
+            className="font-poppins text-sm font-medium text-theme-secondary transition-colors hover:text-theme-text whitespace-nowrap"
             href="/"
           >
             Inicio
           </Link>
           <Link
-            className="font-poppins text-sm font-medium text-theme-secondary transition-colors hover:text-theme-text"
+            className="font-poppins text-sm font-medium text-theme-secondary transition-colors hover:text-theme-text whitespace-nowrap"
             href="/inventory"
           >
             Inventario
           </Link>
           <Link
-            className="font-poppins text-sm font-medium text-theme-secondary transition-colors hover:text-theme-text"
+            className="font-poppins text-sm font-medium text-theme-secondary transition-colors hover:text-theme-text whitespace-nowrap"
             href="/projects"
           >
             Proyectos
           </Link>
           <Link
-            className="font-poppins text-sm font-medium text-theme-secondary transition-colors hover:text-theme-text"
+            className="font-poppins text-sm font-medium text-theme-secondary transition-colors hover:text-theme-text whitespace-nowrap"
             href="/researchers"
           >
             Investigadores
           </Link>
           <Link
-            className="font-poppins text-sm font-medium text-theme-secondary transition-colors hover:text-theme-text"
+            className="font-poppins text-sm font-medium text-theme-secondary transition-colors hover:text-theme-text whitespace-nowrap"
             href="/loans"
           >
             Préstamos
           </Link>
           <Link
-            className="font-poppins text-sm font-medium text-theme-secondary transition-colors hover:text-theme-text"
+            className="font-poppins text-sm font-medium text-theme-secondary transition-colors hover:text-theme-text whitespace-nowrap"
             href="/contact"
           >
             Contacto

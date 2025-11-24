@@ -179,6 +179,22 @@ select option {
   border-color: var(--theme-border) !important;
 }
 
+/* Mobile-first sizing for selects to avoid overflow on small screens */
+select {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem 0.75rem;
+}
+
+/* Larger screens: allow selects to size naturally */
+@media (min-width: 640px) {
+  select {
+    width: auto;
+    max-width: none;
+  }
+}
+
 /* Botones dentro del modal */
 .modal-dark-bg button:not(.gradient-button) {
   color: #e2e8f0 !important;

@@ -187,7 +187,7 @@ export default function InventoryPage() {
     <div className="min-h-screen bg-theme-background">
       <Header />
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-4 py-8 pt-24">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-theme-text mb-2">
@@ -254,11 +254,11 @@ export default function InventoryPage() {
             </div>
 
             {/* Filtros */}
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-4 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
+                className="w-full sm:w-auto px-4 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
               >
                 <option value="">Todas las categorías</option>
                 {categories.map((category) => (
@@ -275,7 +275,7 @@ export default function InventoryPage() {
                     e.target.value as SupabaseEquipment['condition'] | ''
                   )
                 }
-                className="px-4 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
+                className="w-full sm:w-auto px-4 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
               >
                 <option value="">Todas las condiciones</option>
                 {conditions.map((condition) => (
@@ -345,11 +345,11 @@ export default function InventoryPage() {
                 key={item.id}
                 className="bg-theme-card border border-theme-border rounded-lg p-4 hover:border-theme-accent/50 transition-colors"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2">
                       <Package className="w-5 h-5 text-theme-accent" />
-                      <h3 className="text-lg font-semibold text-theme-text">
+                      <h3 className="text-lg font-semibold text-theme-text break-words">
                         {item.name}
                       </h3>
                       <span
@@ -388,7 +388,7 @@ export default function InventoryPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 ml-4">
+                  <div className="flex items-center gap-2 ml-0 sm:ml-4 mt-3 sm:mt-0 flex-shrink-0">
                     {/* Botón Ver - Todos los usuarios */}
                     <button
                       onClick={() => {
