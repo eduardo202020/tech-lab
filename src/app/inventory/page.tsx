@@ -36,6 +36,7 @@ export default function InventoryPage() {
     deleteEquipment: deleteItem,
     searchEquipment: searchItems,
     loading: isLoading,
+    fetchEquipment,
   } = useSupabaseEquipment();
 
   // Estados del componente
