@@ -1,6 +1,7 @@
 'use client';
 
 import Header from '@/components/Header';
+import LoansCalendar from '@/components/LoansCalendar';
 import Footer from '@/components/Footer';
 import { useState } from 'react';
 import { useAuth as useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
@@ -118,6 +119,9 @@ export default function LoansPage() {
               Gestión de Préstamos
             </h1>
           </div>
+
+            {/* Calendar */}
+            <LoansCalendar />
 
           {/* Filter */}
           <div className="mb-6">
