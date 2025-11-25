@@ -58,6 +58,13 @@ export interface SupabaseResearcher {
   }>;
 }
 
+type ProjectRelationRow = {
+  project_id?: string;
+  role?: string;
+  is_current?: boolean;
+  projects?: { id?: string; title?: string; status?: string; progress?: number } | null;
+};
+
 interface ResearcherFilters {
   department?: string;
   status?: SupabaseResearcher['status'];
@@ -100,35 +107,40 @@ export function useSupabaseResearchers() {
       }
 
       // Transformar datos para incluir proyectos actuales y pasados
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const transformedResearchers: SupabaseResearcher[] = researchersData?.map((researcher: any) => {
-        const projectRelations = researcher.project_researchers || [];
-        
-        return {
-          ...researcher,
-          current_projects: projectRelations
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .filter((pr: any) => pr.is_current)
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .map((pr: any) => ({
-              id: pr.projects?.id || '',
-              title: pr.projects?.title || '',
-              role: pr.role,
-              status: pr.projects?.status || '',
-              progress: pr.projects?.progress || 0
-            })),
-          past_projects: projectRelations
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .filter((pr: any) => !pr.is_current)
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .map((pr: any) => ({
-              id: pr.projects?.id || '',
-              title: pr.projects?.title || '',
-              role: pr.role,
-              status: pr.projects?.status || ''
-            }))
-        };
-      }) || [];
+      type ProjectRelationRow = {
+        project_id?: string;
+        role?: string;
+        is_current?: boolean;
+        projects?: { id?: string; title?: string; status?: string; progress?: number } | null;
+      };
+
+      type RawResearcherRow = Record<string, unknown> & { project_researchers?: ProjectRelationRow[] };
+
+      const transformedResearchers: SupabaseResearcher[] =
+        (researchersData as RawResearcherRow[] | undefined)?.map((researcher) => {
+          const projectRelations = (researcher.project_researchers as ProjectRelationRow[]) || [];
+
+          return ({
+            ...(researcher as Record<string, unknown>),
+            current_projects: projectRelations
+              .filter((pr) => !!pr.is_current)
+              .map((pr) => ({
+                id: pr.projects?.id || '',
+                title: pr.projects?.title || '',
+                role: pr.role || '',
+                status: pr.projects?.status || '',
+                progress: pr.projects?.progress || 0,
+              })),
+            past_projects: projectRelations
+              .filter((pr) => !pr.is_current)
+              .map((pr) => ({
+                id: pr.projects?.id || '',
+                title: pr.projects?.title || '',
+                role: pr.role || '',
+                status: pr.projects?.status || '',
+              })),
+          } as unknown as SupabaseResearcher);
+        }) || [];
 
       setResearchers(transformedResearchers);
     } catch (err) {
@@ -171,32 +183,28 @@ export function useSupabaseResearchers() {
 
       if (!data) return null;
 
-      const projectRelations = data.project_researchers || [];
-      
+      const projectRelations = (data.project_researchers as ProjectRelationRow[]) || [];
+
       return {
         ...data,
         current_projects: projectRelations
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .filter((pr: any) => pr.is_current)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .map((pr: any) => ({
+          .filter((pr) => !!pr.is_current)
+          .map((pr) => ({
             id: pr.projects?.id || '',
             title: pr.projects?.title || '',
-            role: pr.role,
+            role: pr.role || '',
             status: pr.projects?.status || '',
             progress: pr.projects?.progress || 0
           })),
         past_projects: projectRelations
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .filter((pr: any) => !pr.is_current)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .map((pr: any) => ({
+          .filter((pr) => !pr.is_current)
+          .map((pr) => ({
             id: pr.projects?.id || '',
             title: pr.projects?.title || '',
-            role: pr.role,
+            role: pr.role || '',
             status: pr.projects?.status || ''
           }))
-      };
+      } as SupabaseResearcher;
     } catch (err) {
       console.error('Error fetching researcher:', err);
       return null;
@@ -240,8 +248,15 @@ export function useSupabaseResearchers() {
         throw new Error(error.message);
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return data?.map((pr: any) => pr.researchers).filter(Boolean) as SupabaseResearcher[] || [];
+      type ProjectResearchersRow = { role?: string; is_current?: boolean; researchers?: SupabaseResearcher | SupabaseResearcher[] | null };
+
+      return (data as ProjectResearchersRow[])
+        ?.map((pr) => {
+          const r = pr.researchers;
+          if (Array.isArray(r)) return r[0] || null;
+          return (r as SupabaseResearcher) || null;
+        })
+        .filter(Boolean) as SupabaseResearcher[] || [];
     } catch (err) {
       console.error('Error fetching researchers by project:', err);
       return [];

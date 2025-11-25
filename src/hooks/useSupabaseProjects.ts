@@ -94,27 +94,47 @@ export function useSupabaseProjects() {
         throw new Error(projectsError.message);
       }
 
+      // Tipos intermedios para las relaciones devueltas por supabase
+      type ProjectResearchRow = {
+        researcher_id?: string;
+        role?: string;
+        is_current?: boolean;
+        researchers?: { id?: string; name?: string } | null;
+      };
+
+      type ProjectTechRow = {
+        technology_id?: string;
+        usage_type?: string;
+        technologies?: { id?: string; name?: string; icon?: string } | null;
+      };
+
       // Transformar datos para que coincidan con la interfaz
+      type RawProjectRow = Record<string, unknown> & {
+        project_researchers?: ProjectResearchRow[];
+        project_technologies?: ProjectTechRow[];
+      };
+
       const transformedProjects: SupabaseProject[] =
-        projectsData?.map((project) => ({
-          ...project,
+        (projectsData as RawProjectRow[] | undefined)?.map((project) => ({
+          // spread safely from a generic record
+          ...(project as Record<string, unknown>),
           researchers:
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            project.project_researchers?.map((pr: any) => ({
-              id: pr.researchers?.id || '',
-              name: pr.researchers?.name || '',
-              role: pr.role,
-              is_current: pr.is_current,
-            })) || [],
+            (project.project_researchers as ProjectResearchRow[])
+              ?.map((pr) => ({
+                id: pr.researchers?.id || '',
+                name: pr.researchers?.name || '',
+                role: pr.role || '',
+                is_current: !!pr.is_current,
+              })) || [],
           related_technologies:
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            project.project_technologies?.map((pt: any) => ({
-              id: pt.technologies?.id || '',
-              name: pt.technologies?.name || '',
-              icon: pt.technologies?.icon || '',
-              usage_type: pt.usage_type,
-            })) || [],
-        })) || [];
+            (project.project_technologies as ProjectTechRow[])
+              ?.map((pt) => ({
+                id: pt.technologies?.id || '',
+                name: pt.technologies?.name || '',
+                icon: pt.technologies?.icon || '',
+                usage_type: pt.usage_type || '',
+              })) || [],
+        } as unknown as SupabaseProject)) || [];
 
       setProjects(transformedProjects);
     } catch (err) {
@@ -167,24 +187,37 @@ export function useSupabaseProjects() {
 
         if (!data) return null;
 
+        type ProjectResearchRow = {
+          researcher_id?: string;
+          role?: string;
+          is_current?: boolean;
+          researchers?: { id?: string; name?: string } | null;
+        };
+
+        type ProjectTechRow = {
+          technology_id?: string;
+          usage_type?: string;
+          technologies?: { id?: string; name?: string; icon?: string } | null;
+        };
+
         return {
           ...data,
           researchers:
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            data.project_researchers?.map((pr: any) => ({
-              id: pr.researchers?.id || '',
-              name: pr.researchers?.name || '',
-              role: pr.role,
-              is_current: pr.is_current,
-            })) || [],
+            (data.project_researchers as ProjectResearchRow[])
+              ?.map((pr) => ({
+                id: pr.researchers?.id || '',
+                name: pr.researchers?.name || '',
+                role: pr.role || '',
+                is_current: !!pr.is_current,
+              })) || [],
           related_technologies:
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            data.project_technologies?.map((pt: any) => ({
-              id: pt.technologies?.id || '',
-              name: pt.technologies?.name || '',
-              icon: pt.technologies?.icon || '',
-              usage_type: pt.usage_type,
-            })) || [],
+            (data.project_technologies as ProjectTechRow[])
+              ?.map((pt) => ({
+                id: pt.technologies?.id || '',
+                name: pt.technologies?.name || '',
+                icon: pt.technologies?.icon || '',
+                usage_type: pt.usage_type || '',
+              })) || [],
         };
       } catch (err) {
         console.error('Error fetching project:', err);

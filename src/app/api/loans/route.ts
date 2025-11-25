@@ -1,6 +1,19 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
+interface Borrower {
+  id: string;
+  full_name?: string | null;
+  username?: string | null;
+  [key: string]: unknown;
+}
+
+interface ItemRow {
+  id: string;
+  name?: string | null;
+  [key: string]: unknown;
+}
+
 // GET: list loans
 export async function GET() {
   try {
@@ -14,36 +27,39 @@ export async function GET() {
     }
 
     // Enrich loans with borrower name and item name by batching queries
-    const borrowerIds = Array.from(new Set((loans || []).map((l: any) => l.borrower_id).filter(Boolean)));
-    const itemIds = Array.from(new Set((loans || []).map((l: any) => l.item_id).filter(Boolean)));
+    const borrowerIds = Array.from(
+      new Set((loans || []).map((l) => l.borrower_id).filter(Boolean) as string[])
+    );
+    const itemIds = Array.from(new Set((loans || []).map((l) => l.item_id).filter(Boolean) as string[]));
 
     const borrowersPromise = borrowerIds.length
       ? supabase.from('user_profiles').select('id, full_name, username').in('id', borrowerIds)
-      : Promise.resolve({ data: [], error: null } as any);
+      : Promise.resolve({ data: [] as Borrower[], error: null });
 
     const itemsPromise = itemIds.length
       ? supabase.from('inventory_items').select('id, name').in('id', itemIds)
-      : Promise.resolve({ data: [], error: null } as any);
+      : Promise.resolve({ data: [] as ItemRow[], error: null });
 
     const [borrowersRes, itemsRes] = await Promise.all([borrowersPromise, itemsPromise]);
 
-    const borrowers = borrowersRes?.data || [];
-    const items = itemsRes?.data || [];
+    const borrowers = (borrowersRes?.data as Borrower[]) || [];
+    const items = (itemsRes?.data as ItemRow[]) || [];
 
-    const borrowerMap: Record<string, any> = {};
-    borrowers.forEach((b: any) => (borrowerMap[b.id] = b));
+    const borrowerMap: Record<string, Borrower | undefined> = {};
+    borrowers.forEach((b) => (borrowerMap[String(b.id)] = b));
 
-    const itemMap: Record<string, any> = {};
-    items.forEach((it: any) => (itemMap[it.id] = it));
+    const itemMap: Record<string, ItemRow | undefined> = {};
+    items.forEach((it) => (itemMap[String(it.id)] = it));
 
-    const enriched = (loans || []).map((l: any) => ({
+    const enriched = (loans || []).map((l) => ({
       ...l,
-      borrower_name: l.user_name || (borrowerMap[l.borrower_id]?.full_name || borrowerMap[l.borrower_id]?.username) || null,
-      item_name: itemMap[l.item_id]?.name || null,
+      borrower_name: l.user_name || (borrowerMap[String(l.borrower_id)]?.full_name || borrowerMap[String(l.borrower_id)]?.username) || null,
+      item_name: itemMap[String(l.item_id)]?.name || null,
     }));
 
     return NextResponse.json({ loans: enriched });
-  } catch (err) {
+  } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });
   }
 }
@@ -87,7 +103,8 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ loan: data }, { status: 201 });
-  } catch (err) {
+  } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });
   }
 }

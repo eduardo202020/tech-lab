@@ -10,7 +10,7 @@ import getDay from 'date-fns/getDay';
 import enUS from 'date-fns/locale/en-US';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useAuth as useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
-import { useSupabaseEquipment } from '@/hooks/useSupabaseEquipment';
+import { useSupabaseEquipment, SupabaseEquipment } from '@/hooks/useSupabaseEquipment';
 import Modal from '@/components/Modal';
 
 type LoanEvent = {
@@ -20,6 +20,20 @@ type LoanEvent = {
   end: Date;
   equipment_id: string;
 };
+
+type Loan = {
+  id: string;
+  item_id?: string | null;
+  equipment_id?: string | null;
+  item_name?: string | null;
+  borrower_name?: string | null;
+  user_name?: string | null;
+  loan_date?: string | null;
+  expected_return_date?: string | null;
+  [key: string]: unknown;
+};
+
+// reuse SupabaseEquipment type from hook
 
 const locales = {
   'en-US': enUS,
@@ -32,8 +46,8 @@ export default function LoansCalendar({ onSelectEvent }: { onSelectEvent?: (even
   const [loading, setLoading] = useState(false);
   const { user: sbUser, profile } = useSupabaseAuth();
   const { equipment } = useSupabaseEquipment();
-  const [loansList, setLoansList] = useState<any[]>([]);
-  const [selectedLoan, setSelectedLoan] = useState<any | null>(null);
+  const [loansList, setLoansList] = useState<Loan[]>([]);
+  const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   // Modal / form state
@@ -48,17 +62,17 @@ export default function LoansCalendar({ onSelectEvent }: { onSelectEvent?: (even
     setLoading(true);
     try {
       const res = await fetch('/api/loans');
-      const json = await res.json();
+      const json = (await res.json()) as { loans?: Loan[] };
       if (json.loans) {
         setLoansList(json.loans);
 
-        const mapped = json.loans.map((l: any) => ({
+        const mapped = json.loans.map((l) => ({
           id: l.id,
           title: `${l.borrower_name || l.user_name || 'Usuario'} — ${l.item_name || ''}`.trim(),
           start: l.loan_date ? new Date(l.loan_date) : new Date(),
           end: l.expected_return_date ? new Date(l.expected_return_date) : new Date(),
-          equipment_id: l.item_id || l.equipment_id,
-        }));
+          equipment_id: (l.item_id as string) || l.equipment_id || '',
+        } as LoanEvent));
 
         setEvents(mapped);
       }
@@ -133,7 +147,7 @@ export default function LoansCalendar({ onSelectEvent }: { onSelectEvent?: (even
     setErrorMsg(null);
     setSubmitting(true);
     try {
-      const demoPromises: Promise<any>[] = [];
+      const demoPromises: Promise<Response>[] = [];
       const today = new Date();
 
       for (let i = 0; i < Math.min(3, equipment.length); i++) {
@@ -188,7 +202,7 @@ export default function LoansCalendar({ onSelectEvent }: { onSelectEvent?: (even
           events={events}
           startAccessor="start"
           endAccessor="end"
-          onSelectEvent={(e: any) => {
+          onSelectEvent={(e: LoanEvent) => {
             // Try to find the full loan object from the fetched loans list
             const loan = loansList.find((l) => String(l.id) === String(e.id));
             if (loan) {
@@ -204,7 +218,7 @@ export default function LoansCalendar({ onSelectEvent }: { onSelectEvent?: (even
                 loan_date: e.start ? new Date(e.start).toISOString() : undefined,
                 expected_return_date: e.end ? new Date(e.end).toISOString() : undefined,
               };
-              setSelectedLoan(fallback as any);
+              setSelectedLoan(fallback as Loan);
               setShowDetailsModal(true);
             }
 
@@ -254,7 +268,7 @@ export default function LoansCalendar({ onSelectEvent }: { onSelectEvent?: (even
             <tbody className="divide-y divide-theme-border bg-theme-card">
               {loansList.map((l) => (
                 <tr key={l.id} className="hover:bg-theme-bg">
-                  <td className="px-4 py-3 text-sm text-theme-text">{l.item_name || (equipment.find((e: any) => e.id === l.item_id)?.name) || '—'}</td>
+                  <td className="px-4 py-3 text-sm text-theme-text">{l.item_name || (equipment.find((eq: SupabaseEquipment) => eq.id === l.item_id)?.name) || '—'}</td>
                   <td className="px-4 py-3 text-sm text-theme-text">
                     {l.borrower_name || l.user_name ? (
                       <button
@@ -295,7 +309,7 @@ export default function LoansCalendar({ onSelectEvent }: { onSelectEvent?: (even
               className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg text-theme-text"
             >
               <option value="">Selecciona un equipo</option>
-              {equipment.map((eq: any) => (
+              {equipment.map((eq: SupabaseEquipment) => (
                 <option key={eq.id} value={eq.id}>{eq.name}</option>
               ))}
             </select>
@@ -344,7 +358,7 @@ export default function LoansCalendar({ onSelectEvent }: { onSelectEvent?: (even
           <div className="text-sm text-theme-secondary space-y-2 mb-4">
             <div>
               <div className="text-xs text-theme-secondary">Equipo</div>
-              <div className="text-theme-text">{selectedLoan.item_name || (equipment.find((e: any) => e.id === selectedLoan.item_id)?.name) || '—'}</div>
+              <div className="text-theme-text">{selectedLoan.item_name || (equipment.find((eq: SupabaseEquipment) => eq.id === selectedLoan.item_id)?.name) || '—'}</div>
             </div>
             <div>
               <div className="text-xs text-theme-secondary">Usuario</div>

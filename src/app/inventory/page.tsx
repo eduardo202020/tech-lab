@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import {
-  Search,
   Plus,
   Edit3,
   Trash2,
@@ -34,7 +33,6 @@ export default function InventoryPage() {
     createEquipment: addItem,
     updateEquipment: updateItem,
     deleteEquipment: deleteItem,
-    searchEquipment: searchItems,
     loading: isLoading,
     fetchEquipment,
   } = useSupabaseEquipment();
@@ -231,71 +229,58 @@ export default function InventoryPage() {
         <div className="bg-theme-card rounded-lg p-6 border border-theme-border mb-6">
           <div className="flex flex-col lg:flex-row gap-4 mb-4">
             {/* Búsqueda */}
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-theme-secondary w-4 h-4" />
-                <input
-                  type="text"
-                  placeholder="Buscar equipos..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-10 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
-                />
-                {searchQuery && (
+              <SearchBar
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                locationQuery={locationQuery}
+                setLocationQuery={setLocationQuery}
+                availableOnly={availableOnly}
+                setAvailableOnly={setAvailableOnly}
+              />
+
+              {/* Filtros */}
+              <div className="flex flex-wrap gap-2 items-center">
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full sm:w-auto px-4 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
+                >
+                  <option value="">Todas las categorías</option>
+                  {categories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={selectedCondition}
+                  onChange={(e) =>
+                    setSelectedCondition(
+                      e.target.value as SupabaseEquipment['condition'] | ''
+                    )
+                  }
+                  className="w-full sm:w-auto px-4 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
+                >
+                  <option value="">Todas las condiciones</option>
+                  {conditions.map((condition) => (
+                    <option key={condition} value={condition}>
+                      {conditionLabels[condition]}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Botón Agregar - Solo para administradores */}
+                {isAdmin && (
                   <button
-                    onClick={() => setSearchQuery('')}
-                    title="Limpiar búsqueda"
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-theme-secondary hover:text-theme-text"
+                    onClick={() => setShowAddModal(true)}
+                    className="flex items-center gap-2 bg-gradient-to-r from-neon-pink to-bright-blue text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
                   >
-                    ✕
+                    <Plus className="w-4 h-4" />
+                    Agregar Equipo
                   </button>
                 )}
               </div>
-            </div>
-
-            {/* Filtros */}
-            <div className="flex flex-wrap gap-2">
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full sm:w-auto px-4 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
-              >
-                <option value="">Todas las categorías</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={selectedCondition}
-                onChange={(e) =>
-                  setSelectedCondition(
-                    e.target.value as SupabaseEquipment['condition'] | ''
-                  )
-                }
-                className="w-full sm:w-auto px-4 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
-              >
-                <option value="">Todas las condiciones</option>
-                {conditions.map((condition) => (
-                  <option key={condition} value={condition}>
-                    {conditionLabels[condition]}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Botón Agregar - Solo para administradores */}
-            {isAdmin && (
-              <button
-                onClick={() => setShowAddModal(true)}
-                className="flex items-center gap-2 bg-gradient-to-r from-neon-pink to-bright-blue text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
-              >
-                <Plus className="w-4 h-4" />
-                Agregar Equipo
-              </button>
-            )}
           </div>
 
           {/* Estadísticas */}
