@@ -115,6 +115,14 @@ OTI UNI Tech Lab es una plataforma web moderna y futurista diseñada para la ges
 - **React 18** - Biblioteca de interfaces de usuario
 - **TypeScript** - Tipado estático para JavaScript
 
+### **Backend y Base de Datos**
+
+- **Supabase** - Backend as a Service (BaaS)
+- **PostgreSQL** - Base de datos relacional
+- **Row Level Security (RLS)** - Seguridad a nivel de filas
+- **Supabase Auth** - Sistema de autenticación integrado
+- **Supabase Storage** - Almacenamiento de archivos
+
 ### **Estilos y UI**
 
 - **Tailwind CSS** - Framework de utilidades CSS
@@ -151,6 +159,10 @@ tech-lab/
 ├── 📁 public/
 │   ├── 📁 models/          # Modelos 3D (.gltf, .bin)
 │   └── 📁 icons/           # Iconos SVG
+├── 📁 supabase/            # 🆕 Scripts SQL de base de datos
+│   ├── 📄 01-schema.sql              # 1️⃣ Estructura de tablas
+│   ├── 📄 02-configure-auth.sql      # 2️⃣ Autenticación y RLS
+│   └── 📄 03-seed-data-clean.sql     # 3️⃣ Datos de ejemplo (opcional)
 ├── 📁 src/
 │   ├── 📁 app/             # App Router de Next.js
 │   │   ├── 📄 layout.tsx   # Layout principal
@@ -164,6 +176,7 @@ tech-lab/
 │   │   │   ├── 📄 page.tsx # Lista de proyectos
 │   │   │   └── 📁 [id]/    # Páginas individuales de proyectos
 │   │   ├── 📁 equipment/   # Detalles de equipos
+│   │   ├── 📁 researchers/ # 🆕 Gestión de investigadores
 │   │   └── 📁 technologies/
 │   │       └── 📁 [technology]/ # Routing dinámico actualizado
 │   ├── 📁 components/      # Componentes reutilizables
@@ -176,15 +189,21 @@ tech-lab/
 │   │   ├── 📄 ProtectedRoute.tsx    # 🆕 Rutas protegidas
 │   │   └── 📄 AuthAwareLink.tsx     # 🆕 Enlaces inteligentes
 │   ├── 📁 contexts/        # React Contexts
-│   │   ├── 📄 ThemeContext.tsx      # Contexto de temas
-│   │   ├── 📄 AuthContext.tsx       # 🆕 Contexto de autenticación
-│   │   ├── 📄 ProjectContext.tsx    # 🆕 Contexto de proyectos
-│   │   └── � InventoryContext.tsx  # Contexto de inventario
-│   ├── �📁 hooks/           # 🆕 Hooks personalizados
-│   │   ├── 📄 useAuthRedirect.ts    # Hook de redirección inteligente
-│   │   └── 📄 useTechnologies.ts    # Hook para gestión de tecnologías
-│   └── 📁 data/           # Datos estáticos
-│       └── 📄 technologies.json     # Base de datos de tecnologías
+│   │   ├── 📄 ThemeContext.tsx           # Contexto de temas
+│   │   ├── 📄 SupabaseAuthContext.tsx    # 🆕 Autenticación con Supabase
+│   │   ├── 📄 ProjectContext.tsx         # 🆕 Contexto de proyectos
+│   │   ├── 📄 ResearcherContext.tsx      # 🆕 Contexto de investigadores
+│   │   └── 📄 InventoryContext.tsx       # Contexto de inventario
+   ├── 📁 hooks/           # 🆕 Hooks personalizados
+│   │   ├── 📄 useAuthRedirect.ts         # Hook de redirección inteligente
+│   │   ├── 📄 useTechnologies.ts         # Hook para gestión de tecnologías
+│   │   ├── 📄 useSupabaseProjects.ts     # 🆕 Hook de proyectos con Supabase
+│   │   ├── 📄 useSupabaseResearchers.ts  # 🆕 Hook de investigadores con Supabase
+│   │   └── 📄 useSupabaseEquipment.ts    # 🆕 Hook de inventario con Supabase
+   ├── 📁 lib/             # 🆕 Utilidades y configuración
+│   │   └── 📄 supabase.ts                # Cliente de Supabase
+   └── 📁 data/           # Datos estáticos (deprecado, migrado a Supabase)
+       └── 📄 technologies.json          # Base de datos de tecnologías (legacy)
 ├── 📄 tailwind.config.js  # Configuración de Tailwind
 ├── 📄 next.config.ts      # Configuración de Next.js
 └── 📄 package.json        # Dependencias del proyecto
@@ -197,6 +216,7 @@ tech-lab/
 - Node.js 18+
 - npm o yarn
 - Git
+- Cuenta de Supabase (gratuita)
 
 ### **1. Clonar el repositorio**
 
@@ -205,7 +225,46 @@ git clone https://github.com/eduardo202020/tech-lab.git
 cd tech-lab
 ```
 
-### **2. Instalar dependencias**
+### **2. Configurar Supabase**
+
+#### **2.1 Crear proyecto en Supabase**
+1. Ve a [https://supabase.com](https://supabase.com) y crea una cuenta
+2. Crea un nuevo proyecto
+3. Copia la URL del proyecto y la clave `anon key`
+
+#### **2.2 Ejecutar scripts SQL en orden**
+
+Abre el **SQL Editor** en Supabase y ejecuta los siguientes archivos en **ORDEN ESTRICTO**:
+
+```sql
+-- 1️⃣ PRIMERO: Crear estructura de base de datos
+-- Ejecuta: supabase/01-schema.sql
+-- Crea todas las tablas (user_profiles, technologies, projects, researchers, inventory_items, loans)
+
+-- 2️⃣ SEGUNDO: Configurar autenticación y seguridad
+-- Ejecuta: supabase/02-configure-auth.sql
+-- Configura Row Level Security (RLS), triggers y políticas de acceso
+
+-- 3️⃣ TERCERO (OPCIONAL): Poblar con datos de ejemplo
+-- Ejecuta: supabase/03-seed-data-clean.sql
+-- Inserta 7 tecnologías, 6 proyectos, 9 investigadores y ~19 items de inventario
+```
+
+> ⚠️ **IMPORTANTE**: 
+> - Ejecuta los scripts en el orden numérico indicado (01, 02, 03)
+> - NO ejecutes los archivos SQL antiguos (sin prefijo numérico)
+> - El script `03-seed-data-clean.sql` es opcional si solo quieres la estructura vacía
+
+#### **2.3 Crear archivo de variables de entorno**
+
+Crea un archivo `.env.local` en la raíz del proyecto:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=tu_proyecto_url_aqui
+NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_anon_key_aqui
+```
+
+### **3. Instalar dependencias**
 
 ```bash
 npm install
@@ -213,7 +272,7 @@ npm install
 yarn install
 ```
 
-### **3. Ejecutar en modo desarrollo**
+### **4. Ejecutar en modo desarrollo**
 
 ```bash
 npm run dev
@@ -221,11 +280,17 @@ npm run dev
 yarn dev
 ```
 
-### **4. Abrir en el navegador**
+### **5. Abrir en el navegador**
 
 ```
 http://localhost:3000
 ```
+
+### **6. Crear primer usuario (opcional)**
+
+1. Navega a `/login` en tu app
+2. Usa el sistema de login de Supabase
+3. El primer usuario creado puede ser promovido a admin manualmente en Supabase
 
 ## 📋 Scripts Disponibles
 

@@ -22,7 +22,6 @@ import { useSupabaseResearchers } from '@/hooks/useSupabaseResearchers';
 import type { SupabaseResearcher } from '@/hooks/useSupabaseResearchers';
 
 type Researcher = SupabaseResearcher;
-import { useProjects } from '@/contexts/ProjectContext';
 import Header from '@/components/Header';
 
 export default function ResearchersPage() {
@@ -69,8 +68,6 @@ export default function ResearchersPage() {
       ...new Set(researchers.map((researcher) => researcher.department)),
     ].filter(Boolean);
   }, [researchers]);
-
-  const { projects } = useProjects();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDepartment, setSelectedDepartment] = useState('');
@@ -184,12 +181,6 @@ export default function ResearchersPage() {
     phd: 'Doctor',
     postdoc: 'Postdoc',
     professor: 'Profesor',
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const getProjectName = (projectId: string) => {
-    const project = projects.find((p) => p.id === projectId);
-    return project ? project.title : `Proyecto ${projectId}`;
   };
 
   return (

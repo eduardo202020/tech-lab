@@ -362,7 +362,127 @@ INSERT INTO public.projects (
  NULL);
 
 -- =============================================
--- 4. INSERTAR ARTÍCULOS DE INVENTARIO
+-- 4. INSERTAR INVESTIGADORES
+-- =============================================
+
+INSERT INTO public.researchers (
+    name, email, avatar_url, position, department, specializations,
+    biography, academic_level, status, join_date,
+    phone, linkedin_url, research_gate_url, orcid,
+    university, degree, research_interests, publications, achievements,
+    projects_completed, publications_count, years_experience
+) VALUES
+
+('Dr. Juan García', 'juan.garcia@uni.edu.pe', '/images/researchers/juan-garcia.jpg',
+ 'Director del Tech Lab', 'Ingeniería Electrónica',
+ ARRAY['IoT', 'Sistemas Embebidos', 'Computer Vision'],
+ 'Doctor en Ingeniería con más de 15 años de experiencia en investigación y desarrollo de sistemas IoT y visión artificial. Ha liderado múltiples proyectos de innovación tecnológica.',
+ 'phd', 'active', '2020-01-15',
+ '+51 999 123 456', 'https://linkedin.com/in/juangarcia', 'https://researchgate.net/profile/Juan-Garcia',
+ '0000-0001-2345-6789', 'Universidad Nacional de Ingeniería', 'Doctor en Ingeniería Electrónica',
+ ARRAY['Internet of Things', 'Inteligencia Artificial', 'Visión por Computadora', 'Sistemas Embebidos'],
+ ARRAY['Smart IoT Systems for Urban Environments', 'Computer Vision Applications in Smart Cities'],
+ ARRAY['Premio Nacional de Innovación Tecnológica 2023', 'Mejor Proyecto IoT UNI 2022'],
+ 12, 25, 15),
+
+('Dra. María López', 'maria.lopez@uni.edu.pe', '/images/researchers/maria-lopez.jpg',
+ 'Investigadora Senior', 'Ingeniería de Sistemas',
+ ARRAY['Machine Learning', 'Deep Learning', 'Computer Vision'],
+ 'Doctora especializada en inteligencia artificial y aprendizaje automático con énfasis en visión por computadora y reconocimiento de patrones.',
+ 'phd', 'active', '2021-03-10',
+ '+51 999 234 567', 'https://linkedin.com/in/marialopez', 'https://researchgate.net/profile/Maria-Lopez',
+ '0000-0002-3456-7890', 'Universidad Nacional de Ingeniería', 'Doctor en Ciencias de la Computación',
+ ARRAY['Machine Learning', 'Deep Learning', 'Reconocimiento de Imágenes', 'Neural Networks'],
+ ARRAY['Deep Learning for Image Classification', 'AI-based Pattern Recognition Systems'],
+ ARRAY['Best Paper Award ICML 2024', 'Becaria Fulbright 2020'],
+ 8, 18, 10),
+
+('Dr. Carlos Telecomunicaciones', 'carlos.telecom@uni.edu.pe', '/images/researchers/carlos-telecom.jpg',
+ 'Investigador Principal - Redes', 'Ingeniería de Telecomunicaciones',
+ ARRAY['LoRa', 'LoRaWAN', 'Redes Inalámbricas', 'IoT'],
+ 'Especialista en tecnologías de comunicación LoRa y redes de largo alcance. Lidera el proyecto de despliegue de la red LoRa autónoma en toda la universidad.',
+ 'phd', 'active', '2019-08-20',
+ '+51 999 345 678', 'https://linkedin.com/in/carlostelecom', 'https://researchgate.net/profile/Carlos-Telecom',
+ '0000-0003-4567-8901', 'Pontificia Universidad Católica del Perú', 'Doctor en Telecomunicaciones',
+ ARRAY['LoRa/LoRaWAN', 'Redes WSN', 'Protocolos de comunicación', 'IoT Networks'],
+ ARRAY['LoRa Networks for Smart Campus', 'Long Range Communication Protocols'],
+ ARRAY['Mejor Investigación en Telecomunicaciones UNI 2023'],
+ 10, 15, 12),
+
+('Dra. Sofia Blockchain', 'sofia.blockchain@uni.edu.pe', '/images/researchers/sofia-blockchain.jpg',
+ 'Investigadora Blockchain & DLT', 'Ciencias de la Computación',
+ ARRAY['Blockchain', 'Smart Contracts', 'Ethereum', 'Criptomonedas'],
+ 'Experta en tecnologías blockchain y contratos inteligentes. Investiga aplicaciones de blockchain en entornos académicos y desarrollo de DApps descentralizadas.',
+ 'phd', 'active', '2022-02-01',
+ '+51 999 456 789', 'https://linkedin.com/in/sofiablockchain', 'https://researchgate.net/profile/Sofia-Blockchain',
+ '0000-0004-5678-9012', 'Universidad Nacional de Ingeniería', 'Doctor en Ciencias de la Computación',
+ ARRAY['Blockchain Technology', 'Smart Contracts', 'Decentralized Applications', 'Cryptography'],
+ ARRAY['Private Blockchain Networks for Universities', 'Smart Contracts Security Analysis'],
+ ARRAY['Blockchain Innovation Award 2024'],
+ 5, 12, 8),
+
+('Ing. Miguel Manufactura', 'miguel.manufactura@uni.edu.pe', '/images/researchers/miguel-manufactura.jpg',
+ 'Especialista en Manufactura Digital', 'Ingeniería Mecánica',
+ ARRAY['Impresión 3D', 'Manufactura Aditiva', 'CNC', 'CAD/CAM'],
+ 'Ingeniero especializado en manufactura digital, impresión 3D y diseño asistido por computadora. Coordina el centro de manufactura del Tech Lab.',
+ 'master', 'active', '2021-06-15',
+ '+51 999 567 890', 'https://linkedin.com/in/miguelmanu', NULL,
+ NULL, 'Universidad Nacional de Ingeniería', 'Maestría en Ingeniería Mecánica',
+ ARRAY['Impresión 3D', 'Manufactura Aditiva', 'Diseño CAD', 'Fabricación Digital'],
+ ARRAY['3D Printing Optimization Techniques', 'Additive Manufacturing Best Practices'],
+ ARRAY['Mejor Proyecto de Manufactura UNI 2023'],
+ 15, 8, 9),
+
+('Dr. Roberto Energía', 'roberto.energia@uni.edu.pe', '/images/researchers/roberto-energia.jpg',
+ 'Investigador en Energías Renovables', 'Ingeniería Eléctrica',
+ ARRAY['Energía Solar', 'Fotovoltaica', 'Sistemas Autónomos', 'IoT'],
+ 'Doctor especializado en sistemas fotovoltaicos y energías renovables. Investiga soluciones de almacenamiento de energía y optimización de sistemas autónomos.',
+ 'phd', 'active', '2020-05-10',
+ '+51 999 678 901', 'https://linkedin.com/in/robertoenergia', 'https://researchgate.net/profile/Roberto-Energia',
+ '0000-0005-6789-0123', 'Universidad Nacional de Ingeniería', 'Doctor en Ingeniería Eléctrica',
+ ARRAY['Energía Fotovoltaica', 'Sistemas Autónomos', 'Almacenamiento de Energía', 'Eficiencia Energética'],
+ ARRAY['Autonomous Solar Systems Design', 'Energy Storage Optimization'],
+ ARRAY['Premio Energía Sostenible 2024'],
+ 7, 14, 11),
+
+('Ing. Eduardo Dev', 'eduardo.dev@uni.edu.pe', '/images/researchers/eduardo-dev.jpg',
+ 'Desarrollador Full Stack - Plataforma Tech Lab', 'Ingeniería de Software',
+ ARRAY['Next.js', 'React', 'TypeScript', 'Supabase', 'Full Stack Development'],
+ 'Ingeniero de software especializado en desarrollo web moderno. Lidera el proyecto de la Plataforma Tech Lab utilizando tecnologías de vanguardia.',
+ 'bachelor', 'active', '2023-01-10',
+ '+51 999 789 012', 'https://linkedin.com/in/eduardodev', NULL,
+ NULL, 'Universidad Nacional de Ingeniería', 'Ingeniería de Software',
+ ARRAY['Desarrollo Web', 'Next.js', 'React', 'TypeScript', 'Cloud Computing'],
+ ARRAY['Modern Web Development with Next.js', 'Full Stack Development Best Practices'],
+ ARRAY['Mejor Proyecto Web UNI 2024'],
+ 20, 6, 5),
+
+('Bach. Carlos Mendez', 'carlos.mendez@uni.edu.pe', '/images/researchers/carlos-mendez.jpg',
+ 'Investigador Asistente IoT', 'Ingeniería Electrónica',
+ ARRAY['IoT', 'Arduino', 'Raspberry Pi', 'Sensores'],
+ 'Bachiller en ingeniería electrónica enfocado en desarrollo de sistemas IoT y programación de microcontroladores para proyectos del Tech Lab.',
+ 'bachelor', 'active', '2023-08-15',
+ '+51 999 890 123', 'https://linkedin.com/in/carlosmendez', NULL,
+ NULL, 'Universidad Nacional de Ingeniería', 'Bachiller en Ingeniería Electrónica',
+ ARRAY['Internet of Things', 'Microcontroladores', 'Sensores', 'Programación Embebida'],
+ ARRAY['IoT Applications for Smart Buildings'],
+ ARRAY[]::text[],
+ 3, 2, 2),
+
+('Est. Sofia Torres', 'sofia.torres@uni.edu.pe', '/images/researchers/sofia-torres.jpg',
+ 'Estudiante Investigadora', 'Ingeniería Electrónica',
+ ARRAY['IoT', 'Computer Vision', 'Python'],
+ 'Estudiante de últimos ciclos apasionada por IoT y visión artificial. Participa en el proyecto Smart Parking desarrollando algoritmos de detección.',
+ 'undergraduate', 'active', '2024-03-01',
+ '+51 999 901 234', NULL, NULL,
+ NULL, 'Universidad Nacional de Ingeniería', 'Estudiante de Ingeniería Electrónica',
+ ARRAY['IoT', 'Computer Vision', 'Machine Learning', 'Python'],
+ ARRAY[]::text[],
+ ARRAY['Mención Honrosa en Concurso de Proyectos 2024'],
+ 1, 0, 1);
+
+-- =============================================
+-- 5. INSERTAR ARTÍCULOS DE INVENTARIO
 -- =============================================
 
 INSERT INTO public.inventory_items (

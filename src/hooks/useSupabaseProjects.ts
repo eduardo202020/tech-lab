@@ -374,7 +374,8 @@ export function useSupabaseProjects() {
   // Cargar datos al montar el componente
   useEffect(() => {
     fetchProjects();
-  }, [fetchProjects]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return {
     projects,

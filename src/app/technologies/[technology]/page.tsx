@@ -6,19 +6,27 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { notFound } from 'next/navigation';
 import { useTechnologies } from '@/hooks/useTechnologies';
+import { useEffect } from 'react';
 import { ExternalLink } from 'lucide-react';
 
 export default function TechnologyPage() {
   const params = useParams();
   const technologyId = params.technology as string;
-  const { getTechnology, loading } = useTechnologies();
+  const { getTechnology, loading, fetchRelatedProjectsForTechnology } =
+    useTechnologies();
 
   const technology = getTechnology(technologyId);
 
+  useEffect(() => {
+    if (technology && (!technology.relatedProjects || technology.relatedProjects.length === 0)) {
+      fetchRelatedProjectsForTechnology(technology.id);
+    }
+  }, [technology, fetchRelatedProjectsForTechnology]);
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-dark-bg flex items-center justify-center">
-        <div className="text-white">Cargando...</div>
+      <div className="min-h-screen bg-theme-background flex items-center justify-center">
+        <div className="text-theme-text">Cargando...</div>
       </div>
     );
   }
@@ -29,7 +37,7 @@ export default function TechnologyPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col bg-dark-bg text-light-gray font-roboto">
+    <div className="relative flex min-h-screen w-full flex-col bg-theme-background text-theme-text font-roboto">
       <Header />
 
       <main className="flex-grow pt-20">
@@ -43,10 +51,10 @@ export default function TechnologyPage() {
                 {technology.icon}
               </span>
             </div>
-            <h1 className="font-bebas text-5xl md:text-6xl font-bold text-white mb-6">
+            <h1 className="font-bebas text-5xl md:text-6xl font-bold text-theme-text mb-6">
               {technology.name}
             </h1>
-            <p className="text-xl text-light-gray/90 max-w-3xl mx-auto">
+            <p className="text-xl text-theme-secondary max-w-3xl mx-auto">
               {technology.description}
             </p>
           </div>
@@ -54,11 +62,11 @@ export default function TechnologyPage() {
           {/* Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
             {/* About Section */}
-            <div className="bg-black/20 backdrop-blur-sm rounded-xl p-8 border border-white/10">
-              <h2 className="font-bebas text-3xl font-bold text-white mb-6">
+            <div className="bg-theme-card backdrop-blur-sm rounded-xl p-8 border border-theme-border">
+              <h2 className="font-bebas text-3xl font-bold text-theme-text mb-6">
                 {technology.about.title}
               </h2>
-              <div className="space-y-4 text-light-gray/90">
+              <div className="space-y-4 text-theme-secondary">
                 {technology.about.content.map((paragraph, index) => (
                   <p key={index}>{paragraph}</p>
                 ))}
@@ -66,11 +74,11 @@ export default function TechnologyPage() {
             </div>
 
             {/* Features Section */}
-            <div className="bg-black/20 backdrop-blur-sm rounded-xl p-8 border border-white/10">
-              <h2 className="font-bebas text-3xl font-bold text-white mb-6">
+            <div className="bg-theme-card backdrop-blur-sm rounded-xl p-8 border border-theme-border">
+              <h2 className="font-bebas text-3xl font-bold text-theme-text mb-6">
                 {technology.features.title}
               </h2>
-              <ul className="space-y-3 text-light-gray/90">
+              <ul className="space-y-3 text-theme-secondary">
                 {technology.features.items.map((feature, index) => (
                   <li key={index} className="flex items-center">
                     <span className={`text-${feature.color} mr-3`}>•</span>
@@ -83,10 +91,10 @@ export default function TechnologyPage() {
 
           {/* Projects Section */}
           <div
-            className={`bg-gradient-to-r ${technology.gradient}/10 rounded-xl p-8 border border-white/10 mb-12`}
+            className={`bg-gradient-to-r ${technology.gradient}/10 rounded-xl p-8 border border-theme-border mb-12`}
           >
             {/* Proyectos Vinculados */}
-            <h2 className="font-bebas text-3xl font-bold text-white mb-8 text-center">
+            <h2 className="font-bebas text-3xl font-bold text-theme-text mb-8 text-center">
               Proyectos Vinculados con {technology.name}
             </h2>
 
@@ -97,13 +105,13 @@ export default function TechnologyPage() {
                   <Link
                     key={project.id}
                     href={`/projects/${project.id}`}
-                    className="bg-black/30 rounded-lg p-6 border border-white/10 hover:border-white/30 transition-all duration-300 group"
+                    className="bg-theme-card rounded-lg p-6 border border-theme-border hover:border-theme-accent transition-all duration-300 group"
                   >
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-bold text-white group-hover:text-neon-pink transition-colors">
+                      <h3 className="font-bold text-theme-text group-hover:text-neon-pink transition-colors">
                         {project.title}
                       </h3>
-                      <ExternalLink className="w-4 h-4 text-light-gray/60 group-hover:text-white transition-colors" />
+                      <ExternalLink className="w-4 h-4 text-theme-secondary group-hover:text-theme-text transition-colors" />
                     </div>
 
                     <div className="flex items-center gap-3 mb-3">
@@ -118,10 +126,10 @@ export default function TechnologyPage() {
                                 : 'bg-purple-500'
                         }`}
                       ></div>
-                      <span className="text-sm text-light-gray/80 capitalize">
+                      <span className="text-sm text-theme-secondary capitalize">
                         {project.status}
                       </span>
-                      <span className="text-sm text-light-gray/60">
+                      <span className="text-sm text-theme-secondary opacity-70">
                         {project.progress}% completado
                       </span>
                     </div>
@@ -138,12 +146,12 @@ export default function TechnologyPage() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <div className="text-light-gray/60 mb-4">
+                <div className="text-theme-secondary mb-4">
                   No hay proyectos vinculados actualmente
                 </div>
                 <Link
                   href="/projects"
-                  className="text-neon-pink hover:text-white transition-colors"
+                  className="text-neon-pink hover:text-theme-text transition-colors"
                 >
                   Ver todos los proyectos →
                 </Link>
@@ -153,7 +161,7 @@ export default function TechnologyPage() {
             {/* Proyectos del JSON original como ejemplos */}
             {technology.projects && technology.projects.length > 0 && (
               <div className="mt-12">
-                <h3 className="font-bebas text-2xl font-bold text-white mb-6 text-center">
+                <h3 className="font-bebas text-2xl font-bold text-theme-text mb-6 text-center">
                   Casos de Uso Típicos
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -164,12 +172,12 @@ export default function TechnologyPage() {
                     ) => (
                       <div
                         key={index}
-                        className="bg-black/20 rounded-lg p-4 border border-white/5"
+                        className="bg-theme-card rounded-lg p-4 border border-theme-border"
                       >
-                        <h4 className="font-medium text-white mb-2 text-sm">
+                        <h4 className="font-medium text-theme-text mb-2 text-sm">
                           {project.title}
                         </h4>
-                        <p className="text-light-gray/70 text-xs">
+                        <p className="text-theme-secondary text-xs">
                           {project.description}
                         </p>
                       </div>
@@ -183,12 +191,12 @@ export default function TechnologyPage() {
           {/* Direct Links Section (if available) */}
           {technology.hasDirectLinks && technology.directLinks && (
             <div
-              className={`bg-gradient-to-r ${technology.gradient}/20 rounded-xl p-8 border border-white/10 mb-12 text-center`}
+              className={`bg-gradient-to-r ${technology.gradient}/20 rounded-xl p-8 border border-theme-border mb-12 text-center`}
             >
-              <h3 className="font-bebas text-2xl font-bold text-white mb-4">
+              <h3 className="font-bebas text-2xl font-bold text-theme-text mb-4">
                 Accede al Sistema de {technology.name}
               </h3>
-              <p className="text-light-gray/90 mb-6">
+              <p className="text-theme-secondary mb-6">
                 Explora nuestro sistema completo de gestión de equipos y
                 recursos
               </p>
@@ -200,7 +208,7 @@ export default function TechnologyPage() {
                     className={`inline-block px-8 py-3 rounded-lg font-bold transition-all ${
                       link.primary
                         ? `bg-gradient-to-r ${technology.gradient} text-white hover:scale-105 transition-transform`
-                        : `bg-black/30 border border-white/20 text-white hover:bg-white/10 transition-colors`
+                        : `bg-theme-card border border-theme-border text-theme-text hover:bg-theme-accent transition-colors`
                     }`}
                   >
                     {link.text}

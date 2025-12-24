@@ -96,10 +96,11 @@ export default function ProjectsPage() {
     searchProjects,
   ]);
 
-  if (authLoading) {
+  // Mostrar loading solo si no hay proyectos y está cargando
+  if (isLoading && projects.length === 0) {
     return (
       <div className="min-h-screen bg-theme-background flex items-center justify-center">
-        <div className="text-theme-text">Verificando autenticación...</div>
+        <div className="text-theme-text">Procesando...</div>
       </div>
     );
   }

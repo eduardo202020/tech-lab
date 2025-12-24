@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useSupabaseProjects, SupabaseProject } from './useSupabaseProjects';
+import type { SupabaseProject } from './useSupabaseProjects';
 
 export interface SupabaseTechnology {
   id: string;
@@ -105,7 +105,6 @@ export function useTechnologies() {
   const [technologies, setTechnologies] = useState<Technology[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { projects } = useSupabaseProjects();
 
   const loadTechnologies = useCallback(async () => {
     try {
@@ -124,19 +123,10 @@ export function useTechnologies() {
         return;
       }
 
-      // Convertir y enriquecer con proyectos relacionados
+      // Convertir tecnologías sin cargar proyectos relacionados (se cargarán bajo demanda)
       const enrichedTechnologies = technologiesData.map(
-        (supabaseTech: SupabaseTechnology) => {
-          // Encontrar proyectos relacionados por technology IDs
-          const relatedProjects = projects.filter((project) =>
-            project.related_technology_ids?.includes(supabaseTech.id)
-          );
-
-          return convertSupabaseTechnologyToLegacy(
-            supabaseTech,
-            relatedProjects
-          );
-        }
+        (supabaseTech: SupabaseTechnology) =>
+          convertSupabaseTechnologyToLegacy(supabaseTech, [])
       );
 
       setTechnologies(enrichedTechnologies);
@@ -146,7 +136,7 @@ export function useTechnologies() {
     } finally {
       setLoading(false);
     }
-  }, [projects]);
+  }, []);
 
   useEffect(() => {
     loadTechnologies();
@@ -185,6 +175,55 @@ export function useTechnologies() {
     [technologies]
   );
 
+  // Cargar proyectos relacionados para una tecnología específica (bajo demanda)
+  const fetchRelatedProjectsForTechnology = useCallback(
+    async (technologyId: string) => {
+      try {
+        const { data, error: projError } = await supabase
+          .from('projects')
+          .select('id, title, status, progress, related_technology_ids')
+          .contains('related_technology_ids', [technologyId]);
+
+        if (projError) {
+          console.error('Error loading related projects:', projError);
+          return [] as {
+            id: string;
+            title: string;
+            status: string;
+            progress: number;
+          }[];
+        }
+
+        const simplified = (data || []).map((project: any) => ({
+          id: project.id as string,
+          title: project.title as string,
+          status: project.status as string,
+          progress: (project.progress ?? 0) as number,
+        }));
+
+        // Actualizar el estado de tecnologías con los proyectos relacionados
+        setTechnologies((prev) =>
+          prev.map((tech) =>
+            tech.id === technologyId
+              ? { ...tech, relatedProjects: simplified }
+              : tech
+          )
+        );
+
+        return simplified;
+      } catch (err) {
+        console.error('Error fetching related projects:', err);
+        return [] as {
+          id: string;
+          title: string;
+          status: string;
+          progress: number;
+        }[];
+      }
+    },
+    []
+  );
+
   return {
     technologies,
     loading,
@@ -194,5 +233,6 @@ export function useTechnologies() {
     searchTechnologies,
     refreshTechnologies: loadTechnologies,
     clearError: () => setError(null),
+    fetchRelatedProjectsForTechnology,
   };
 }

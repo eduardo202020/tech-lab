@@ -10,7 +10,6 @@ import './globals.css';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AuthProvider as SupabaseAuthProvider } from '@/contexts/SupabaseAuthContext';
 import { InventoryProvider } from '@/contexts/InventoryContext';
-import { ProjectProvider } from '@/contexts/ProjectContext';
 import { ResearcherProvider } from '@/contexts/ResearcherContext';
 import AuthGate from '@/components/AuthGate';
 
