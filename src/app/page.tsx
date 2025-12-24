@@ -51,10 +51,10 @@ export default function Home() {
                   {/* CTA Buttons */}
                   <div className="mt-12 flex flex-col sm:flex-row gap-4">
                     <Link
-                      href="/technologies"
+                      href="/projects"
                       className="inline-block rounded-md bg-gradient-to-r from-bright-blue to-neon-pink px-8 py-3 text-lg font-bold text-white shadow-lg shadow-bright-blue/40 transition-all hover:scale-105 hover:shadow-bright-blue"
                     >
-                      Explorar Tecnologías
+                      Explorar Proyectos
                     </Link>
                     <Link
                       href="/inventory"
@@ -108,10 +108,10 @@ export default function Home() {
                   Blockchain
                 </Link>
                 <Link
-                  href="/technologies/esp32"
+                  href="/technologies/iot"
                   className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer"
                 >
-                  ESP32 IoT
+                  IoT
                 </Link>
                 <Link
                   href="/technologies/ai"
@@ -120,70 +120,41 @@ export default function Home() {
                   Inteligencia Artificial
                 </Link>
                 <Link
-                  href="/technologies/image-recognition"
+                  href="/technologies/web-platform"
                   className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer"
                 >
-                  Reconocimiento de Imágenes
+                  Plataformas Web
                 </Link>
                 <Link
-                  href="/technologies/inventory-management"
+                  href="/technologies/renewable-energy"
                   className="bg-gradient-to-r from-bright-blue to-neon-pink bg-clip-text text-transparent font-bold px-6 py-3 border border-bright-blue/30 rounded-full backdrop-blur-sm hover:border-bright-blue/60 hover:shadow-lg hover:shadow-bright-blue/20 transition-all cursor-pointer"
                 >
-                  Gestión de Inventario
+                  Energías Renovables
                 </Link>
                 <Link
-                  href="/technologies/machine-learning"
+                  href="/technologies/manufacturing"
                   className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer"
                 >
-                  Machine Learning
+                  Manufactura Digital
                 </Link>
                 <Link
-                  href="/technologies/cloud-computing"
+                  href="/technologies/renewable-energy"
                   className="bg-gradient-to-r from-bright-blue to-neon-pink bg-clip-text text-transparent font-bold px-6 py-3 border border-bright-blue/30 rounded-full backdrop-blur-sm hover:border-bright-blue/60 hover:shadow-lg hover:shadow-bright-blue/20 transition-all cursor-pointer"
                 >
-                  Cloud Computing
-                </Link>
-                <Link
-                  href="/projects/1"
-                  className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer relative"
-                >
-                  🅿️ Smart Parking
-                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                </Link>
-                {/* Duplicate for seamless loop */}
-                <Link
-                  href="/technologies/lora"
-                  className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer"
-                >
-                  LoRa Technology
-                </Link>
-                <Link
-                  href="/technologies/blockchain"
-                  className="bg-gradient-to-r from-bright-blue to-neon-pink bg-clip-text text-transparent font-bold px-6 py-3 border border-bright-blue/30 rounded-full backdrop-blur-sm hover:border-bright-blue/60 hover:shadow-lg hover:shadow-bright-blue/20 transition-all cursor-pointer"
-                >
-                  Blockchain
-                </Link>
-                <Link
-                  href="/technologies/esp32"
-                  className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer"
-                >
-                  ESP32 IoT
-                </Link>
-                <Link
-                  href="/technologies/ai"
-                  className="bg-gradient-to-r from-bright-blue to-neon-pink bg-clip-text text-transparent font-bold px-6 py-3 border border-bright-blue/30 rounded-full backdrop-blur-sm hover:border-bright-blue/60 hover:shadow-lg hover:shadow-bright-blue/20 transition-all cursor-pointer"
-                >
-                  Inteligencia Artificial
-                </Link>
-                <Link
-                  href="/projects/1"
-                  className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer relative"
-                >
-                  🅿️ Smart Parking
-                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                  Energías Renovables
                 </Link>
               </div>
             </div>
+          </div>
+          
+          {/* Button to see all technologies */}
+          <div className="text-center mt-12">
+            <Link
+              href="/technologies"
+              className="inline-block rounded-md bg-gradient-to-r from-bright-blue to-neon-pink px-8 py-3 text-lg font-bold text-white shadow-lg shadow-bright-blue/40 transition-all hover:scale-105 hover:shadow-bright-blue"
+            >
+              Ver Todas las Tecnologías
+            </Link>
           </div>
         </div>
       </section>

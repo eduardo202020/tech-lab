@@ -174,7 +174,7 @@ export default function ProjectDetailPage() {
             </div>
 
             {/* Simulación 3D - Solo para Smart Parking System */}
-            {project.id === '1' && (
+            {project.id === '00000000-0000-0000-0000-000000000001' && (
               <div className="bg-theme-card rounded-xl p-6 border border-theme-border">
                 <h2 className="text-xl font-bold text-theme-text mb-4 flex items-center gap-2">
                   <Monitor className="text-theme-accent" size={24} />
