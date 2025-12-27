@@ -86,7 +86,9 @@ export default function RootLayout({
             <SupabaseAuthProvider>
               <AuthGate>
                 <InventoryProvider>
+                  <ProjectProvider>
                   <ResearcherProvider>{children}</ResearcherProvider>
+               </ProjectProvider>
                 </InventoryProvider>
               </AuthGate>
             </SupabaseAuthProvider>
