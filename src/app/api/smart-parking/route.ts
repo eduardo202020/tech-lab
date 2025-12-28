@@ -34,6 +34,17 @@ const pool = missingEnv
       ssl: SMARTPARKING_DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined,
     });
 
+if (!missingEnv) {
+  console.log('[SmartParking] Pool config:', {
+    host: SMARTPARKING_DB_HOST,
+    port: SMARTPARKING_DB_PORT,
+    database: SMARTPARKING_DB_NAME,
+    user: SMARTPARKING_DB_USER,
+    ssl: SMARTPARKING_DB_SSL,
+    env: process.env.NODE_ENV,
+  });
+}
+
 const parsePgArray = (value: unknown): string[] => {
   if (Array.isArray(value)) return value.map((v) => String(v));
   if (value === null || value === undefined) return [];
@@ -174,9 +185,16 @@ export async function GET(request: Request) {
 
   let client: PoolClient | null = null;
   try {
+    console.log('[SmartParking] Intentando conectar a DB...');
     client = await pool.connect();
+    console.log('[SmartParking] ✅ Conexión a DB exitosa');
   } catch (connErr: unknown) {
-    console.error('SmartParking DB connection error:', connErr);
+    console.error('[SmartParking] ❌ DB connection error:', connErr);
+    console.error('[SmartParking] Error details:', {
+      type: typeof connErr,
+      message: connErr instanceof Error ? connErr.message : 'Unknown error',
+      cause: connErr instanceof Error ? connErr.cause : undefined,
+    });
 
     const code =
       typeof connErr === 'object' && connErr && 'code' in connErr && connErr.code
