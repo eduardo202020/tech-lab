@@ -186,14 +186,7 @@ export default function ProjectDetailPage() {
                   real utilizando tecnología IoT y sensores.
                 </p>
                 <div className="bg-theme-background rounded-lg p-4 border border-theme-border">
-                  <div className="block lg:hidden text-center py-8 text-theme-secondary">
-                    <Monitor className="mx-auto mb-4" size={48} />
-                    <p className="text-lg font-medium mb-2">Simulación 3D no disponible en móvil</p>
-                    <p className="text-sm">Para una mejor experiencia, accede desde un dispositivo de escritorio</p>
-                  </div>
-                  <div className="hidden lg:block">
-                    <SmartParkingViewer />
-                  </div>
+                  <SmartParkingViewer />
                 </div>
                 <div className="mt-4 text-sm text-theme-secondary">
                   <p>

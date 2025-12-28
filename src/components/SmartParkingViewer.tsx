@@ -11,18 +11,17 @@ interface ParkingSpot {
   position: [number, number, number];
 }
 
-interface ParkingData {
-  camera_id: string;
-  timestamp: string;
-  parking_spots: ParkingSpot[];
-  people_count?: number | null;
-}
-
-interface ApiParkingResponse {
+interface ParkingArea {
   cameraId: string;
   timestamp: string;
   spots: Array<{ id: string; occupied: boolean; index: number }>;
   layout: [number, number];
+  spotIds: string[];
+  peopleCount?: number | null;
+}
+
+interface ParkingData {
+  areas: ParkingArea[];
   peopleCount?: number | null;
 }
 
@@ -112,26 +111,96 @@ function Ground({ theme }: { theme: string }) {
   );
 }
 
-function ParkingScene({ camId = 'smart_parking:A1', counterCamId = 'cuenta_personas:A1', refreshMs = 5000 }: ViewerProps) {
+function ParkingAreaViewer({ area, theme, lastUpdate }: { area: ParkingArea; theme: string; lastUpdate: Date | null }) {
+  const spotsWithPositions = buildPositions(area.spots, area.layout);
+  const stats = useMemo(() => {
+    const occupied = spotsWithPositions.filter((s) => s.isOccupied).length;
+    const total = spotsWithPositions.length;
+    const available = total - occupied;
+    const percent = total > 0 ? Math.round((occupied / total) * 100) : 0;
+    return { occupied, total, available, percent };
+  }, [spotsWithPositions]);
+
+  const getCameraPosition = (): [number, number, number] => {
+    const [rows, cols] = area.layout;
+    const totalSpots = rows * cols;
+    if (totalSpots <= 4) return [6, 12, 8];
+    if (totalSpots <= 12) return [12, 20, 12];
+    return [20, 30, 20];
+  };
+
+  return (
+    <div className="w-full h-full min-h-[320px] sm:min-h-[380px] md:min-h-[420px] flex flex-col rounded-lg border border-theme-border bg-theme-card/20 overflow-hidden">
+      <div className="p-3 bg-theme-card/50 border-b border-theme-border">
+        <h3 className="font-bold text-theme-text text-lg mb-2">{area.cameraId}</h3>
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="flex justify-between">
+            <span className="text-theme-secondary">Total:</span>
+            <span className="font-bold text-theme-text">{stats.total}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-theme-secondary">Disponibles:</span>
+            <span className="font-bold text-green-500">{stats.available}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-theme-secondary">Ocupados:</span>
+            <span className="font-bold text-red-500">{stats.occupied}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-theme-secondary">Ocupación:</span>
+            <span className="font-bold text-theme-text">{stats.percent}%</span>
+          </div>
+          {area.peopleCount !== undefined && area.peopleCount !== null && (
+            <div className="flex justify-between col-span-2">
+              <span className="text-theme-secondary">Aforo:</span>
+              <span className="font-bold text-theme-text">{area.peopleCount}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex-1 relative min-h-[220px] sm:min-h-[260px] md:min-h-[300px]">
+        <Canvas camera={{ position: getCameraPosition(), fov: 50 }} style={{ background: 'transparent' }}>
+          <Suspense fallback={null}>
+            <ambientLight intensity={0.8} />
+            <directionalLight position={[0, 15, 0]} intensity={1.2} castShadow />
+            <pointLight position={[-10, 10, 5]} intensity={0.4} color="#ffffff" />
+            <pointLight position={[10, 10, 5]} intensity={0.4} color="#ffffff" />
+
+            <Ground theme={theme} />
+
+            {spotsWithPositions.map((spot) => (
+              <ParkingSpotMesh key={spot.spot_id} spot={spot} theme={theme} />
+            ))}
+
+            <OrbitControls
+              enablePan
+              enableZoom
+              enableRotate
+              minDistance={5}
+              maxDistance={30}
+              maxPolarAngle={Math.PI / 2.5}
+              enableDamping
+              dampingFactor={0.08}
+              target={[0, 0, 0]}
+            />
+          </Suspense>
+        </Canvas>
+
+        <div className="absolute top-2 right-2 bg-theme-card/90 backdrop-blur-sm rounded p-2 text-xs text-theme-secondary">
+          {lastUpdate ? lastUpdate.toLocaleTimeString() : 'Actualizando...'}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ParkingScene({ camId = 'smart_parking:A1', counterCamId = 'cuenta_personas:A1', refreshMs = 10000 }: ViewerProps) {
   const { theme } = useTheme();
   const [parkingData, setParkingData] = useState<ParkingData | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
-  const [screenSize, setScreenSize] = useState<'mobile' | 'desktop'>('desktop');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
-  const getCameraPosition = (): [number, number, number] => (screenSize === 'mobile' ? [18.51, 29.34, 14.46] : [3.77, 19.94, 20]);
-
-  useEffect(() => {
-    const checkScreenSize = () => {
-      setScreenSize(window.innerWidth < 768 ? 'mobile' : 'desktop');
-    };
-
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-
-    return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
 
   const fetchData = useCallback(async () => {
     try {
@@ -142,16 +211,9 @@ function ParkingScene({ camId = 'smart_parking:A1', counterCamId = 'cuenta_perso
         throw new Error('No se pudo obtener datos del estacionamiento');
       }
 
-      const json: ApiParkingResponse = await res.json();
-      const spotsWithPositions = buildPositions(json.spots, json.layout);
-
-      setParkingData({
-        camera_id: json.cameraId,
-        timestamp: json.timestamp,
-        parking_spots: spotsWithPositions,
-        people_count: json.peopleCount ?? null,
-      });
-      setLastUpdate(new Date(json.timestamp));
+      const json: ParkingData = await res.json();
+      setParkingData(json);
+      setLastUpdate(new Date());
       setError(null);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error desconocido';
@@ -167,153 +229,34 @@ function ParkingScene({ camId = 'smart_parking:A1', counterCamId = 'cuenta_perso
     return () => clearInterval(interval);
   }, [fetchData, refreshMs]);
 
-  const stats = useMemo(() => {
-    if (!parkingData) return { occupied: 0, total: 0, available: 0, percent: 0 };
-    const occupied = parkingData.parking_spots.filter((s) => s.isOccupied).length;
-    const total = parkingData.parking_spots.length;
-    const available = total - occupied;
-    const percent = total > 0 ? Math.round((occupied / total) * 100) : 0;
-    return { occupied, total, available, percent };
-  }, [parkingData]);
-
   if (loading && !parkingData) {
     return <div className="w-full h-full flex items-center justify-center text-theme-secondary">Cargando datos en tiempo real...</div>;
   }
 
-  if (!parkingData) {
+  if (!parkingData || !parkingData.areas || parkingData.areas.length === 0) {
     return <div className="w-full h-full flex items-center justify-center text-theme-secondary">{error || 'Sin datos disponibles'}</div>;
   }
 
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full flex flex-col gap-4 p-3 sm:p-4 bg-theme-bg">
       {error && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-red-500/90 text-white px-4 py-2 rounded-lg shadow">
+        <div className="bg-red-500/90 text-white px-4 py-2 rounded-lg shadow text-sm">
           {error}
         </div>
       )}
 
-      <div
-        className={`absolute z-10 bg-theme-card/90 backdrop-blur-sm rounded-lg border border-theme-border ${
-          screenSize === 'mobile' ? 'bottom-4 left-2 right-2 p-2 text-xs' : 'top-4 left-4 p-3 min-w-[260px]'
-        }`}
-      >
-        <h3 className={`font-bold text-theme-text mb-2 ${screenSize === 'mobile' ? 'text-sm' : 'text-lg'}`}>Estado del Parking</h3>
-
-        {screenSize === 'mobile' ? (
-          <div className="space-y-1">
-            <div className="flex justify-between items-center gap-4 text-xs">
-              <div className="flex items-center gap-1">
-                <span className="text-theme-secondary">Total:</span>
-                <span className="font-bold text-theme-text">{stats.total}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-green-500 rounded"></div>
-                <span className="font-bold text-green-500">{stats.available}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-red-500 rounded"></div>
-                <span className="font-bold text-red-500">{stats.occupied}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-theme-secondary">Ocup:</span>
-                <span className="font-bold text-theme-text">{stats.percent}%</span>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-theme-secondary">Espacios totales:</span>
-              <span className="font-bold text-theme-text">{stats.total}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-theme-secondary">Disponibles:</span>
-              <span className="font-bold text-green-500">{stats.available}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-theme-secondary">Ocupados:</span>
-              <span className="font-bold text-red-500">{stats.occupied}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-theme-secondary">Ocupación:</span>
-              <span className="font-bold text-theme-text">{stats.percent}%</span>
-            </div>
-            {parkingData.people_count !== undefined && parkingData.people_count !== null && (
-              <div className="flex justify-between">
-                <span className="text-theme-secondary">Aforo (personas):</span>
-                <span className="font-bold text-theme-text">{parkingData.people_count}</span>
-              </div>
-            )}
-          </div>
-        )}
-
-        <div className="text-xs text-theme-secondary mt-3 space-y-1">
-          <div>Cámara: {parkingData.camera_id}</div>
-          <div>Última actualización: {lastUpdate ? lastUpdate.toLocaleTimeString() : '—'}</div>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+        {parkingData.areas.map((area) => (
+          <ParkingAreaViewer key={area.cameraId} area={area} theme={theme} lastUpdate={lastUpdate} />
+        ))}
       </div>
-
-      <div
-        className={`absolute z-10 bg-theme-card/90 backdrop-blur-sm rounded-lg p-3 border border-theme-border ${
-          screenSize === 'mobile' ? 'top-20 right-2 text-xs' : 'top-4 right-4'
-        }`}
-      >
-        <h4 className={`font-bold text-theme-text mb-2 ${screenSize === 'mobile' ? 'text-xs' : 'text-sm'}`}>Leyenda</h4>
-        <div className="space-y-2 text-xs">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-green-500 rounded"></div>
-            <span className="text-theme-text">Disponible</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-red-500 rounded"></div>
-            <span className="text-theme-text">Ocupado</span>
-          </div>
-        </div>
-      </div>
-
-      <Canvas key={screenSize} camera={{ position: getCameraPosition(), fov: screenSize === 'mobile' ? 75 : 50 }} style={{ background: 'transparent' }}>
-        <Suspense fallback={null}>
-          <ambientLight intensity={0.8} />
-          <directionalLight
-            position={[0, 20, 0]}
-            intensity={1.2}
-            castShadow
-            shadow-mapSize={[2048, 2048]}
-            shadow-camera-far={100}
-            shadow-camera-left={-30}
-            shadow-camera-right={30}
-            shadow-camera-top={30}
-            shadow-camera-bottom={-30}
-          />
-          <pointLight position={[-15, 15, 5]} intensity={0.4} color="#ffffff" />
-          <pointLight position={[15, 15, 5]} intensity={0.4} color="#ffffff" />
-
-          <Ground theme={theme} />
-
-          {parkingData.parking_spots.map((spot) => (
-            <ParkingSpotMesh key={spot.spot_id} spot={spot} theme={theme} />
-          ))}
-
-          <OrbitControls
-            enablePan
-            enableZoom
-            enableRotate
-            minDistance={screenSize === 'mobile' ? 10 : 15}
-            maxDistance={screenSize === 'mobile' ? 50 : 45}
-            maxPolarAngle={Math.PI / 2.5}
-            enableDamping
-            dampingFactor={0.08}
-            target={[0, 0, 0]}
-          />
-        </Suspense>
-      </Canvas>
     </div>
   );
 }
 
 export default function SmartParkingViewer({ camId, counterCamId, refreshMs }: ViewerProps) {
   return (
-    <div className="w-full h-[400px] sm:h-[500px] lg:h-[600px] rounded-lg border border-theme-border bg-theme-card/20 overflow-hidden">
+    <div className="w-full h-auto rounded-lg border border-theme-border bg-theme-card/20 overflow-hidden">
       <Suspense
         fallback={
           <div className="w-full h-full flex items-center justify-center">
