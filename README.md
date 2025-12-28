@@ -122,7 +122,7 @@ Sistema completo de portafolio de proyectos con:
 Proyecto destacado con simulación 3D interactiva:
 
 - **Visualización 3D en tiempo real** usando React Three Fiber
-- **12 espacios de estacionamiento** virtuales (A0-A11)
+- **Espacios con identidades únicas** y layout configurable por cámara (A1, A2, etc.)
 - **Estados de ocupación** dinámicos:
   - Verde: Disponible
   - Rojo: Ocupado
@@ -135,6 +135,7 @@ Proyecto destacado con simulación 3D interactiva:
 - **Información de espacios** en tiempo real
 - **Responsive** - Adaptado para desktop y tablets
 - **Integración completa** en la página del proyecto
+- **Fallback automático a mock** si la DB está apagada (22:00–08:00) para no romper la UI
 
 ### 🧑‍💼 **Gestión de Investigadores**
 
