@@ -179,6 +179,16 @@ export async function GET(request: Request) {
     return respondMock(camId, counterCamId, 'env-mock-enabled');
   }
 
+  // Verificar horario de disponibilidad de DB (8:00 AM - 10:00 PM)
+  const now = new Date();
+  const hour = now.getHours();
+  const isOutOfBusinessHours = hour < 8 || hour >= 22; // Antes de 8 AM o desde las 10 PM
+
+  if (isOutOfBusinessHours) {
+    console.warn(`[SmartParking] DB fuera de horario (${hour}:00). Usando mock data.`);
+    return respondMock(camId, counterCamId, `fallback-mock-out-of-hours-${hour}`);
+  }
+
   if (!pool) {
     return NextResponse.json({ error: 'Smart Parking DB env vars missing' }, { status: 500 });
   }
@@ -206,6 +216,14 @@ export async function GET(request: Request) {
         ? String((connErr as { hostname: unknown }).hostname)
         : SMARTPARKING_DB_HOST;
 
+    // Usar mock si la DB no está disponible (probablemente por mantenimiento/apagado)
+    if (code === 'ENOTFOUND' || code === 'ECONNREFUSED' || code === '28P01') {
+      console.warn(
+        `[SmartParking] DB no disponible (${code}). Usando mock data como fallback.`
+      );
+      return respondMock(camId, counterCamId, `fallback-mock-${code}`);
+    }
+
     let dnsInfo: { ok: boolean; addresses?: string[]; error?: string } = { ok: false };
     try {
       const res4 = await dns.lookup(String(hostname), { all: true, family: 4 });
@@ -222,10 +240,6 @@ export async function GET(request: Request) {
           ? String((dnsErr as { message: unknown }).message)
           : undefined;
       dnsInfo = { ok: false, error: dnsCode || dnsMessage || 'DNS_LOOKUP_FAILED' };
-    }
-
-    if (code === 'ENOTFOUND') {
-      return respondMock(camId, counterCamId, 'fallback-mock-dns-enotfound');
     }
 
     return NextResponse.json(

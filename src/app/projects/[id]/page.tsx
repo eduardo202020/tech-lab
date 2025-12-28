@@ -188,17 +188,15 @@ export default function ProjectDetailPage() {
                 <div className="bg-theme-background rounded-lg p-4 border border-theme-border">
                   <SmartParkingViewer />
                 </div>
-                <div className="mt-4 text-sm text-theme-secondary">
                   <p>
                     <strong>Características de la simulación:</strong>
                   </p>
                   <ul className="mt-2 space-y-1 list-disc list-inside">
-                    <li>12 espacios de estacionamiento (A0-A11)</li>
+                    <li>Espacios de estacionamiento con identidades únicas</li>
                     <li>Estado de ocupación en tiempo real</li>
                     <li>Visualización 3D interactiva</li>
                     <li>Colores diferenciados por disponibilidad</li>
                   </ul>
-                </div>
               </div>
             )}
 
