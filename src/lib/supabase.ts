@@ -3,11 +3,16 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
+// Use a stable storage key to ensure sessions persist and are shared across tabs and deployments
+// (avoids mixing dev/prod keys and reduces chances of invalid state loops when opening new tabs).
+const STORAGE_KEY = 'techlab_supabase_auth';
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
+    storageKey: STORAGE_KEY,
   },
 });
 
