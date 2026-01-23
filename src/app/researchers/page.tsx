@@ -24,6 +24,7 @@ import type { SupabaseResearcher } from '@/hooks/useSupabaseResearchers';
 type Researcher = SupabaseResearcher;
 import { useProjects } from '@/contexts/ProjectContext';
 import Header from '@/components/Header';
+import { useRef, useEffect } from 'react';
 
 export default function ResearchersPage() {
   const { user: sbUser, profile } = useSupabaseAuth();
@@ -36,7 +37,8 @@ export default function ResearchersPage() {
     deleteResearcher,
     filterResearchers,
     loading: isLoading,
-  } = useSupabaseResearchers();
+    fetchResearchers,
+  } = useSupabaseResearchers({ autoFetch: false });
 
   // Función de búsqueda simulada
   const searchResearchers = useCallback(
@@ -87,6 +89,7 @@ export default function ResearchersPage() {
   // const [selectedResearcher, setSelectedResearcher] = useState<Researcher | null>(null);
   const [filteredResearchers, setFilteredResearchers] =
     useState<Researcher[]>(researchers);
+  const lastFetchKey = useRef<string | null>(null);
 
   useEffect(() => {
     let result = researchers;
@@ -122,6 +125,14 @@ export default function ResearchersPage() {
     researchers,
     searchResearchers,
   ]);
+
+  // Carga inicial controlada para evitar múltiples fetches (StrictMode / nuevas pestañas)
+  useEffect(() => {
+    const key = 'initial';
+    if (lastFetchKey.current === key) return;
+    lastFetchKey.current = key;
+    fetchResearchers();
+  }, [fetchResearchers]);
 
   const statuses: Researcher['status'][] = [
     'active',

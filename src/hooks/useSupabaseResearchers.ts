@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 
 export interface SupabaseResearcher {
@@ -73,10 +73,17 @@ interface ResearcherFilters {
   search?: string;
 }
 
-export function useSupabaseResearchers() {
+interface UseSupabaseResearchersOptions {
+  /** Si true, el hook hará una carga inicial al montar (con guard para StrictMode). */
+  autoFetch?: boolean;
+}
+
+export function useSupabaseResearchers(options?: UseSupabaseResearchersOptions) {
+  const autoFetch = options?.autoFetch ?? true;
   const [researchers, setResearchers] = useState<SupabaseResearcher[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const hasAutoFetched = useRef(false);
 
   // Cargar todos los investigadores con sus proyectos
   const fetchResearchers = useCallback(async () => {
@@ -397,10 +404,13 @@ export function useSupabaseResearchers() {
     };
   }, [researchers]);
 
-  // Cargar datos al montar el componente
+  // Cargar datos al montar el componente (una sola vez, protegido ante StrictMode)
   useEffect(() => {
+    if (!autoFetch) return;
+    if (hasAutoFetched.current) return;
+    hasAutoFetched.current = true;
     fetchResearchers();
-  }, [fetchResearchers]);
+  }, [autoFetch, fetchResearchers]);
 
   return {
     researchers,

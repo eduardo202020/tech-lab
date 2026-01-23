@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 
 export interface SupabaseProject {
@@ -52,10 +52,17 @@ interface ProjectFilters {
   search?: string;
 }
 
-export function useSupabaseProjects() {
+interface UseSupabaseProjectsOptions {
+  /** Si true, el hook hará una carga inicial al montar (con guard para StrictMode). */
+  autoFetch?: boolean;
+}
+
+export function useSupabaseProjects(options?: UseSupabaseProjectsOptions) {
+  const autoFetch = options?.autoFetch ?? true;
   const [projects, setProjects] = useState<SupabaseProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const hasAutoFetched = useRef(false);
 
   // Cargar todos los proyectos con relaciones
   const fetchProjects = useCallback(async () => {
@@ -371,10 +378,13 @@ export function useSupabaseProjects() {
     };
   }, [projects]);
 
-  // Cargar datos al montar el componente
+  // Cargar datos al montar el componente (una sola vez, protegido ante StrictMode)
   useEffect(() => {
+    if (!autoFetch) return;
+    if (hasAutoFetched.current) return;
+    hasAutoFetched.current = true;
     fetchProjects();
-  }, [fetchProjects]);
+  }, [autoFetch, fetchProjects]);
 
   return {
     projects,

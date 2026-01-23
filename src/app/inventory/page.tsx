@@ -18,6 +18,7 @@ import {
   useSupabaseEquipment,
   SupabaseEquipment,
 } from '@/hooks/useSupabaseEquipment';
+import { useRef } from 'react';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import Header from '@/components/Header';
 import useDebounce from '@/hooks/useDebounce';
@@ -35,7 +36,7 @@ export default function InventoryPage() {
     deleteEquipment: deleteItem,
     loading: isLoading,
     fetchEquipment,
-  } = useSupabaseEquipment();
+  } = useSupabaseEquipment({ autoFetch: false });
 
   // Estados del componente
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,6 +54,7 @@ export default function InventoryPage() {
   );
   const [filteredItems, setFilteredItems] =
     useState<SupabaseEquipment[]>(items);
+  const lastFetchKey = useRef<string | null>(null);
 
   // Funciones auxiliares para filtros
   const filterByCondition = (condition: SupabaseEquipment['condition']) => {
@@ -86,10 +88,25 @@ export default function InventoryPage() {
       available_only: availableOnly || undefined,
     };
 
-    // fetchEquipment viene del hook
-    fetchEquipment(filters, debouncedSearchQuery);
+    const key = JSON.stringify({ filters, search: debouncedSearchQuery });
+    if (lastFetchKey.current === key) {
+      return;
+    }
+    lastFetchKey.current = key;
+
+    let didCancel = false;
+
+    fetchEquipment(filters, debouncedSearchQuery).catch((err) => {
+      if (!didCancel) {
+        console.error('Error fetching equipment', err);
+      }
+    });
+
+    return () => {
+      didCancel = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearchQuery, selectedCategory, selectedCondition, debouncedLocationQuery, availableOnly]);
+  }, [debouncedSearchQuery, selectedCategory, selectedCondition, debouncedLocationQuery, availableOnly, fetchEquipment]);
 
   // Mantener filteredItems sincronizado con items que vienen del servidor
   useEffect(() => {

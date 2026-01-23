@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 
 export interface SupabaseEquipment {
@@ -33,10 +33,17 @@ export interface EquipmentFilters {
   available_only?: boolean;
 }
 
-export function useSupabaseEquipment() {
+interface UseSupabaseEquipmentOptions {
+  /** Si true, el hook hará una carga inicial al montar (con guard para StrictMode). */
+  autoFetch?: boolean;
+}
+
+export function useSupabaseEquipment(options?: UseSupabaseEquipmentOptions) {
+  const autoFetch = options?.autoFetch ?? true;
   const [equipment, setEquipment] = useState<SupabaseEquipment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const hasAutoFetched = useRef(false);
 
   // Cargar todos los equipos
   const fetchEquipment = useCallback(async (filters?: EquipmentFilters, search?: string) => {
@@ -242,10 +249,13 @@ export function useSupabaseEquipment() {
     [equipment]
   );
 
-  // Cargar datos iniciales
+  // Cargar datos iniciales (una sola vez, protegido ante StrictMode)
   useEffect(() => {
+    if (!autoFetch) return;
+    if (hasAutoFetched.current) return;
+    hasAutoFetched.current = true;
     fetchEquipment();
-  }, [fetchEquipment]);
+  }, [autoFetch, fetchEquipment]);
 
   return {
     equipment,

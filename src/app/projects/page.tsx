@@ -23,6 +23,7 @@ import { useProjects, TechProject } from '@/contexts/ProjectContext';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import Header from '@/components/Header';
 import { AddProjectModal, ViewProjectModal } from '@/components/ProjectModals';
+import { useRef } from 'react';
 
 export default function ProjectsPage() {
   const { user: sbUser, profile, loading: authLoading } = useSupabaseAuth();
@@ -36,6 +37,7 @@ export default function ProjectsPage() {
     searchProjects,
     filterByStatus,
     isLoading,
+    refreshProjects,
   } = useProjects();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,6 +55,7 @@ export default function ProjectsPage() {
   );
   const [filteredProjects, setFilteredProjects] =
     useState<TechProject[]>(projects);
+  const lastFetchKey = useRef<string | null>(null);
 
   // Permitir acceso sin autenticación pero con funcionalidades limitadas
   // No redirigir automáticamente al login
@@ -95,6 +98,15 @@ export default function ProjectsPage() {
     projects,
     searchProjects,
   ]);
+
+  // Carga inicial controlada para evitar múltiples fetches (StrictMode / navegaciones)
+  useEffect(() => {
+    const key = 'initial';
+    if (lastFetchKey.current === key) return;
+    lastFetchKey.current = key;
+    // refreshProjects ya está memoized en context (fetchProjects hook)
+    refreshProjects();
+  }, [refreshProjects]);
 
   const categories = [...new Set(projects.map((project) => project.category))];
   const statuses: TechProject['status'][] = [

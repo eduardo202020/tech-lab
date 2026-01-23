@@ -127,7 +127,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     updateProject: updateSupabaseProject,
     deleteProject: deleteSupabaseProject,
     fetchProjects,
-  } = useSupabaseProjects();
+  } = useSupabaseProjects({ autoFetch: false });
 
   // Convertir proyectos de Supabase al formato legacy
   const projects = useMemo(() => {
