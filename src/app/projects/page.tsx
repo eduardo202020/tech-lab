@@ -96,14 +96,6 @@ export default function ProjectsPage() {
     searchProjects,
   ]);
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-theme-background flex items-center justify-center">
-        <div className="text-theme-text">Verificando autenticación...</div>
-      </div>
-    );
-  }
-
   const categories = [...new Set(projects.map((project) => project.category))];
   const statuses: TechProject['status'][] = [
     'active',
@@ -516,13 +508,10 @@ export default function ProjectsPage() {
           )}
         </div>
 
-        {/* Loading State */}
+        {/* Loading State (inline, no overlay) */}
         {isLoading && (
-          <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50">
-            <div className="bg-theme-card rounded-lg p-6 text-center">
-              <div className="w-8 h-8 border-2 border-theme-accent border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-theme-text">Procesando...</p>
-            </div>
+          <div className="text-center text-theme-secondary py-6">
+            Cargando proyectos...
           </div>
         )}
 

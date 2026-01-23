@@ -96,15 +96,6 @@ export default function InventoryPage() {
     setFilteredItems(items);
   }, [items]);
 
-  // Loading state
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-theme-background flex items-center justify-center">
-        <div className="text-theme-text">Verificando autenticación...</div>
-      </div>
-    );
-  }
-
   // Datos para filtros
   const categories = [...new Set(items.map((item) => item.category))];
   const conditions: SupabaseEquipment['condition'][] = [
