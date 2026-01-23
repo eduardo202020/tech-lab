@@ -25,7 +25,7 @@ import useDebounce from '@/hooks/useDebounce';
 import SearchBar from '@/components/SearchBar';
 
 export default function InventoryPage() {
-  const { user: sbUser, profile, loading: authLoading } = useSupabaseAuth();
+  const { user: sbUser, profile } = useSupabaseAuth();
   const isAuthenticated = !!sbUser;
   const user = { role: profile?.role } as { role?: string };
   const { redirectToLogin } = useAuthRedirect();
@@ -105,7 +105,6 @@ export default function InventoryPage() {
     return () => {
       didCancel = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearchQuery, selectedCategory, selectedCondition, debouncedLocationQuery, availableOnly, fetchEquipment]);
 
   // Mantener filteredItems sincronizado con items que vienen del servidor

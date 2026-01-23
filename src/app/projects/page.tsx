@@ -26,7 +26,7 @@ import { AddProjectModal, ViewProjectModal } from '@/components/ProjectModals';
 import { useRef } from 'react';
 
 export default function ProjectsPage() {
-  const { user: sbUser, profile, loading: authLoading } = useSupabaseAuth();
+  const { user: sbUser, profile } = useSupabaseAuth();
   const isAuthenticated = !!sbUser;
   const user = { role: profile?.role } as { role?: string };
   const { redirectToLogin } = useAuthRedirect();
