@@ -359,6 +359,33 @@ INSERT INTO public.projects (
  ARRAY['/images/projects/platform-1.jpg', '/images/projects/platform-2.jpg'],
  'https://techlab.uni.edu.pe', 'https://github.com/techlab/platform',
  'README.md con instrucciones completas',
+ NULL),
+
+-- Proyecto 7: Sistema de Conteo de Personas
+('00000000-0000-0000-0000-000000000007'::uuid, 'Sistema de Conteo de Personas',
+ 'Sistema de visión artificial y sensores para monitoreo de aforo en tiempo real en espacios públicos del campus, utilizando cámaras y algoritmos de detección de personas.',
+ 'IA & Visión Artificial',
+ ARRAY['Computer Vision', 'OpenCV', 'YOLO', 'Python', 'PostgreSQL', 'MQTT', 'Raspberry Pi'],
+ ARRAY['ai', 'iot'],
+ 'active', 'high', '2025-02-01', '2025-11-30', 'Dr. Patricia Visión',
+ ARRAY['Ing. Roberto IA', 'Bach. Carmen Algoritmos', 'Est. Daniel Sensores'],
+ 16000.00, 60,
+ ARRAY[
+   'Implementar cámaras de conteo en puntos estratégicos',
+   'Desarrollar algoritmo de detección con YOLO',
+   'Crear sistema de almacenamiento de datos históricos',
+   'Desarrollar dashboard de monitoreo en tiempo real',
+   'Integrar alertas de aforo máximo'
+ ],
+ ARRAY[
+   'Precisión en detección con variaciones de luz',
+   'Privacidad y protección de datos personales',
+   'Procesamiento en tiempo real con recursos limitados',
+   'Calibración de cámaras en diferentes ubicaciones'
+ ],
+ ARRAY['/images/projects/people-counter-1.jpg', '/images/projects/people-counter-2.jpg'],
+ 'https://peoplecounter.demo.com', 'https://github.com/techlab/people-counter',
+ 'Documentación técnica y guía de privacidad',
  NULL);
 
 -- =============================================
@@ -464,3 +491,33 @@ INSERT INTO public.inventory_items (
  'excellent', 'Estante F-1', '2024-02-20', 350.00, 'MPPT-60A-001', 'Epever', 'LS6024B',
  '{"input_voltage": "12-48V", "max_current": "60A"}'::jsonb,
  NULL, 'Para sistema fotovoltaico', true);
+
+-- =============================================
+-- 5. INSERTAR RELACIONES PROYECTO-TECNOLOGÍA
+-- =============================================
+
+INSERT INTO public.project_technologies (project_id, technology_id, usage_type) VALUES
+-- Smart Parking (IoT + AI)
+('00000000-0000-0000-0000-000000000001'::uuid, 'iot', 'primary'),
+('00000000-0000-0000-0000-000000000001'::uuid, 'ai', 'primary'),
+
+-- Tecnología LoRa II (LoRa + IoT)
+('00000000-0000-0000-0000-000000000002'::uuid, 'lora', 'primary'),
+('00000000-0000-0000-0000-000000000002'::uuid, 'iot', 'secondary'),
+
+-- Red Blockchain (Blockchain)
+('00000000-0000-0000-0000-000000000003'::uuid, 'blockchain', 'primary'),
+
+-- Centro de Manufactura 3D (Manufacturing)
+('00000000-0000-0000-0000-000000000004'::uuid, 'manufacturing', 'primary'),
+
+-- Sistemas Fotovoltaicos (Renewable Energy + IoT)
+('00000000-0000-0000-0000-000000000005'::uuid, 'renewable-energy', 'primary'),
+('00000000-0000-0000-0000-000000000005'::uuid, 'iot', 'secondary'),
+
+-- Plataforma Tech Lab (Web Platform)
+('00000000-0000-0000-0000-000000000006'::uuid, 'web-platform', 'primary'),
+
+-- Sistema de Conteo de Personas (AI + IoT)
+('00000000-0000-0000-0000-000000000007'::uuid, 'ai', 'primary'),
+('00000000-0000-0000-0000-000000000007'::uuid, 'iot', 'secondary');

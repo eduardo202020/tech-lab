@@ -187,8 +187,22 @@ function ParkingAreaViewer({ area, theme, lastUpdate }: { area: ParkingArea; the
           </Suspense>
         </Canvas>
 
-        <div className="absolute top-2 right-2 bg-theme-card/90 backdrop-blur-sm rounded p-2 text-xs text-theme-secondary">
-          {lastUpdate ? lastUpdate.toLocaleTimeString() : 'Actualizando...'}
+        <div className="absolute top-2 right-2 bg-theme-card/90 backdrop-blur-sm rounded p-2 text-xs text-theme-secondary flex flex-col gap-1">
+          <div className="text-xs font-semibold text-theme-accent">
+            {lastUpdate 
+              ? lastUpdate.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+              : 'Actualizando...'}
+          </div>
+          <div className="text-xs text-theme-secondary border-t border-theme-border/50 pt-1">
+            Datos: {new Date(area.timestamp).toLocaleString('es-PE', {
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              hour12: false
+            })}
+          </div>
         </div>
       </div>
     </div>

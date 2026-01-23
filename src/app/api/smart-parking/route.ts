@@ -196,15 +196,21 @@ export async function GET(request: Request) {
   let client: PoolClient | null = null;
   try {
     console.log('[SmartParking] Intentando conectar a DB...');
+    console.log('[SmartParking] Detalles de conexión:', {
+      host: SMARTPARKING_DB_HOST,
+      port: SMARTPARKING_DB_PORT,
+      database: SMARTPARKING_DB_NAME,
+      user: SMARTPARKING_DB_USER,
+    });
     client = await pool.connect();
     console.log('[SmartParking] ✅ Conexión a DB exitosa');
   } catch (connErr: unknown) {
     console.error('[SmartParking] ❌ DB connection error:', connErr);
-    console.error('[SmartParking] Error details:', {
-      type: typeof connErr,
-      message: connErr instanceof Error ? connErr.message : 'Unknown error',
-      cause: connErr instanceof Error ? connErr.cause : undefined,
-    });
+    console.error('[SmartParking] Error completo:', JSON.stringify(connErr, null, 2));
+    console.error('[SmartParking] Tipo de error:', connErr instanceof Error ? connErr.constructor.name : typeof connErr);
+    if (connErr instanceof Error) {
+      console.error('[SmartParking] Stack:', connErr.stack);
+    }
 
     const code =
       typeof connErr === 'object' && connErr && 'code' in connErr && connErr.code

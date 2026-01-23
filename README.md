@@ -416,6 +416,12 @@ NEXT_PUBLIC_GITHUB_CLIENT_ID=xxxxxxxxxxxxxx
 # Copiar contenido de supabase/seed-data.sql
 ```
 
+**Orden recomendado (enero 2026):**
+- Esquema base: [supabase/schema.sql](supabase/schema.sql) y luego [supabase/configure-auth.sql](supabase/configure-auth.sql) para trigger y políticas.
+- Semillas completas con limpieza: [supabase/seed-data-clean.sql](supabase/seed-data-clean.sql); si solo quieres agregar sin truncar usa [supabase/seed-data.sql](supabase/seed-data.sql).
+- Solo inventario: [supabase/seed-inventory-data-fixed.sql](supabase/seed-inventory-data-fixed.sql) (evita la versión previa con `created_by`).
+- No usar en prod: [supabase/fix-rls.sql](supabase/fix-rls.sql) desactiva RLS para debugging. Ignora [supabase/create-equipment-table.sql](supabase/create-equipment-table.sql) y [supabase/create-loans-table.sql](supabase/create-loans-table.sql) porque duplican tablas legacy.
+
 ### **5. Ejecutar en Modo Desarrollo**
 
 ```bash
@@ -547,6 +553,8 @@ NEXT_PUBLIC_SUPABASE_URL=tu_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_key
 ```
 
+Nota de sesión (enero 2026): el cliente Supabase usa una `storageKey` estable (`techlab_supabase_auth`) en [src/lib/supabase.ts](src/lib/supabase.ts) para compartir sesión entre pestañas y evitar loops al abrir nuevas ventanas. No requiere configuración adicional.
+
 ### **OAuth con Google**
 
 1. Ir a [Google Cloud Console](https://console.cloud.google.com)
@@ -570,6 +578,12 @@ CREATE POLICY "Users can view own data"
   FOR SELECT
   USING (auth.uid() = id);
 ```
+
+### **Notas de carga de datos (enero 2026)**
+
+- Los hooks de Supabase permiten desactivar la carga automática (`autoFetch`) para evitar dobles requests en React Strict Mode: [src/hooks/useSupabaseEquipment.ts](src/hooks/useSupabaseEquipment.ts), [src/hooks/useSupabaseProjects.ts](src/hooks/useSupabaseProjects.ts), [src/hooks/useSupabaseResearchers.ts](src/hooks/useSupabaseResearchers.ts).
+- Las páginas de inventario, proyectos e investigadores disparan el fetch inicial una sola vez con llaves internas para no repetir llamadas: [src/app/inventory/page.tsx](src/app/inventory/page.tsx), [src/app/projects/page.tsx](src/app/projects/page.tsx), [src/app/researchers/page.tsx](src/app/researchers/page.tsx).
+- El contexto de proyectos consume el hook con `autoFetch: false` y expone `refreshProjects` para controlar la carga: [src/contexts/ProjectContext.tsx](src/contexts/ProjectContext.tsx).
 
 ---
 
@@ -663,6 +677,13 @@ copies or substantial portions of the Software.
 ---
 
 ## 🆕 Changelog
+
+### **Versión 1.5.1 - Enero 2026**
+
+- Persistencia de sesión Supabase unificada entre pestañas usando `storageKey` estable (`techlab_supabase_auth`).
+- Hooks de datos con bandera `autoFetch` y guardas de una sola carga para evitar peticiones duplicadas en React Strict Mode (inventario, proyectos, investigadores).
+- Contexto y páginas consumen los hooks en modo controlado (`refresh` único al montar) y permiten lectura pública sin bloquear por autenticación.
+- Guía SQL actualizada: usar [supabase/schema.sql](supabase/schema.sql) + [supabase/configure-auth.sql](supabase/configure-auth.sql), semillas limpias ([supabase/seed-data-clean.sql](supabase/seed-data-clean.sql) / [supabase/seed-inventory-data-fixed.sql](supabase/seed-inventory-data-fixed.sql)) y evitar scripts legacy o [supabase/fix-rls.sql](supabase/fix-rls.sql) en producción.
 
 ### **Versión 1.5 - Diciembre 2025**
 
