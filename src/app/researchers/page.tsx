@@ -24,7 +24,7 @@ import type { SupabaseResearcher } from '@/hooks/useSupabaseResearchers';
 type Researcher = SupabaseResearcher;
 import { useProjects } from '@/contexts/ProjectContext';
 import Header from '@/components/Header';
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 
 export default function ResearchersPage() {
   const { user: sbUser, profile } = useSupabaseAuth();
