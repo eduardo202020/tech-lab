@@ -17,6 +17,7 @@ import { useProjects } from '@/contexts/ProjectContext';
 import RelatedTechnologies from '@/components/RelatedTechnologies';
 import SmartParkingViewer from '@/components/SmartParkingViewer';
 import PeopleCounterViewer from '@/components/PeopleCounterViewer';
+import LoRaSensorViewer from '@/components/LoRaSensorViewer';
 
 export default function ProjectDetailPage() {
   const params = useParams();
@@ -225,6 +226,35 @@ export default function ProjectDetailPage() {
                   <li>Alertas automáticas de aforo máximo</li>
                   <li>Tendencias de ocupación (subiendo/bajando/estable)</li>
                   <li>Actualización automática cada 10 segundos</li>
+                </ul>
+              </div>
+            )}
+
+            {/* Visualización - Red de Sensores LoRa */}
+            {(project.id === '00000000-0000-0000-0000-000000000002' || project.title.toLowerCase().includes('lora')) && (
+              <div className="bg-theme-card rounded-xl p-6 border border-theme-border">
+                <h2 className="text-xl font-bold text-theme-text mb-4 flex items-center gap-2">
+                  <Monitor className="text-theme-accent" size={24} />
+                  Monitoreo de Calidad de Aire - Red LoRa
+                </h2>
+                <p className="text-theme-secondary mb-6">
+                  Sistema de monitoreo de calidad de aire usando tecnología LoRa
+                  con sensores distribuidos que miden temperatura, humedad y CO₂
+                  en tiempo real.
+                </p>
+                <div className="bg-theme-background rounded-lg p-4 border border-theme-border">
+                  <LoRaSensorViewer refreshMs={10000} />
+                </div>
+                <p className="mt-4">
+                  <strong>Características del sistema:</strong>
+                </p>
+                <ul className="mt-2 space-y-1 list-disc list-inside text-theme-secondary">
+                  <li>Múltiples sensores LoRa distribuidos en la red</li>
+                  <li>Medición de temperatura, humedad y CO₂</li>
+                  <li>Gráficas de evolución temporal (últimas 24 horas)</li>
+                  <li>Alertas automáticas de valores fuera de rango</li>
+                  <li>Actualización automática cada 10 segundos</li>
+                  <li>Comunicación de largo alcance y bajo consumo energético</li>
                 </ul>
               </div>
             )}

@@ -10,9 +10,9 @@ import {
   Calendar,
   Users,
   TrendingUp,
-  Eye,
+  Info,
   ExternalLink,
-  GitBranch,
+  Github,
   Clock,
   CheckCircle,
   Pause,
@@ -427,49 +427,40 @@ export default function ProjectsPage() {
                 </div>
 
                 <div className="flex items-center gap-2 ml-0 sm:ml-4 mt-3 sm:mt-0 flex-shrink-0">
-                  {/* Botón Ver - Todos los usuarios */}
+                  {/* Botón Vista Rápida - Todos los usuarios */}
                   <button
                     onClick={() => {
                       setSelectedProject(project);
                       setShowViewModal(true);
                     }}
-                    className="p-2 text-theme-secondary hover:text-theme-text hover:bg-theme-accent/10 rounded-lg transition-colors"
-                    title="Ver modal"
+                    className="flex items-center gap-1.5 px-3 py-2 text-theme-secondary hover:text-theme-text hover:bg-theme-accent/10 rounded-lg transition-colors"
+                    title="Vista rápida"
                   >
-                    <Eye className="w-4 h-4" />
+                    <Info className="w-4 h-4" />
+                    <span className="text-sm font-medium">Vista Rápida</span>
                   </button>
 
                   {/* Enlace a página individual */}
                   <Link
                     href={`/projects/${project.id}`}
-                    className="p-2 text-theme-accent hover:text-theme-text hover:bg-theme-accent/10 rounded-lg transition-colors"
-                    title="Ver detalles completos"
+                    className="flex items-center gap-1.5 px-3 py-2 bg-theme-accent/10 text-theme-accent hover:bg-theme-accent/20 rounded-lg transition-colors"
+                    title="Ver demo del proyecto"
                   >
                     <ExternalLink className="w-4 h-4" />
+                    <span className="text-sm font-medium">Ver Demo</span>
                   </Link>
 
-                  {/* Enlaces externos */}
-                  {project.demoUrl && (
-                    <a
-                      href={project.demoUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-lg transition-colors"
-                      title="Ver demo"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  )}
-
+                  {/* Enlace a GitHub */}
                   {project.repositoryUrl && (
                     <a
                       href={project.repositoryUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-2 text-green-400 hover:text-green-300 hover:bg-green-500/10 rounded-lg transition-colors"
-                      title="Ver repositorio"
+                      className="flex items-center gap-1.5 px-3 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                      title="Ver en GitHub"
                     >
-                      <GitBranch className="w-4 h-4" />
+                      <Github className="w-4 h-4" />
+                      <span className="text-sm font-medium">GitHub</span>
                     </a>
                   )}
 
@@ -510,9 +501,9 @@ export default function ProjectsPage() {
               </h3>
               <p className="text-theme-secondary">
                 {searchQuery ||
-                selectedCategory ||
-                selectedStatus ||
-                selectedPriority
+                  selectedCategory ||
+                  selectedStatus ||
+                  selectedPriority
                   ? 'Intenta ajustar los filtros de búsqueda'
                   : 'Crea tu primer proyecto tecnológico'}
               </p>
