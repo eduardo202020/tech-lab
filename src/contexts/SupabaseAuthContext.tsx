@@ -128,6 +128,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let isMounted = true;
 
+    // Intentar restaurar sesión de localStorage de forma síncrona
+    const tryRestoreSessionSync = () => {
+      try {
+        if (typeof window === 'undefined') return;
+
+        const savedSession = localStorage.getItem('techlab_supabase_auth');
+        if (savedSession) {
+          const sessionData = JSON.parse(savedSession);
+          if (sessionData?.session?.user) {
+            // Hay sesión guardada, no mostramos loading spinner
+            setUser(sessionData.session.user);
+            setSession(sessionData.session);
+            return true;
+          }
+        }
+      } catch (e) {
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error restoring session from localStorage:', e);
+        }
+      }
+      return false;
+    };
+
     // Obtener sesión inicial
     const initializeAuth = async () => {
       try {
@@ -179,6 +202,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
+    // Primero intentar restaurar de localStorage
+    const hasRestoredSession = tryRestoreSessionSync();
+
+    // Luego hacer la inicialización completa
     initializeAuth();
 
     // Escuchar cambios de autenticación

@@ -14,6 +14,8 @@ import { ProjectProvider } from '@/contexts/ProjectContext';
 import { ResearcherProvider } from '@/contexts/ResearcherContext';
 import AuthGate from '@/components/AuthGate';
 
+export const dynamic = 'force-dynamic';
+
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
@@ -83,15 +85,15 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} ${roboto.variable} ${poppins.variable} antialiased`}
       >
         <ThemeProvider>
-            <SupabaseAuthProvider>
-              <AuthGate>
-                <InventoryProvider>
-                  <ProjectProvider>
+          <SupabaseAuthProvider>
+            <AuthGate>
+              <InventoryProvider>
+                <ProjectProvider>
                   <ResearcherProvider>{children}</ResearcherProvider>
-               </ProjectProvider>
-                </InventoryProvider>
-              </AuthGate>
-            </SupabaseAuthProvider>
+                </ProjectProvider>
+              </InventoryProvider>
+            </AuthGate>
+          </SupabaseAuthProvider>
         </ThemeProvider>
       </body>
     </html>
