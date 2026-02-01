@@ -126,6 +126,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Inicializar autenticación
   useEffect(() => {
+    let isMounted = true;
+
     // Obtener sesión inicial
     const initializeAuth = async () => {
       try {
@@ -134,6 +136,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           error,
         } = await supabase.auth.getSession();
 
+        if (!isMounted) return;
 
         if (error) {
           if (process.env.NODE_ENV === 'development') {
@@ -150,19 +153,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Cargar o crear perfil
           let userProfile = await loadUserProfile(session.user.id);
 
+          if (!isMounted) return;
+
           if (!userProfile) {
             // Si no existe perfil, crearlo
             userProfile = await createUserProfile(session.user);
           }
 
-          setProfile(userProfile);
+          if (isMounted) {
+            setProfile(userProfile);
+          }
+        } else {
+          if (isMounted) {
+            setProfile(null);
+          }
         }
       } catch (error) {
         if (process.env.NODE_ENV === 'development') {
           console.error('Error initializing auth:', error);
         }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
@@ -172,6 +185,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!isMounted) return;
+
       setSession(session);
       setUser(session?.user || null);
 
@@ -179,20 +194,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Cargar o crear perfil
         let userProfile = await loadUserProfile(session.user.id);
 
+        if (!isMounted) return;
+
         if (!userProfile && event === 'SIGNED_IN') {
           // Si es un nuevo registro, crear perfil
           userProfile = await createUserProfile(session.user);
         }
 
-        setProfile(userProfile);
+        if (isMounted) {
+          setProfile(userProfile);
+        }
       } else {
-        setProfile(null);
+        if (isMounted) {
+          setProfile(null);
+        }
       }
 
-      setLoading(false);
+      if (isMounted) {
+        setLoading(false);
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Funciones de autenticación
