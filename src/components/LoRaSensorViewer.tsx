@@ -87,7 +87,7 @@ export default function LoRaSensorViewer({ refreshMs = 10000 }: ViewerProps) {
             : data.historical.filter(d => d.id_sensor === selectedSensor);
 
         // Agrupar por timestamp
-        const groupedByTime: Record<string, any> = {};
+        const groupedByTime: Record<string, { time: string; timestamp: string;[key: string]: number | string }> = {};
 
         filteredData.forEach(reading => {
             const timeKey = reading.timestamp;
@@ -190,8 +190,8 @@ export default function LoRaSensorViewer({ refreshMs = 10000 }: ViewerProps) {
                         <div
                             key={reading.id_sensor}
                             className={`bg-theme-card rounded-xl p-4 border-2 transition-all ${hasAlert
-                                    ? 'border-red-500 shadow-lg shadow-red-500/20'
-                                    : 'border-theme-border'
+                                ? 'border-red-500 shadow-lg shadow-red-500/20'
+                                : 'border-theme-border'
                                 }`}
                             style={{
                                 borderLeftColor: getSensorColor(reading.id_sensor),

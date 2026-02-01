@@ -63,7 +63,6 @@ export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
         const sensorId = searchParams.get('sensor_id');
-        const timeRange = searchParams.get('range') || '24h'; // 24h, 12h, 6h
 
         const data = generateSensorData();
 
