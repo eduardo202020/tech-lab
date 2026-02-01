@@ -94,6 +94,7 @@ export default function Home() {
           {/* Animated Tech List */}
           <div className="relative overflow-hidden">
             <div className="flex animate-scroll whitespace-nowrap">
+              {/* Primera serie de tecnologías */}
               <div className="flex items-center space-x-8 text-lg font-poppins">
                 <Link
                   href="/technologies/lora"
@@ -137,16 +138,56 @@ export default function Home() {
                 >
                   Manufactura Digital
                 </Link>
+              </div>
+
+              {/* Segunda serie de tecnologías (duplicado para loop infinito) */}
+              <div className="flex items-center space-x-8 text-lg font-poppins ml-8">
+                <Link
+                  href="/technologies/lora"
+                  className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer"
+                >
+                  LoRa Technology
+                </Link>
+                <Link
+                  href="/technologies/blockchain"
+                  className="bg-gradient-to-r from-bright-blue to-neon-pink bg-clip-text text-transparent font-bold px-6 py-3 border border-bright-blue/30 rounded-full backdrop-blur-sm hover:border-bright-blue/60 hover:shadow-lg hover:shadow-bright-blue/20 transition-all cursor-pointer"
+                >
+                  Blockchain
+                </Link>
+                <Link
+                  href="/technologies/iot"
+                  className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer"
+                >
+                  IoT
+                </Link>
+                <Link
+                  href="/technologies/ai"
+                  className="bg-gradient-to-r from-bright-blue to-neon-pink bg-clip-text text-transparent font-bold px-6 py-3 border border-bright-blue/30 rounded-full backdrop-blur-sm hover:border-bright-blue/60 hover:shadow-lg hover:shadow-bright-blue/20 transition-all cursor-pointer"
+                >
+                  Inteligencia Artificial
+                </Link>
+                <Link
+                  href="/technologies/web-platform"
+                  className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer"
+                >
+                  Plataformas Web
+                </Link>
                 <Link
                   href="/technologies/renewable-energy"
                   className="bg-gradient-to-r from-bright-blue to-neon-pink bg-clip-text text-transparent font-bold px-6 py-3 border border-bright-blue/30 rounded-full backdrop-blur-sm hover:border-bright-blue/60 hover:shadow-lg hover:shadow-bright-blue/20 transition-all cursor-pointer"
                 >
                   Energías Renovables
                 </Link>
+                <Link
+                  href="/technologies/manufacturing"
+                  className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer"
+                >
+                  Manufactura Digital
+                </Link>
               </div>
             </div>
           </div>
-          
+
           {/* Button to see all technologies */}
           <div className="text-center mt-12">
             <Link
