@@ -77,7 +77,7 @@ export async function GET(request: Request) {
                 timestamp: data.timestamp,
                 mock: true,
                 reason: 'Datos simulados para desarrollo',
-            });
+            }, { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate' } });
         }
 
         return NextResponse.json({
@@ -86,7 +86,7 @@ export async function GET(request: Request) {
             timestamp: data.timestamp,
             mock: true,
             reason: 'Datos simulados para desarrollo',
-        });
+        }, { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate' } });
     } catch (error) {
         console.error('Error en API de sensores LoRa:', error);
         return NextResponse.json(
@@ -94,7 +94,7 @@ export async function GET(request: Request) {
                 error: 'Error al obtener datos de sensores',
                 message: error instanceof Error ? error.message : 'Error desconocido',
             },
-            { status: 500 }
+            { status: 500, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate' } }
         );
     }
 }

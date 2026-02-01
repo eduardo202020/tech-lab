@@ -39,7 +39,14 @@ export default function LoRaSensorViewer({ refreshMs = 10000 }: ViewerProps) {
 
     const fetchData = useCallback(async () => {
         try {
-            const response = await fetch('/api/lora-sensors');
+            const response = await fetch('/api/lora-sensors', {
+                cache: 'no-store',
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
+                }
+            });
             if (!response.ok) {
                 throw new Error('Error al obtener datos de sensores');
             }
@@ -60,6 +67,18 @@ export default function LoRaSensorViewer({ refreshMs = 10000 }: ViewerProps) {
         const interval = setInterval(fetchData, refreshMs);
         return () => clearInterval(interval);
     }, [fetchData, refreshMs]);
+
+    // Escuchar cambios de visibilidad para refrescar cuando la pestaña vuelve activa
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                fetchData();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }, [fetchData]);
 
     const getSensorColor = (sensorId: string) => {
         const colors: Record<string, string> = {
