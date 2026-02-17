@@ -37,8 +37,6 @@ interface SmartParkingApiResponse {
 
 // Transformar datos de la API al formato esperado
 const transformSmartParkingData = (apiResponse: SmartParkingApiResponse): ParkingData => {
-  console.log('[SmartParkingViewer] 🔄 Transformando datos de API...');
-
   // Convertir spots_state string a array de booleanos
   const spotStates = apiResponse.spots_state.split('').map(char => char === '1');
 
@@ -62,7 +60,6 @@ const transformSmartParkingData = (apiResponse: SmartParkingApiResponse): Parkin
     peopleCount: null,
   };
 
-  console.log('[SmartParkingViewer] ✅ Datos transformados:', parkingData);
   return parkingData;
 };
 
@@ -171,7 +168,7 @@ function ParkingAreaViewer({ area, theme, lastUpdate }: { area: ParkingArea; the
   };
 
   return (
-    <div className="w-full h-full min-h-[320px] sm:min-h-[380px] md:min-h-[420px] flex flex-col rounded-lg border border-theme-border bg-theme-card/20 overflow-hidden">
+    <div className="w-full h-full flex flex-col rounded-lg border border-theme-border bg-theme-card/20 overflow-hidden">
       <div className="p-3 bg-theme-card/50 border-b border-theme-border">
         <h3 className="font-bold text-theme-text text-lg mb-2">{area.cameraId}</h3>
         <div className="grid grid-cols-2 gap-2 text-sm">
@@ -200,8 +197,8 @@ function ParkingAreaViewer({ area, theme, lastUpdate }: { area: ParkingArea; the
         </div>
       </div>
 
-      <div className="flex-1 relative min-h-[220px] sm:min-h-[260px] md:min-h-[300px]">
-        <Canvas camera={{ position: getCameraPosition(), fov: 50 }} style={{ background: 'transparent' }}>
+      <div className="flex-1 relative">
+        <Canvas camera={{ position: getCameraPosition(), fov: 50 }} style={{ width: '100%', height: '100%', background: 'transparent' }}>
           <Suspense fallback={null}>
             <ambientLight intensity={0.8} />
             <directionalLight position={[0, 15, 0]} intensity={1.2} castShadow />
@@ -264,32 +261,19 @@ function ParkingScene({ camId = 'smart_parking:A1', counterCamId = 'cuenta_perso
 
       const res = await fetch(url, { cache: 'no-store' });
 
-      console.log('[SmartParkingViewer] ✅ Response status:', res.status, res.statusText);
-      console.log('[SmartParkingViewer] Content-Type:', res.headers.get('content-type'));
-
       if (!res.ok) {
         throw new Error(`HTTP Error: ${res.status} ${res.statusText}`);
       }
 
       const apiResponse: SmartParkingApiResponse = await res.json();
-      console.log('[SmartParkingViewer] 📊 Datos API recibidos:', apiResponse);
 
       // Transformar datos de la API al formato esperado
       const parkingDataTransformed = transformSmartParkingData(apiResponse);
-      console.log('[SmartParkingViewer] Areas count:', parkingDataTransformed.areas?.length || 0);
-      console.log('[SmartParkingViewer] Areas:', parkingDataTransformed.areas);
 
       setParkingData(parkingDataTransformed);
       setLastUpdate(new Date());
       setError(null);
-      console.log('[SmartParkingViewer] ✨ Datos seteados correctamente');
     } catch (err) {
-      console.error('[SmartParkingViewer] ❌ Error fetching Smart Parking:', err);
-      console.error('[SmartParkingViewer] Error details:', {
-        message: err instanceof Error ? err.message : 'Unknown error',
-        name: err instanceof Error ? err.name : 'Unknown',
-        stack: err instanceof Error ? err.stack : 'No stack trace'
-      });
       const message = err instanceof Error ? err.message : 'Error desconocido';
       setError(message);
     } finally {
@@ -312,25 +296,23 @@ function ParkingScene({ camId = 'smart_parking:A1', counterCamId = 'cuenta_perso
   }
 
   return (
-    <div className="w-full flex flex-col gap-4 p-3 sm:p-4 bg-theme-bg">
+    <div className="w-full h-full">
       {error && (
-        <div className="bg-red-500/90 text-white px-4 py-2 rounded-lg shadow text-sm">
+        <div className="bg-red-500/90 text-white px-4 py-2 rounded-lg shadow text-sm mb-4">
           {error}
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-        {parkingData.areas.map((area) => (
-          <ParkingAreaViewer key={area.cameraId} area={area} theme={theme} lastUpdate={lastUpdate} />
-        ))}
-      </div>
+      {parkingData.areas.map((area) => (
+        <ParkingAreaViewer key={area.cameraId} area={area} theme={theme} lastUpdate={lastUpdate} />
+      ))}
     </div>
   );
 }
 
 export default function SmartParkingViewer({ camId, counterCamId, refreshMs }: ViewerProps) {
   return (
-    <div className="w-full h-auto rounded-lg border border-theme-border bg-theme-card/20 overflow-hidden">
+    <div className="w-full h-full">
       <Suspense
         fallback={
           <div className="w-full h-full flex items-center justify-center">

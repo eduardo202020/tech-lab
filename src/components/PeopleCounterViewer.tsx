@@ -40,8 +40,6 @@ interface PeopleCounterApiResponse {
 
 // Transformar datos de la API al formato esperado
 const transformPeopleCounterData = (apiResponse: PeopleCounterApiResponse): CounterData => {
-  console.log('[PeopleCounterViewer] 🔄 Transformando datos de API...');
-
   const maxCapacity = 50; // Default capacity
   const occupancyPercent = Math.round((apiResponse.aforo / maxCapacity) * 100);
 
@@ -56,7 +54,6 @@ const transformPeopleCounterData = (apiResponse: PeopleCounterApiResponse): Coun
     mock: false,
   };
 
-  console.log('[PeopleCounterViewer] ✅ Datos transformados:', counterData);
   return counterData;
 };
 
@@ -295,34 +292,21 @@ function PeopleCounterScene({ camId = 'cuenta_personas:A1', refreshMs = 10000 }:
 
   const fetchData = useCallback(async () => {
     try {
-      console.log('[PeopleCounterViewer] 👥 Iniciando fetch de contador de personas...');
       const url = `/api/sensors-proxy/people-counter?cam_id=${encodeURIComponent(camId)}`;
       const res = await fetch(url, { cache: 'no-store' });
-
-      console.log('[PeopleCounterViewer] ✅ Response status:', res.status, res.statusText);
-      console.log('[PeopleCounterViewer] Content-Type:', res.headers.get('content-type'));
 
       if (!res.ok) {
         throw new Error(`HTTP Error: ${res.status} ${res.statusText}`);
       }
 
       const apiResponse: PeopleCounterApiResponse = await res.json();
-      console.log('[PeopleCounterViewer] 📊 Datos API recibidos:', apiResponse);
 
       // Transformar datos de la API al formato esperado
       const counterData = transformPeopleCounterData(apiResponse);
-      console.log('[PeopleCounterViewer] Counter data transformado:', counterData);
 
       setCounterData(counterData);
       setError(null);
-      console.log('[PeopleCounterViewer] ✨ Datos seteados correctamente');
     } catch (err) {
-      console.error('[PeopleCounterViewer] ❌ Error fetching People Counter:', err);
-      console.error('[PeopleCounterViewer] Error details:', {
-        message: err instanceof Error ? err.message : 'Unknown error',
-        name: err instanceof Error ? err.name : 'Unknown',
-        stack: err instanceof Error ? err.stack : 'No stack trace'
-      });
       const message = err instanceof Error ? err.message : 'Error desconocido';
       setError(message);
     } finally {

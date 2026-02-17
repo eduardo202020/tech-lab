@@ -41,8 +41,6 @@ const CO2_ALERT_THRESHOLDS = { min: 400, max: 1000 };
 
 // Transformar datos de la API al formato esperado
 const transformLoRaData = (apiResponse: LoRaApiResponse): LoRaData => {
-    console.log('[LoRaSensorViewer] 🔄 Transformando datos de API...');
-
     const reading: SensorReading = {
         id_sensor: `LORA_${apiResponse.idb}`,
         temperatura: parseFloat(apiResponse.temperatura_c),
@@ -58,7 +56,6 @@ const transformLoRaData = (apiResponse: LoRaApiResponse): LoRaData => {
         mock: false,
     };
 
-    console.log('[LoRaSensorViewer] ✅ Datos transformados:', transformedData);
     return transformedData;
 };
 
@@ -72,9 +69,7 @@ export default function LoRaSensorViewer({ refreshMs = 10000 }: ViewerProps) {
 
     const fetchData = useCallback(async () => {
         try {
-            console.log('[LoRaSensorViewer] 📡 Iniciando fetch de sensores LoRa...');
             const url = '/api/sensors-proxy/lora';
-            console.log('[LoRaSensorViewer] URL:', url);
 
             const response = await fetch(url, {
                 cache: 'no-store',
@@ -85,31 +80,19 @@ export default function LoRaSensorViewer({ refreshMs = 10000 }: ViewerProps) {
                 }
             });
 
-            console.log('[LoRaSensorViewer] ✅ Response status:', response.status, response.statusText);
-
             if (!response.ok) {
                 throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
             }
 
             const apiResponse: LoRaApiResponse = await response.json();
-            console.log('[LoRaSensorViewer] 📊 Datos API recibidos:', apiResponse);
 
             // Transformar datos de la API al formato esperado
             const loraData = transformLoRaData(apiResponse);
-            console.log('[LoRaSensorViewer] Sensores actuales:', loraData.current);
-            console.log('[LoRaSensorViewer] Registros históricos:', loraData.historical?.length || 0);
 
             setData(loraData);
             setLastUpdate(new Date());
             setError(null);
-            console.log('[LoRaSensorViewer] ✨ Datos seteados correctamente');
         } catch (err) {
-            console.error('[LoRaSensorViewer] ❌ Error fetching LoRa data:', err);
-            console.error('[LoRaSensorViewer] Error details:', {
-                message: err instanceof Error ? err.message : 'Unknown error',
-                name: err instanceof Error ? err.name : 'Unknown',
-                stack: err instanceof Error ? err.stack : 'No stack trace'
-            });
             setError(err instanceof Error ? err.message : 'Error desconocido');
         } finally {
             setLoading(false);
