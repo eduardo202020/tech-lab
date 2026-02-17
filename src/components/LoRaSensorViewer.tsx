@@ -21,6 +21,16 @@ interface LoRaData {
     reason?: string;
 }
 
+// API Response from backend
+interface LoRaApiResponse {
+    id: number;
+    idb: number;
+    humedad: string;
+    temperatura_c: string;
+    dioxido_carbono_ppm: string;
+    fecha_registro: string;
+}
+
 interface ViewerProps {
     refreshMs?: number;
 }
@@ -28,6 +38,29 @@ interface ViewerProps {
 const TEMP_ALERT_THRESHOLDS = { min: 18, max: 28 };
 const HUMIDITY_ALERT_THRESHOLDS = { min: 30, max: 70 };
 const CO2_ALERT_THRESHOLDS = { min: 400, max: 1000 };
+
+// Transformar datos de la API al formato esperado
+const transformLoRaData = (apiResponse: LoRaApiResponse): LoRaData => {
+    console.log('[LoRaSensorViewer] 🔄 Transformando datos de API...');
+
+    const reading: SensorReading = {
+        id_sensor: `LORA_${apiResponse.idb}`,
+        temperatura: parseFloat(apiResponse.temperatura_c),
+        humedad: parseFloat(apiResponse.humedad),
+        co2: parseFloat(apiResponse.dioxido_carbono_ppm),
+        timestamp: apiResponse.fecha_registro,
+    };
+
+    const transformedData: LoRaData = {
+        current: [reading],
+        historical: [reading],
+        timestamp: apiResponse.fecha_registro,
+        mock: false,
+    };
+
+    console.log('[LoRaSensorViewer] ✅ Datos transformados:', transformedData);
+    return transformedData;
+};
 
 export default function LoRaSensorViewer({ refreshMs = 10000 }: ViewerProps) {
     const [data, setData] = useState<LoRaData | null>(null);
@@ -39,7 +72,11 @@ export default function LoRaSensorViewer({ refreshMs = 10000 }: ViewerProps) {
 
     const fetchData = useCallback(async () => {
         try {
-            const response = await fetch('/api/lora-sensors', {
+            console.log('[LoRaSensorViewer] 📡 Iniciando fetch de sensores LoRa...');
+            const url = '/api/sensors-proxy/lora';
+            console.log('[LoRaSensorViewer] URL:', url);
+
+            const response = await fetch(url, {
                 cache: 'no-store',
                 headers: {
                     'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -47,15 +84,32 @@ export default function LoRaSensorViewer({ refreshMs = 10000 }: ViewerProps) {
                     'Expires': '0'
                 }
             });
+
+            console.log('[LoRaSensorViewer] ✅ Response status:', response.status, response.statusText);
+
             if (!response.ok) {
-                throw new Error('Error al obtener datos de sensores');
+                throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
             }
-            const jsonData: LoRaData = await response.json();
-            setData(jsonData);
+
+            const apiResponse: LoRaApiResponse = await response.json();
+            console.log('[LoRaSensorViewer] 📊 Datos API recibidos:', apiResponse);
+
+            // Transformar datos de la API al formato esperado
+            const loraData = transformLoRaData(apiResponse);
+            console.log('[LoRaSensorViewer] Sensores actuales:', loraData.current);
+            console.log('[LoRaSensorViewer] Registros históricos:', loraData.historical?.length || 0);
+
+            setData(loraData);
             setLastUpdate(new Date());
             setError(null);
+            console.log('[LoRaSensorViewer] ✨ Datos seteados correctamente');
         } catch (err) {
-            console.error('Error fetching LoRa data:', err);
+            console.error('[LoRaSensorViewer] ❌ Error fetching LoRa data:', err);
+            console.error('[LoRaSensorViewer] Error details:', {
+                message: err instanceof Error ? err.message : 'Unknown error',
+                name: err instanceof Error ? err.name : 'Unknown',
+                stack: err instanceof Error ? err.stack : 'No stack trace'
+            });
             setError(err instanceof Error ? err.message : 'Error desconocido');
         } finally {
             setLoading(false);

@@ -25,6 +25,47 @@ interface ParkingData {
   peopleCount?: number | null;
 }
 
+// API Response from backend
+interface SmartParkingApiResponse {
+  id: number;
+  cam_id: string;
+  ts: string;
+  spots_state: string; // e.g., "1001" where 1=occupied, 0=free
+  spot_ids: string[];
+  layout: [number, number];
+}
+
+// Transformar datos de la API al formato esperado
+const transformSmartParkingData = (apiResponse: SmartParkingApiResponse): ParkingData => {
+  console.log('[SmartParkingViewer] 🔄 Transformando datos de API...');
+
+  // Convertir spots_state string a array de booleanos
+  const spotStates = apiResponse.spots_state.split('').map(char => char === '1');
+
+  const spots = apiResponse.spot_ids.map((id, index) => ({
+    id,
+    occupied: spotStates[index] || false,
+    index,
+  }));
+
+  const area: ParkingArea = {
+    cameraId: apiResponse.cam_id,
+    timestamp: apiResponse.ts,
+    spots,
+    layout: apiResponse.layout,
+    spotIds: apiResponse.spot_ids,
+    peopleCount: null,
+  };
+
+  const parkingData: ParkingData = {
+    areas: [area],
+    peopleCount: null,
+  };
+
+  console.log('[SmartParkingViewer] ✅ Datos transformados:', parkingData);
+  return parkingData;
+};
+
 type ViewerProps = {
   camId?: string;
   counterCamId?: string;
@@ -189,7 +230,7 @@ function ParkingAreaViewer({ area, theme, lastUpdate }: { area: ParkingArea; the
 
         <div className="absolute top-2 right-2 bg-theme-card/90 backdrop-blur-sm rounded p-2 text-xs text-theme-secondary flex flex-col gap-1">
           <div className="text-xs font-semibold text-theme-accent">
-            {lastUpdate 
+            {lastUpdate
               ? lastUpdate.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
               : 'Actualizando...'}
           </div>
@@ -218,18 +259,37 @@ function ParkingScene({ camId = 'smart_parking:A1', counterCamId = 'cuenta_perso
 
   const fetchData = useCallback(async () => {
     try {
-      const params = new URLSearchParams({ camId, counterCamId });
-      const res = await fetch(`/api/smart-parking?${params.toString()}`, { cache: 'no-store' });
+      console.log('[SmartParkingViewer] 🅿️ Iniciando fetch de Smart Parking...');
+      const url = `/api/sensors-proxy/smart-parking?cam_id=${encodeURIComponent(camId)}`;
+
+      const res = await fetch(url, { cache: 'no-store' });
+
+      console.log('[SmartParkingViewer] ✅ Response status:', res.status, res.statusText);
+      console.log('[SmartParkingViewer] Content-Type:', res.headers.get('content-type'));
 
       if (!res.ok) {
-        throw new Error('No se pudo obtener datos del estacionamiento');
+        throw new Error(`HTTP Error: ${res.status} ${res.statusText}`);
       }
 
-      const json: ParkingData = await res.json();
-      setParkingData(json);
+      const apiResponse: SmartParkingApiResponse = await res.json();
+      console.log('[SmartParkingViewer] 📊 Datos API recibidos:', apiResponse);
+
+      // Transformar datos de la API al formato esperado
+      const parkingDataTransformed = transformSmartParkingData(apiResponse);
+      console.log('[SmartParkingViewer] Areas count:', parkingDataTransformed.areas?.length || 0);
+      console.log('[SmartParkingViewer] Areas:', parkingDataTransformed.areas);
+
+      setParkingData(parkingDataTransformed);
       setLastUpdate(new Date());
       setError(null);
+      console.log('[SmartParkingViewer] ✨ Datos seteados correctamente');
     } catch (err) {
+      console.error('[SmartParkingViewer] ❌ Error fetching Smart Parking:', err);
+      console.error('[SmartParkingViewer] Error details:', {
+        message: err instanceof Error ? err.message : 'Unknown error',
+        name: err instanceof Error ? err.name : 'Unknown',
+        stack: err instanceof Error ? err.stack : 'No stack trace'
+      });
       const message = err instanceof Error ? err.message : 'Error desconocido';
       setError(message);
     } finally {

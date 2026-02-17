@@ -30,6 +30,36 @@ interface ApiResponse {
   reason?: string;
 }
 
+// API Response from backend
+interface PeopleCounterApiResponse {
+  id: number;
+  cam_id: string;
+  ts: string;
+  aforo: number;
+}
+
+// Transformar datos de la API al formato esperado
+const transformPeopleCounterData = (apiResponse: PeopleCounterApiResponse): CounterData => {
+  console.log('[PeopleCounterViewer] 🔄 Transformando datos de API...');
+
+  const maxCapacity = 50; // Default capacity
+  const occupancyPercent = Math.round((apiResponse.aforo / maxCapacity) * 100);
+
+  const counterData: CounterData = {
+    camId: apiResponse.cam_id,
+    timestamp: apiResponse.ts,
+    currentCount: apiResponse.aforo,
+    maxCapacity,
+    trend: occupancyPercent > 60 ? 'up' : occupancyPercent < 30 ? 'down' : 'stable',
+    occupancyPercent,
+    alert: occupancyPercent >= 90 ? '¡Alerta! Aforo cerca del límite' : undefined,
+    mock: false,
+  };
+
+  console.log('[PeopleCounterViewer] ✅ Datos transformados:', counterData);
+  return counterData;
+};
+
 // Componente para representar una persona en 3D
 function PersonFigure({ position, color }: { position: [number, number, number]; color: string }) {
   return (
@@ -38,12 +68,12 @@ function PersonFigure({ position, color }: { position: [number, number, number];
       <Sphere args={[0.3, 16, 16]} position={[0, 1.7, 0]}>
         <meshStandardMaterial color={color} />
       </Sphere>
-      
+
       {/* Cuerpo */}
       <Box args={[0.5, 0.8, 0.3]} position={[0, 1.1, 0]}>
         <meshStandardMaterial color={color} />
       </Box>
-      
+
       {/* Piernas */}
       <Box args={[0.2, 0.6, 0.2]} position={[-0.15, 0.4, 0]}>
         <meshStandardMaterial color={color} />
@@ -59,12 +89,12 @@ function PersonFigure({ position, color }: { position: [number, number, number];
 function PeopleScene3D({ data, theme }: { data: CounterData; theme: string }) {
   const peopleCount = data.currentCount;
   const maxCapacity = data.maxCapacity;
-  
+
   // Generar posiciones para las personas en una cuadrícula
   const peoplePositions: Array<[number, number, number]> = [];
   const cols = Math.ceil(Math.sqrt(maxCapacity));
   const rows = Math.ceil(maxCapacity / cols);
-  
+
   for (let i = 0; i < maxCapacity; i++) {
     const row = Math.floor(i / cols);
     const col = i % cols;
@@ -72,18 +102,18 @@ function PeopleScene3D({ data, theme }: { data: CounterData; theme: string }) {
     const z = ((rows - 1) / 2 - row) * 1.5;
     peoplePositions.push([x, 0, z]);
   }
-  
+
   // Formato del timestamp
   const formatTimestamp = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleTimeString('es-PE', { 
-      hour: '2-digit', 
-      minute: '2-digit', 
+    return date.toLocaleTimeString('es-PE', {
+      hour: '2-digit',
+      minute: '2-digit',
       second: '2-digit',
-      hour12: false 
+      hour12: false
     });
   };
-  
+
   // Color basado en estado de ocupación
   const getPersonColor = (index: number) => {
     if (index < peopleCount) {
@@ -106,10 +136,10 @@ function PeopleScene3D({ data, theme }: { data: CounterData; theme: string }) {
       {/* Piso */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]} receiveShadow>
         <planeGeometry args={[cols * 1.8, rows * 1.8]} />
-        <meshStandardMaterial 
-          color={theme === 'dark' ? '#1a1a1a' : '#f0f0f0'} 
-          opacity={0.9} 
-          transparent 
+        <meshStandardMaterial
+          color={theme === 'dark' ? '#1a1a1a' : '#f0f0f0'}
+          opacity={0.9}
+          transparent
         />
       </mesh>
 
@@ -121,10 +151,10 @@ function PeopleScene3D({ data, theme }: { data: CounterData; theme: string }) {
 
       {/* Figuras de personas */}
       {peoplePositions.map((pos, idx) => (
-        <PersonFigure 
-          key={idx} 
-          position={pos} 
-          color={getPersonColor(idx)} 
+        <PersonFigure
+          key={idx}
+          position={pos}
+          color={getPersonColor(idx)}
         />
       ))}
 
@@ -150,7 +180,7 @@ function PeopleScene3D({ data, theme }: { data: CounterData; theme: string }) {
         {formatTimestamp(data.timestamp)}
       </Text>
 
-      <OrbitControls 
+      <OrbitControls
         enablePan={true}
         enableZoom={true}
         enableRotate={true}
@@ -215,15 +245,14 @@ function CounterDisplay({ data }: { data: CounterData }) {
           </div>
           <div className="w-full h-4 bg-theme-border/30 rounded-full overflow-hidden">
             <div
-              className={`h-full transition-all duration-500 ${
-                data.occupancyPercent >= 90
-                  ? 'bg-red-500'
-                  : data.occupancyPercent >= 70
-                    ? 'bg-orange-500'
-                    : data.occupancyPercent >= 50
-                      ? 'bg-yellow-500'
-                      : 'bg-green-500'
-              }`}
+              className={`h-full transition-all duration-500 ${data.occupancyPercent >= 90
+                ? 'bg-red-500'
+                : data.occupancyPercent >= 70
+                  ? 'bg-orange-500'
+                  : data.occupancyPercent >= 50
+                    ? 'bg-yellow-500'
+                    : 'bg-green-500'
+                }`}
               style={{ width: `${Math.min(data.occupancyPercent, 100)}%` }}
             />
           </div>
@@ -266,17 +295,34 @@ function PeopleCounterScene({ camId = 'cuenta_personas:A1', refreshMs = 10000 }:
 
   const fetchData = useCallback(async () => {
     try {
-      const params = new URLSearchParams({ counterCamId: camId });
-      const res = await fetch(`/api/people-counter?${params.toString()}`, { cache: 'no-store' });
+      console.log('[PeopleCounterViewer] 👥 Iniciando fetch de contador de personas...');
+      const url = `/api/sensors-proxy/people-counter?cam_id=${encodeURIComponent(camId)}`;
+      const res = await fetch(url, { cache: 'no-store' });
+
+      console.log('[PeopleCounterViewer] ✅ Response status:', res.status, res.statusText);
+      console.log('[PeopleCounterViewer] Content-Type:', res.headers.get('content-type'));
 
       if (!res.ok) {
-        throw new Error('No se pudo obtener datos del contador de personas');
+        throw new Error(`HTTP Error: ${res.status} ${res.statusText}`);
       }
 
-      const json: ApiResponse = await res.json();
-      setCounterData(json.counter);
+      const apiResponse: PeopleCounterApiResponse = await res.json();
+      console.log('[PeopleCounterViewer] 📊 Datos API recibidos:', apiResponse);
+
+      // Transformar datos de la API al formato esperado
+      const counterData = transformPeopleCounterData(apiResponse);
+      console.log('[PeopleCounterViewer] Counter data transformado:', counterData);
+
+      setCounterData(counterData);
       setError(null);
+      console.log('[PeopleCounterViewer] ✨ Datos seteados correctamente');
     } catch (err) {
+      console.error('[PeopleCounterViewer] ❌ Error fetching People Counter:', err);
+      console.error('[PeopleCounterViewer] Error details:', {
+        message: err instanceof Error ? err.message : 'Unknown error',
+        name: err instanceof Error ? err.name : 'Unknown',
+        stack: err instanceof Error ? err.stack : 'No stack trace'
+      });
       const message = err instanceof Error ? err.message : 'Error desconocido';
       setError(message);
     } finally {
@@ -313,7 +359,7 @@ function PeopleCounterScene({ camId = 'cuenta_personas:A1', refreshMs = 10000 }:
           {error}
         </div>
       )}
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full min-h-[600px]">
         {/* Visualización 3D */}
         <div className="bg-theme-card rounded-lg border border-theme-border overflow-hidden" style={{ minHeight: '600px' }}>
