@@ -92,28 +92,35 @@ export async function POST(request: Request) {
     }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
+        const { searchParams } = new URL(request.url);
+        const rawLimit = Number(searchParams.get('limit') ?? '1');
+        const limit = Number.isFinite(rawLimit)
+            ? Math.min(Math.max(Math.trunc(rawLimit), 1), 50)
+            : 1;
+
         const { data, error } = await getSupabaseClient()
             .from('map_locations')
             .select('lat,lng,source,created_at')
             .order('created_at', { ascending: false })
-            .limit(1)
-            .maybeSingle();
+            .limit(limit);
 
         if (error) {
             throw new Error(error.message);
         }
 
-        if (!data) {
+        if (!data || data.length === 0) {
             return NextResponse.json(
                 { error: 'No location has been received yet.' },
                 { status: 404, headers: { 'Cache-Control': 'no-store' } }
             );
         }
 
+        const locations = (data as LocationRow[]).map(formatLocation);
+
         return NextResponse.json(
-            { location: formatLocation(data as LocationRow) },
+            { location: locations[0], locations },
             { headers: { 'Cache-Control': 'no-store' } }
         );
     } catch (error) {
