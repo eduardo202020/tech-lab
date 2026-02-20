@@ -3,6 +3,7 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useState } from 'react';
+import Link from 'next/link';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -43,7 +44,14 @@ export default function ContactPage() {
             </h1>
             <p className="mt-4 max-w-2xl mx-auto text-lg text-theme-secondary font-poppins">
               Si tienes alguna pregunta o necesitas ayuda, no dudes en ponerte
-              en contacto con nosotros. Estamos aquí para ayudarte.
+              en contacto con nosotros.{' '}
+              <Link
+                href="/maps"
+                aria-label="Acceso oculto a mapas"
+                className="text-inherit hover:text-inherit"
+              >
+                Estamos aquí para ayudarte.
+              </Link>
             </p>
           </div>
 
