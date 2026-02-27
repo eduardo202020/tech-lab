@@ -2,11 +2,22 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-const BACKEND_URL = 'https://oti-test.jorgeparishuana.dev:4300/caliaire/1102';
+const BACKEND_BASE_URL = 'https://oti-test.jorgeparishuana.dev:4300/caliaire/1102';
+const DEFAULT_LIMIT = 24;
+const MAX_LIMIT = 200;
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
-        const response = await fetch(BACKEND_URL, {
+        const { searchParams } = new URL(request.url);
+        const rawLimit = searchParams.get('limit');
+        const parsedLimit = rawLimit ? Number(rawLimit) : DEFAULT_LIMIT;
+        const limit = Number.isInteger(parsedLimit) && parsedLimit > 0
+            ? Math.min(parsedLimit, MAX_LIMIT)
+            : DEFAULT_LIMIT;
+
+        const backendUrl = `${BACKEND_BASE_URL}/${limit}`;
+
+        const response = await fetch(backendUrl, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

@@ -40,23 +40,40 @@ const HUMIDITY_ALERT_THRESHOLDS = { min: 30, max: 70 };
 const CO2_ALERT_THRESHOLDS = { min: 400, max: 1000 };
 
 // Transformar datos de la API al formato esperado
-const transformLoRaData = (apiResponse: LoRaApiResponse): LoRaData => {
-    const reading: SensorReading = {
-        id_sensor: `LORA_${apiResponse.idb}`,
-        temperatura: parseFloat(apiResponse.temperatura_c),
-        humedad: parseFloat(apiResponse.humedad),
-        co2: parseFloat(apiResponse.dioxido_carbono_ppm),
-        timestamp: apiResponse.fecha_registro,
-    };
+const transformLoRaData = (apiResponse: LoRaApiResponse | LoRaApiResponse[]): LoRaData => {
+    const rows = Array.isArray(apiResponse) ? apiResponse : [apiResponse];
 
-    const transformedData: LoRaData = {
-        current: [reading],
-        historical: [reading],
-        timestamp: apiResponse.fecha_registro,
+    const historical = rows
+        .map((row) => ({
+            id_sensor: `LORA_${row.idb}`,
+            temperatura: parseFloat(row.temperatura_c),
+            humedad: parseFloat(row.humedad),
+            co2: parseFloat(row.dioxido_carbono_ppm),
+            timestamp: row.fecha_registro,
+        }))
+        .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
+    const latestBySensor = new Map<string, SensorReading>();
+    for (const reading of historical) {
+        const currentLatest = latestBySensor.get(reading.id_sensor);
+        if (!currentLatest || new Date(reading.timestamp).getTime() > new Date(currentLatest.timestamp).getTime()) {
+            latestBySensor.set(reading.id_sensor, reading);
+        }
+    }
+
+    const current = Array.from(latestBySensor.values());
+    const latestTimestamp = current.length
+        ? current
+            .map((reading) => new Date(reading.timestamp).getTime())
+            .sort((a, b) => b - a)[0]
+        : Date.now();
+
+    return {
+        current,
+        historical,
+        timestamp: new Date(latestTimestamp).toISOString(),
         mock: false,
     };
-
-    return transformedData;
 };
 
 export default function LoRaSensorViewer({ refreshMs = 10000 }: ViewerProps) {
@@ -69,7 +86,7 @@ export default function LoRaSensorViewer({ refreshMs = 10000 }: ViewerProps) {
 
     const fetchData = useCallback(async () => {
         try {
-            const url = '/api/sensors-proxy/lora';
+            const url = '/api/sensors-proxy/lora?limit=30';
 
             const response = await fetch(url, {
                 cache: 'no-store',
@@ -84,7 +101,7 @@ export default function LoRaSensorViewer({ refreshMs = 10000 }: ViewerProps) {
                 throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
             }
 
-            const apiResponse: LoRaApiResponse = await response.json();
+            const apiResponse: LoRaApiResponse | LoRaApiResponse[] = await response.json();
 
             // Transformar datos de la API al formato esperado
             const loraData = transformLoRaData(apiResponse);
