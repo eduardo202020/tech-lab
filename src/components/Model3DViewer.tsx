@@ -26,7 +26,7 @@ export default function Model3DViewer() {
     <div className="w-full h-full relative">
       <Canvas
         camera={{ position: [4, 3, 6], fov: 60 }}
-        style={{ background: 'transparent' }}
+        style={{ background: 'transparent', pointerEvents: 'none' }}
       >
         <Suspense fallback={null}>
           {/* Soft, diffused lighting */}
