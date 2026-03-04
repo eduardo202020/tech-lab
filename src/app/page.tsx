@@ -4,8 +4,11 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Model3DViewer from '@/components/Model3DViewer';
 import Link from 'next/link';
+import { useTechnologies } from '@/hooks/useTechnologies';
 
 export default function Home() {
+  const { technologies } = useTechnologies();
+
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-theme-bg text-theme-text font-roboto overflow-hidden transition-colors duration-300">
       <Header />
@@ -96,94 +99,28 @@ export default function Home() {
             <div className="flex animate-scroll whitespace-nowrap">
               {/* Primera serie de tecnologías */}
               <div className="flex items-center space-x-8 text-lg font-poppins">
-                <Link
-                  href="/technologies/lora"
-                  className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer"
-                >
-                  LoRa Technology
-                </Link>
-                <Link
-                  href="/technologies/blockchain"
-                  className="bg-gradient-to-r from-bright-blue to-neon-pink bg-clip-text text-transparent font-bold px-6 py-3 border border-bright-blue/30 rounded-full backdrop-blur-sm hover:border-bright-blue/60 hover:shadow-lg hover:shadow-bright-blue/20 transition-all cursor-pointer"
-                >
-                  Blockchain
-                </Link>
-                <Link
-                  href="/technologies/iot"
-                  className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer"
-                >
-                  IoT
-                </Link>
-                <Link
-                  href="/technologies/ai"
-                  className="bg-gradient-to-r from-bright-blue to-neon-pink bg-clip-text text-transparent font-bold px-6 py-3 border border-bright-blue/30 rounded-full backdrop-blur-sm hover:border-bright-blue/60 hover:shadow-lg hover:shadow-bright-blue/20 transition-all cursor-pointer"
-                >
-                  Inteligencia Artificial
-                </Link>
-                <Link
-                  href="/technologies/web-platform"
-                  className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer"
-                >
-                  Plataformas Web
-                </Link>
-                <Link
-                  href="/technologies/renewable-energy"
-                  className="bg-gradient-to-r from-bright-blue to-neon-pink bg-clip-text text-transparent font-bold px-6 py-3 border border-bright-blue/30 rounded-full backdrop-blur-sm hover:border-bright-blue/60 hover:shadow-lg hover:shadow-bright-blue/20 transition-all cursor-pointer"
-                >
-                  Energías Renovables
-                </Link>
-                <Link
-                  href="/technologies/manufacturing"
-                  className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer"
-                >
-                  Manufactura Digital
-                </Link>
+                {technologies.map((tech, index) => (
+                  <Link
+                    key={`home-tech-1-${tech.id}`}
+                    href={`/technologies/${tech.id}`}
+                    className={`bg-gradient-to-r ${index % 2 === 0 ? 'from-neon-pink to-bright-blue border-neon-pink/30 hover:border-neon-pink/60 hover:shadow-neon-pink/20' : 'from-bright-blue to-neon-pink border-bright-blue/30 hover:border-bright-blue/60 hover:shadow-bright-blue/20'} bg-clip-text text-transparent font-bold px-6 py-3 border rounded-full backdrop-blur-sm hover:shadow-lg transition-all cursor-pointer`}
+                  >
+                    {tech.name}
+                  </Link>
+                ))}
               </div>
 
               {/* Segunda serie de tecnologías (duplicado para loop infinito) */}
               <div className="flex items-center space-x-8 text-lg font-poppins ml-8">
-                <Link
-                  href="/technologies/lora"
-                  className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer"
-                >
-                  LoRa Technology
-                </Link>
-                <Link
-                  href="/technologies/blockchain"
-                  className="bg-gradient-to-r from-bright-blue to-neon-pink bg-clip-text text-transparent font-bold px-6 py-3 border border-bright-blue/30 rounded-full backdrop-blur-sm hover:border-bright-blue/60 hover:shadow-lg hover:shadow-bright-blue/20 transition-all cursor-pointer"
-                >
-                  Blockchain
-                </Link>
-                <Link
-                  href="/technologies/iot"
-                  className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer"
-                >
-                  IoT
-                </Link>
-                <Link
-                  href="/technologies/ai"
-                  className="bg-gradient-to-r from-bright-blue to-neon-pink bg-clip-text text-transparent font-bold px-6 py-3 border border-bright-blue/30 rounded-full backdrop-blur-sm hover:border-bright-blue/60 hover:shadow-lg hover:shadow-bright-blue/20 transition-all cursor-pointer"
-                >
-                  Inteligencia Artificial
-                </Link>
-                <Link
-                  href="/technologies/web-platform"
-                  className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer"
-                >
-                  Plataformas Web
-                </Link>
-                <Link
-                  href="/technologies/renewable-energy"
-                  className="bg-gradient-to-r from-bright-blue to-neon-pink bg-clip-text text-transparent font-bold px-6 py-3 border border-bright-blue/30 rounded-full backdrop-blur-sm hover:border-bright-blue/60 hover:shadow-lg hover:shadow-bright-blue/20 transition-all cursor-pointer"
-                >
-                  Energías Renovables
-                </Link>
-                <Link
-                  href="/technologies/manufacturing"
-                  className="bg-gradient-to-r from-neon-pink to-bright-blue bg-clip-text text-transparent font-bold px-6 py-3 border border-neon-pink/30 rounded-full backdrop-blur-sm hover:border-neon-pink/60 hover:shadow-lg hover:shadow-neon-pink/20 transition-all cursor-pointer"
-                >
-                  Manufactura Digital
-                </Link>
+                {technologies.map((tech, index) => (
+                  <Link
+                    key={`home-tech-2-${tech.id}`}
+                    href={`/technologies/${tech.id}`}
+                    className={`bg-gradient-to-r ${index % 2 === 0 ? 'from-neon-pink to-bright-blue border-neon-pink/30 hover:border-neon-pink/60 hover:shadow-neon-pink/20' : 'from-bright-blue to-neon-pink border-bright-blue/30 hover:border-bright-blue/60 hover:shadow-bright-blue/20'} bg-clip-text text-transparent font-bold px-6 py-3 border rounded-full backdrop-blur-sm hover:shadow-lg transition-all cursor-pointer`}
+                  >
+                    {tech.name}
+                  </Link>
+                ))}
               </div>
             </div>
           </div>
