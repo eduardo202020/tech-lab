@@ -18,13 +18,24 @@ import RelatedTechnologies from '@/components/RelatedTechnologies';
 import SmartParkingViewer from '@/components/SmartParkingViewer';
 import PeopleCounterViewer from '@/components/PeopleCounterViewer';
 import LoRaSensorViewer from '@/components/LoRaSensorViewer';
+import BlockchainViewer from '@/components/BlockchainViewer';
+import TechLabPlatformViewer from '@/components/TechLabPlatformViewer';
+import AirQualityViewer from '@/components/AirQualityViewer';
 
 export default function ProjectDetailPage() {
   const params = useParams();
   const projectId = params.id as string;
-  const { getProject } = useProjects();
+  const { getProject, isLoading } = useProjects();
 
   const project = getProject(projectId);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-theme-background flex items-center justify-center">
+        <p className="text-theme-secondary">Cargando proyecto...</p>
+      </div>
+    );
+  }
 
   if (!project) {
     notFound();
@@ -59,6 +70,36 @@ export default function ProjectDetailPage() {
         return 'text-gray-500 bg-gray-500/20';
     }
   };
+
+  const isBlockchainProject =
+    project.id === '5a72d6f1-c3b1-5f0b-8b13-0ffec9aa3c1b' ||
+    project.title.toLowerCase().includes('blockchain') ||
+    project.category.toLowerCase().includes('blockchain') ||
+    project.technologies.some((tech) =>
+      ['blockchain', 'ethereum', 'poa', 'clique'].some((keyword) =>
+        tech.toLowerCase().includes(keyword)
+      )
+    );
+
+  const isTechLabPlatformProject =
+    project.id === '1a2b9f6b-3c2a-5db2-9b0d-cc2f5f3d72f3' ||
+    project.title.toLowerCase().includes('plataforma techlab') ||
+    project.category.toLowerCase().includes('plataforma') ||
+    project.technologies.some((tech) =>
+      ['web platform', 'auth/roles', 'gestión de proyectos', 'techlab-platform'].some((keyword) =>
+        tech.toLowerCase().includes(keyword)
+      )
+    );
+
+  const isIndoorAirQualityProject =
+    project.id === '65b97c1d-0a6a-5fdd-9a9b-2c3b1c63cf5a' ||
+    project.title.toLowerCase().includes('calidad de aire') ||
+    project.category.toLowerCase().includes('salud ambiental') ||
+    project.technologies.some((tech) =>
+      ['air quality', 'calidad de aire', 'monitoreo ambiental', 'indoor-air-quality-iot'].some((keyword) =>
+        tech.toLowerCase().includes(keyword)
+      )
+    );
 
   return (
     <div className="min-h-screen bg-theme-background">
@@ -263,6 +304,87 @@ export default function ProjectDetailPage() {
                   <li>Alertas automáticas de valores fuera de rango</li>
                   <li>Actualización automática cada 10 segundos</li>
                   <li>Comunicación de largo alcance y bajo consumo energético</li>
+                </ul>
+              </div>
+            )}
+
+            {/* Simulación - Red Blockchain */}
+            {isBlockchainProject && (
+              <div className="bg-theme-card rounded-xl p-6 border border-theme-border">
+                <h2 className="text-xl font-bold text-theme-text mb-4 flex items-center gap-2">
+                  <Monitor className="text-theme-accent" size={24} />
+                  Simulación de Red Blockchain
+                </h2>
+                <p className="text-theme-secondary mb-6">
+                  Entorno de simulación para visualizar transacciones pendientes,
+                  minería de bloques y encadenamiento mediante hash en una red
+                  privada tipo Ethereum PoA/Clique.
+                </p>
+                <div className="bg-theme-background rounded-lg p-4 border border-theme-border">
+                  <BlockchainViewer />
+                </div>
+                <p className="mt-4">
+                  <strong>Características de la simulación:</strong>
+                </p>
+                <ul className="mt-2 space-y-1 list-disc list-inside text-theme-secondary">
+                  <li>Generación de transacciones entre nodos validadores</li>
+                  <li>Mempool con transacciones pendientes</li>
+                  <li>Minería simulada con cálculo de nonce y hash</li>
+                  <li>Visualización de la cadena y hash previo por bloque</li>
+                </ul>
+              </div>
+            )}
+
+            {/* Simulación - Plataforma TechLab */}
+            {isTechLabPlatformProject && (
+              <div className="bg-theme-card rounded-xl p-6 border border-theme-border">
+                <h2 className="text-xl font-bold text-theme-text mb-4 flex items-center gap-2">
+                  <Monitor className="text-theme-accent" size={24} />
+                  Demo de Plataforma TechLab
+                </h2>
+                <p className="text-theme-secondary mb-6">
+                  Simulación funcional de la plataforma web para centralizar
+                  proyectos, investigadores y préstamos en un mismo panel de
+                  control.
+                </p>
+                <div className="bg-theme-background rounded-lg p-4 border border-theme-border">
+                  <TechLabPlatformViewer />
+                </div>
+                <p className="mt-4">
+                  <strong>Incluye en la demo:</strong>
+                </p>
+                <ul className="mt-2 space-y-1 list-disc list-inside text-theme-secondary">
+                  <li>KPIs de operación en tiempo real (simulados)</li>
+                  <li>Acciones rápidas para simular eventos del sistema</li>
+                  <li>Feed de actividad reciente de la plataforma</li>
+                  <li>Estado operativo general del portal</li>
+                </ul>
+              </div>
+            )}
+
+            {/* Simulación 3D - Módulo de Calidad de Aire Interior */}
+            {isIndoorAirQualityProject && (
+              <div className="bg-theme-card rounded-xl p-6 border border-theme-border">
+                <h2 className="text-xl font-bold text-theme-text mb-4 flex items-center gap-2">
+                  <Monitor className="text-theme-accent" size={24} />
+                  Simulación 3D de Calidad de Aire Interior
+                </h2>
+                <p className="text-theme-secondary mb-6">
+                  Monitoreo visual del ambiente interior con sensores de CO₂,
+                  PM2.5, temperatura, humedad y compuestos orgánicos volátiles
+                  (VOC), con actualización automática del estado de calidad.
+                </p>
+                <div className="bg-theme-background rounded-lg p-4 border border-theme-border">
+                  <AirQualityViewer refreshMs={3000} />
+                </div>
+                <p className="mt-4">
+                  <strong>Incluye en la simulación:</strong>
+                </p>
+                <ul className="mt-2 space-y-1 list-disc list-inside text-theme-secondary">
+                  <li>Escena 3D de sala interior con nodos de sensado</li>
+                  <li>Partículas ambientales según nivel PM2.5</li>
+                  <li>Indicador de calidad del aire en tiempo real (0-100)</li>
+                  <li>Métricas en vivo de CO₂, temperatura, humedad y VOC</li>
                 </ul>
               </div>
             )}

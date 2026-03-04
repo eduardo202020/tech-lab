@@ -11,7 +11,6 @@ import {
   CheckCircle,
   Clock,
   Wrench,
-  Eye,
 } from 'lucide-react';
 import { useAuth as useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import {
@@ -54,7 +53,10 @@ export default function InventoryPage() {
   );
   const [filteredItems, setFilteredItems] =
     useState<SupabaseEquipment[]>(items);
+  const [currentPage, setCurrentPage] = useState(1);
   const lastFetchKey = useRef<string | null>(null);
+  const ITEMS_PER_PAGE = 9;
+  const MAX_VISIBLE_PAGES = 5;
 
   // Funciones auxiliares para filtros
   const filterByCondition = (condition: SupabaseEquipment['condition']) => {
@@ -70,8 +72,8 @@ export default function InventoryPage() {
   };
 
   // Función para manejar la redirección al login
-  const handleLoginRedirect = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleLoginRedirect = (e?: React.MouseEvent) => {
+    e?.preventDefault();
     redirectToLogin();
   };
 
@@ -112,6 +114,24 @@ export default function InventoryPage() {
     setFilteredItems(items);
   }, [items]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearchQuery, debouncedLocationQuery, selectedCategory, selectedCondition, availableOnly]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredItems.length / ITEMS_PER_PAGE));
+  const halfWindow = Math.floor(MAX_VISIBLE_PAGES / 2);
+  const startPage = Math.max(1, Math.min(currentPage - halfWindow, totalPages - MAX_VISIBLE_PAGES + 1));
+  const endPage = Math.min(totalPages, startPage + MAX_VISIBLE_PAGES - 1);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedItems = filteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
   // Datos para filtros
   const categories = [...new Set(items.map((item) => item.category))];
   const conditions: SupabaseEquipment['condition'][] = [
@@ -129,34 +149,34 @@ export default function InventoryPage() {
   const getConditionIcon = (condition: SupabaseEquipment['condition']) => {
     switch (condition) {
       case 'excellent':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
+        return <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-500" />;
       case 'good':
-        return <CheckCircle className="w-4 h-4 text-blue-500" />;
+        return <CheckCircle className="w-4 h-4 text-blue-600 dark:text-blue-500" />;
       case 'fair':
-        return <Clock className="w-4 h-4 text-yellow-500" />;
+        return <Clock className="w-4 h-4 text-amber-600 dark:text-yellow-500" />;
       case 'poor':
-        return <Wrench className="w-4 h-4 text-orange-500" />;
+        return <Wrench className="w-4 h-4 text-orange-600 dark:text-orange-500" />;
       case 'damaged':
-        return <AlertCircle className="w-4 h-4 text-red-500" />;
+        return <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-500" />;
       case 'broken':
-        return <AlertCircle className="w-4 h-4 text-red-600" />;
+        return <AlertCircle className="w-4 h-4 text-red-700 dark:text-red-600" />;
     }
   };
 
   const getConditionColor = (condition: SupabaseEquipment['condition']) => {
     switch (condition) {
       case 'excellent':
-        return 'bg-green-500/10 text-green-400 border-green-500/20';
+        return 'bg-green-100 text-green-700 border-green-300 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20';
       case 'good':
-        return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+        return 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20';
       case 'fair':
-        return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
+        return 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-yellow-500/10 dark:text-yellow-400 dark:border-yellow-500/20';
       case 'poor':
-        return 'bg-orange-500/10 text-orange-400 border-orange-500/20';
+        return 'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20';
       case 'damaged':
-        return 'bg-red-500/10 text-red-400 border-red-500/20';
+        return 'bg-red-100 text-red-700 border-red-300 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20';
       case 'broken':
-        return 'bg-red-600/10 text-red-500 border-red-600/20';
+        return 'bg-red-100 text-red-800 border-red-300 dark:bg-red-600/10 dark:text-red-500 dark:border-red-600/20';
     }
   };
 
@@ -305,19 +325,19 @@ export default function InventoryPage() {
               <div className="text-sm text-theme-secondary">Total</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-400">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                 {getAvailableItems().length}
               </div>
               <div className="text-sm text-theme-secondary">Disponibles</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-400">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                 {getUnavailableItems().length}
               </div>
               <div className="text-sm text-theme-secondary">No Disponibles</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-400">
+              <div className="text-2xl font-bold text-amber-600 dark:text-yellow-400">
                 {filterByCondition('damaged').length}
               </div>
               <div className="text-sm text-theme-secondary">Dañados</div>
@@ -326,137 +346,197 @@ export default function InventoryPage() {
         </div>
 
         {/* Lista de Equipos */}
-        <div className="grid gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {isLoading ? (
-            <div className="text-center text-theme-secondary">
+            <div className="text-center text-theme-secondary col-span-full">
               Cargando inventario...
             </div>
           ) : filteredItems.length === 0 ? (
-            <div className="text-center text-theme-secondary py-8">
+            <div className="text-center text-theme-secondary py-8 col-span-full">
               {searchQuery || selectedCategory || selectedCondition
                 ? 'No se encontraron equipos con los filtros aplicados.'
                 : 'No hay equipos en el inventario.'}
             </div>
           ) : (
-            filteredItems.map((item) => (
+            paginatedItems.map((item) => (
               <div
                 key={item.id}
-                className="bg-theme-card border border-theme-border rounded-lg p-4 hover:border-theme-accent/50 transition-colors"
+                onClick={() => {
+                  setSelectedItem(item);
+                  setShowViewModal(true);
+                }}
+                className="bg-theme-card border border-theme-border rounded-2xl p-4 hover:border-theme-accent/60 hover:-translate-y-0.5 transition-all h-full cursor-pointer"
               >
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-2">
-                      <Package className="w-5 h-5 text-theme-accent" />
-                      <h3 className="text-lg font-semibold text-theme-text break-words">
-                        {item.name}
-                      </h3>
-                      <span
-                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs border ${getConditionColor(item.condition)}`}
-                      >
-                        {getConditionIcon(item.condition)}
-                        {conditionLabels[item.condition]}
-                      </span>
+                <div className="flex flex-col h-full">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <Package className="w-4 h-4 text-theme-accent flex-shrink-0 mt-0.5" />
+                        <h3 className="text-lg font-semibold text-theme-text leading-tight line-clamp-2">
+                          {item.name}
+                        </h3>
+                      </div>
+
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs border ${getConditionColor(item.condition)}`}
+                        >
+                          {getConditionIcon(item.condition)}
+                          {conditionLabels[item.condition]}
+                        </span>
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs border ${item.available_quantity > 0
+                            ? 'text-green-700 border-green-300 bg-green-100 dark:text-green-400 dark:border-green-500/30 dark:bg-green-500/10'
+                            : 'text-red-700 border-red-300 bg-red-100 dark:text-red-400 dark:border-red-500/30 dark:bg-red-500/10'
+                            }`}
+                        >
+                          {item.available_quantity > 0
+                            ? 'Disponible'
+                            : 'No disponible'}
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <span className="text-theme-secondary">Categoría:</span>
-                        <div className="text-theme-text font-medium">
-                          {item.category}
-                        </div>
-                      </div>
-                      <div>
-                        <span className="text-theme-secondary">Cantidad:</span>
-                        <div className="text-theme-text font-medium">
-                          {item.available_quantity}/{item.quantity}
-                        </div>
-                      </div>
-                      <div>
-                        <span className="text-theme-secondary">Ubicación:</span>
-                        <div className="text-theme-text font-medium">
-                          {item.location || 'No especificada'}
-                        </div>
-                      </div>
-                      <div>
-                        <span className="text-theme-secondary">Marca:</span>
-                        <div className="text-theme-text font-medium">
-                          {item.brand || 'N/A'}
-                        </div>
-                      </div>
+                    <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                      {/* Botón Pedir Prestado - Solo usuarios autenticados no admin */}
+                      {isAuthenticated &&
+                        !isAdmin &&
+                        item.available_quantity > 0 &&
+                        item.is_loanable && (
+                          <button
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              alert('Funcionalidad de préstamo en desarrollo');
+                            }}
+                            className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-100 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-500/10 rounded-lg transition-colors"
+                            title="Pedir prestado"
+                          >
+                            <Clock className="w-4 h-4" />
+                          </button>
+                        )}
+
+                      {/* Botón Login para visitantes */}
+                      {!isAuthenticated &&
+                        item.available_quantity > 0 &&
+                        item.is_loanable && (
+                          <button
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleLoginRedirect();
+                            }}
+                            className="p-2 text-amber-600 hover:text-amber-700 hover:bg-amber-100 dark:text-yellow-400 dark:hover:text-yellow-300 dark:hover:bg-yellow-500/10 rounded-lg transition-colors"
+                            title="Inicia sesión para solicitar préstamo"
+                          >
+                            <Clock className="w-4 h-4" />
+                          </button>
+                        )}
+
+                      {/* Botones Editar y Eliminar - Solo administradores */}
+                      {isAdmin && (
+                        <>
+                          <button
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setSelectedItem(item);
+                              setShowEditModal(true);
+                            }}
+                            className="p-2 text-theme-secondary hover:text-theme-text hover:bg-theme-accent/10 rounded-lg transition-colors"
+                            title="Editar"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleDeleteItem(item.id);
+                            }}
+                            className="p-2 text-red-600 hover:text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                            title="Eliminar"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 ml-0 sm:ml-4 mt-3 sm:mt-0 flex-shrink-0">
-                    {/* Botón Ver - Todos los usuarios */}
-                    <button
-                      onClick={() => {
-                        setSelectedItem(item);
-                        setShowViewModal(true);
-                      }}
-                      className="p-2 text-theme-secondary hover:text-theme-text hover:bg-theme-accent/10 rounded-lg transition-colors"
-                      title="Ver detalles"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
-
-                    {/* Botón Pedir Prestado - Solo usuarios autenticados no admin */}
-                    {isAuthenticated &&
-                      !isAdmin &&
-                      item.available_quantity > 0 &&
-                      item.is_loanable && (
-                        <button
-                          onClick={() => {
-                            // TODO: Implementar funcionalidad de préstamo
-                            alert('Funcionalidad de préstamo en desarrollo');
-                          }}
-                          className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-lg transition-colors"
-                          title="Pedir prestado"
-                        >
-                          <Clock className="w-4 h-4" />
-                        </button>
-                      )}
-
-                    {/* Botón Login para visitantes */}
-                    {!isAuthenticated &&
-                      item.available_quantity > 0 &&
-                      item.is_loanable && (
-                        <button
-                          onClick={handleLoginRedirect}
-                          className="p-2 text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10 rounded-lg transition-colors"
-                          title="Inicia sesión para solicitar préstamo"
-                        >
-                          <Clock className="w-4 h-4" />
-                        </button>
-                      )}
-
-                    {/* Botones Editar y Eliminar - Solo administradores */}
-                    {isAdmin && (
-                      <>
-                        <button
-                          onClick={() => {
-                            setSelectedItem(item);
-                            setShowEditModal(true);
-                          }}
-                          className="p-2 text-theme-secondary hover:text-theme-text hover:bg-theme-accent/10 rounded-lg transition-colors"
-                          title="Editar"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteItem(item.id)}
-                          className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
-                          title="Eliminar"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </>
-                    )}
+                  <div className="mt-4 pt-3 border-t border-theme-border/70 space-y-2 text-sm">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-theme-secondary">Categoría</span>
+                      <span className="text-theme-text font-medium truncate text-right">
+                        {item.category}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-theme-secondary">Cantidad</span>
+                      <span className="text-theme-text font-medium">
+                        {item.available_quantity}/{item.quantity}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-theme-secondary">Ubicación</span>
+                      <span className="text-theme-text font-medium truncate text-right">
+                        {item.location || 'No especificada'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-theme-secondary">Marca</span>
+                      <span className="text-theme-text font-medium truncate text-right">
+                        {item.brand || 'N/A'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             ))
           )}
         </div>
+
+        {!isLoading && filteredItems.length > 0 && totalPages > 1 && (
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3 bg-theme-card border border-theme-border rounded-lg p-3">
+            <p className="text-sm text-theme-secondary">
+              Mostrando {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredItems.length)} de {filteredItems.length} equipos
+            </p>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1.5 rounded-md border border-theme-border text-theme-text disabled:opacity-40 disabled:cursor-not-allowed hover:bg-theme-accent/10 transition-colors"
+              >
+                Anterior
+              </button>
+
+              <div className="flex items-center gap-1">
+                {Array.from({ length: endPage - startPage + 1 }, (_, index) => {
+                  const page = startPage + index;
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-8 h-8 rounded-md text-sm border transition-colors ${currentPage === page
+                        ? 'bg-theme-accent text-theme-background border-theme-accent shadow-lg shadow-theme-accent/30 ring-2 ring-theme-accent/30 font-semibold cursor-pointer'
+                        : 'border-theme-border text-theme-secondary hover:text-theme-text hover:bg-theme-accent/10 cursor-pointer'
+                        }`}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
+                disabled={currentPage === totalPages}
+                className="px-3 py-1.5 rounded-md border border-theme-border text-theme-text disabled:opacity-40 disabled:cursor-not-allowed hover:bg-theme-accent/10 transition-colors"
+              >
+                Siguiente
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Modal para Ver Detalles */}
         {showViewModal && selectedItem && (
@@ -569,162 +649,176 @@ function ViewItemModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-theme-card rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-theme-border">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-theme-text">
-            Detalles del Equipo
-          </h2>
+    <div
+      className="fixed inset-0 bg-black/25 dark:bg-black/80 backdrop-blur-[1px] dark:backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white dark:bg-theme-card rounded-2xl p-0 max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-theme-border shadow-xl dark:shadow-2xl"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="sticky top-0 z-10 bg-white dark:bg-theme-card border-b border-slate-200 dark:border-theme-border px-6 py-4 flex justify-between items-center">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold text-theme-text">
+              Detalles del Equipo
+            </h2>
+            <p className="text-sm text-theme-secondary">{item.name}</p>
+          </div>
           <button
             onClick={onClose}
-            className="text-theme-secondary hover:text-theme-text"
+            className="w-9 h-9 rounded-full bg-slate-50 dark:bg-theme-background border border-slate-300 dark:border-theme-border text-slate-600 dark:text-theme-secondary hover:text-slate-900 dark:hover:text-theme-text hover:border-theme-accent/50 transition-colors"
           >
             ×
           </button>
         </div>
 
-        {item.image_url && (
-          <div className="mb-6">
-            <Image
-              src={item.image_url}
-              alt={item.name}
-              width={400}
-              height={200}
-              className="w-full h-48 object-cover rounded-lg"
-            />
-          </div>
-        )}
-
-        <div className="space-y-4">
-          <div>
-            <h3 className="text-xl font-semibold text-theme-text mb-2">
-              {item.name}
-            </h3>
-            <div className="flex items-center gap-2">
-              {getConditionIcon(item.condition)}
-              <span className="text-theme-secondary">
-                {conditionLabels[item.condition]}
-              </span>
-            </div>
-          </div>
-
-          {item.description && (
-            <div>
-              <label className="block text-sm font-medium text-theme-secondary mb-1">
-                Descripción
-              </label>
-              <p className="text-theme-text">{item.description}</p>
+        <div className="p-6">
+          {item.image_url && (
+            <div className="mb-6">
+              <Image
+                src={item.image_url}
+                alt={item.name}
+                width={600}
+                height={280}
+                className="w-full h-52 object-cover rounded-xl border border-theme-border"
+              />
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-theme-secondary mb-1">
-                Categoría
-              </label>
-              <p className="text-theme-text">{item.category}</p>
+          <div className="space-y-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs border border-theme-border bg-theme-background text-theme-text">
+                {getConditionIcon(item.condition)}
+                {conditionLabels[item.condition]}
+              </span>
+              <span
+                className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs border ${item.available_quantity > 0
+                  ? 'text-green-700 border-green-300 bg-green-100 dark:text-green-400 dark:border-green-500/30 dark:bg-green-500/10'
+                  : 'text-red-700 border-red-300 bg-red-100 dark:text-red-400 dark:border-red-500/30 dark:bg-red-500/10'
+                  }`}
+              >
+                {item.available_quantity > 0 ? 'Disponible' : 'No disponible'}
+              </span>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-theme-secondary mb-1">
-                Disponibilidad
-              </label>
-              <p className="text-theme-text">
-                {item.available_quantity} de {item.quantity} disponibles
-              </p>
-            </div>
-
-            {item.brand && (
-              <div>
+            {item.description && (
+              <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-4">
                 <label className="block text-sm font-medium text-theme-secondary mb-1">
-                  Marca
+                  Descripción
                 </label>
-                <p className="text-theme-text">{item.brand}</p>
+                <p className="text-theme-text leading-relaxed">{item.description}</p>
               </div>
             )}
 
-            {item.model && (
-              <div>
-                <label className="block text-sm font-medium text-theme-secondary mb-1">
-                  Modelo
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-3">
+                <label className="block text-xs font-medium text-theme-secondary mb-1">
+                  Categoría
                 </label>
-                <p className="text-theme-text">{item.model}</p>
+                <p className="text-theme-text font-medium">{item.category}</p>
               </div>
-            )}
 
-            {item.serial_number && (
-              <div>
-                <label className="block text-sm font-medium text-theme-secondary mb-1">
-                  Número de Serie
+              <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-3">
+                <label className="block text-xs font-medium text-theme-secondary mb-1">
+                  Disponibilidad
                 </label>
-                <p className="text-theme-text">{item.serial_number}</p>
+                <p className="text-theme-text font-medium">
+                  {item.available_quantity} de {item.quantity} disponibles
+                </p>
               </div>
-            )}
 
-            {item.location && (
-              <div>
-                <label className="block text-sm font-medium text-theme-secondary mb-1">
-                  Ubicación
-                </label>
-                <p className="text-theme-text">{item.location}</p>
-              </div>
-            )}
-
-            {item.purchase_date && (
-              <div>
-                <label className="block text-sm font-medium text-theme-secondary mb-1">
-                  Fecha de Compra
-                </label>
-                <p className="text-theme-text">{item.purchase_date}</p>
-              </div>
-            )}
-
-            {item.purchase_price && (
-              <div>
-                <label className="block text-sm font-medium text-theme-secondary mb-1">
-                  Precio de Compra
-                </label>
-                <p className="text-theme-text">${item.purchase_price}</p>
-              </div>
-            )}
-          </div>
-
-          {(specificationsView.entries.length > 0 || specificationsView.plainText) && (
-            <div>
-              <label className="block text-sm font-medium text-theme-secondary mb-1">
-                Especificaciones
-              </label>
-              {specificationsView.entries.length > 0 ? (
-                <div className="bg-theme-background p-3 rounded">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {specificationsView.entries.map(([key, value]) => (
-                      <div key={key}>
-                        <label className="block text-xs font-medium text-theme-secondary mb-1 capitalize">
-                          {key.replace(/_/g, ' ')}
-                        </label>
-                        <p className="text-sm text-theme-text break-words">{value}</p>
-                      </div>
-                    ))}
-                  </div>
+              {item.brand && (
+                <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-3">
+                  <label className="block text-xs font-medium text-theme-secondary mb-1">
+                    Marca
+                  </label>
+                  <p className="text-theme-text font-medium">{item.brand}</p>
                 </div>
-              ) : (
-                <div className="bg-theme-background p-3 rounded">
-                  <p className="text-sm text-theme-text whitespace-pre-wrap break-words">
-                    {specificationsView.plainText}
-                  </p>
+              )}
+
+              {item.model && (
+                <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-3">
+                  <label className="block text-xs font-medium text-theme-secondary mb-1">
+                    Modelo
+                  </label>
+                  <p className="text-theme-text font-medium">{item.model}</p>
+                </div>
+              )}
+
+              {item.serial_number && (
+                <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-3">
+                  <label className="block text-xs font-medium text-theme-secondary mb-1">
+                    Número de Serie
+                  </label>
+                  <p className="text-theme-text font-medium">{item.serial_number}</p>
+                </div>
+              )}
+
+              {item.location && (
+                <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-3">
+                  <label className="block text-xs font-medium text-theme-secondary mb-1">
+                    Ubicación
+                  </label>
+                  <p className="text-theme-text font-medium">{item.location}</p>
+                </div>
+              )}
+
+              {item.purchase_date && (
+                <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-3">
+                  <label className="block text-xs font-medium text-theme-secondary mb-1">
+                    Fecha de Compra
+                  </label>
+                  <p className="text-theme-text font-medium">{item.purchase_date}</p>
+                </div>
+              )}
+
+              {item.purchase_price && (
+                <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-3">
+                  <label className="block text-xs font-medium text-theme-secondary mb-1">
+                    Precio de Compra
+                  </label>
+                  <p className="text-theme-text font-medium">${item.purchase_price}</p>
                 </div>
               )}
             </div>
-          )}
 
-          {item.notes && (
-            <div>
-              <label className="block text-sm font-medium text-theme-secondary mb-1">
-                Notas
-              </label>
-              <p className="text-theme-text">{item.notes}</p>
-            </div>
-          )}
+            {(specificationsView.entries.length > 0 || specificationsView.plainText) && (
+              <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-4">
+                <label className="block text-sm font-medium text-theme-secondary mb-2">
+                  Especificaciones
+                </label>
+                {specificationsView.entries.length > 0 ? (
+                  <div className="bg-white dark:bg-theme-card border border-slate-200 dark:border-theme-border rounded-lg p-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {specificationsView.entries.map(([key, value]) => (
+                        <div key={key}>
+                          <label className="block text-xs font-medium text-theme-secondary mb-1 capitalize">
+                            {key.replace(/_/g, ' ')}
+                          </label>
+                          <p className="text-sm text-theme-text break-words">{value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-white dark:bg-theme-card border border-slate-200 dark:border-theme-border rounded-lg p-3">
+                    <p className="text-sm text-theme-text whitespace-pre-wrap break-words">
+                      {specificationsView.plainText}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {item.notes && (
+              <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-4">
+                <label className="block text-sm font-medium text-theme-secondary mb-1">
+                  Notas
+                </label>
+                <p className="text-theme-text whitespace-pre-wrap">{item.notes}</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
