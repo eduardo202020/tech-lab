@@ -203,32 +203,40 @@ export default function ProjectDetailPage() {
             )}
 
             {/* Visualización - Sistema de Conteo de Personas */}
-            {(project.id === '4104a0b2-24ea-45b6-8b56-b0ef7ead7539' || project.id === '00000000-0000-0000-0000-000000000007' || project.title.toLowerCase().includes('conteo de personas') || project.category === 'IA & Visión Artificial') && (
-              <div className="bg-theme-card rounded-xl p-6 border border-theme-border">
-                <h2 className="text-xl font-bold text-theme-text mb-4 flex items-center gap-2">
-                  <Monitor className="text-theme-accent" size={24} />
-                  Monitoreo de Aforo en Tiempo Real
-                </h2>
-                <p className="text-theme-secondary mb-6">
-                  Sistema de conteo de personas en tiempo real que muestra el
-                  aforo actual del área monitoreada, alertas de capacidad y
-                  tendencias de ocupación.
-                </p>
-                <div className="bg-theme-background rounded-lg p-4 border border-theme-border min-h-[600px]">
-                  <PeopleCounterViewer camId="cuenta_personas:A1" refreshMs={10000} />
+            {(
+              project.id === '4104a0b2-24ea-45b6-8b56-b0ef7ead7539' ||
+              project.id === '00000000-0000-0000-0000-000000000007' ||
+              project.title.toLowerCase().includes('conteo de personas') ||
+              project.title.toLowerCase().includes('cuenta personas') ||
+              project.title.toLowerCase().includes('personas') ||
+              project.category === 'IA & Visión Artificial' ||
+              project.category.toLowerCase().includes('computer vision')
+            ) && (
+                <div className="bg-theme-card rounded-xl p-6 border border-theme-border">
+                  <h2 className="text-xl font-bold text-theme-text mb-4 flex items-center gap-2">
+                    <Monitor className="text-theme-accent" size={24} />
+                    Monitoreo de Aforo en Tiempo Real
+                  </h2>
+                  <p className="text-theme-secondary mb-6">
+                    Sistema de conteo de personas en tiempo real que muestra el
+                    aforo actual del área monitoreada, alertas de capacidad y
+                    tendencias de ocupación.
+                  </p>
+                  <div className="bg-theme-background rounded-lg p-4 border border-theme-border min-h-[600px]">
+                    <PeopleCounterViewer camId="cuenta_personas:A1" refreshMs={10000} />
+                  </div>
+                  <p className="mt-4">
+                    <strong>Características del sistema:</strong>
+                  </p>
+                  <ul className="mt-2 space-y-1 list-disc list-inside text-theme-secondary">
+                    <li>Conteo de personas en tiempo real con visión artificial</li>
+                    <li>Indicador visual de porcentaje de ocupación</li>
+                    <li>Alertas automáticas de aforo máximo</li>
+                    <li>Tendencias de ocupación (subiendo/bajando/estable)</li>
+                    <li>Actualización automática cada 10 segundos</li>
+                  </ul>
                 </div>
-                <p className="mt-4">
-                  <strong>Características del sistema:</strong>
-                </p>
-                <ul className="mt-2 space-y-1 list-disc list-inside text-theme-secondary">
-                  <li>Conteo de personas en tiempo real con visión artificial</li>
-                  <li>Indicador visual de porcentaje de ocupación</li>
-                  <li>Alertas automáticas de aforo máximo</li>
-                  <li>Tendencias de ocupación (subiendo/bajando/estable)</li>
-                  <li>Actualización automática cada 10 segundos</li>
-                </ul>
-              </div>
-            )}
+              )}
 
             {/* Visualización - Red de Sensores LoRa */}
             {(project.id === '00000000-0000-0000-0000-000000000002' || project.title.toLowerCase().includes('lora')) && (

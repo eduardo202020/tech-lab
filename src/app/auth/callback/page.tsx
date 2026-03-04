@@ -2,7 +2,9 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+
+const AUTH_STORAGE_KEY = 'techlab_mock_auth';
+const LEGACY_STORAGE_KEY = 'techlab_supabase_auth';
 
 export default function AuthCallback() {
   const router = useRouter();
@@ -10,15 +12,12 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        const { data, error } = await supabase.auth.getSession();
+        const raw =
+          localStorage.getItem(AUTH_STORAGE_KEY) ||
+          localStorage.getItem(LEGACY_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : null;
 
-        if (error) {
-          console.error('Error in auth callback:', error);
-          router.push('/login?error=auth_error');
-          return;
-        }
-
-        if (data.session) {
+        if (parsed?.session?.user) {
           // Usuario autenticado exitosamente
           router.push('/');
         } else {

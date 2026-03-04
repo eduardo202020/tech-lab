@@ -1,8 +1,18 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
+
+type AuthUser = {
+  id: string;
+  email?: string;
+  user_metadata?: Record<string, unknown>;
+};
+
+type AuthSession = {
+  user: AuthUser;
+  access_token: string;
+  expires_at: number;
+};
 
 // Tipo para el perfil de usuario
 export interface UserProfile {
@@ -21,9 +31,9 @@ export interface UserProfile {
 
 // Tipo para el contexto de autenticación
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   profile: UserProfile | null;
-  session: Session | null;
+  session: AuthSession | null;
   loading: boolean;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
   signInWithGitHub: () => Promise<{ error: Error | null }>;
@@ -44,83 +54,143 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const AUTH_STORAGE_KEY = 'techlab_mock_auth';
+const LEGACY_STORAGE_KEY = 'techlab_supabase_auth';
+const MOCK_PROFILES_KEY = 'techlab_mock_profiles';
+
+type MockUsersFile = {
+  usuarios?: UserProfile[];
+  user_profiles?: UserProfile[];
+};
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<AuthSession | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profiles, setProfiles] = useState<UserProfile[]>([]);
 
-  // Cargar perfil del usuario
-  const loadUserProfile = async (userId: string) => {
+  const saveProfilesToStorage = (nextProfiles: UserProfile[]) => {
     try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error loading user profile:', error);
-        }
-        return null;
-      }
-
-      return data as UserProfile;
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error loading user profile:', error);
-      }
-      return null;
-    }
+      if (typeof window === 'undefined') return;
+      localStorage.setItem(MOCK_PROFILES_KEY, JSON.stringify(nextProfiles));
+    } catch { }
   };
 
-  // Crear perfil de usuario
+  const saveAuthToStorage = (nextSession: AuthSession, nextProfile: UserProfile) => {
+    try {
+      if (typeof window === 'undefined') return;
+      const payload = {
+        session: nextSession,
+        profile: nextProfile,
+      };
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(payload));
+      localStorage.setItem(LEGACY_STORAGE_KEY, JSON.stringify(payload));
+    } catch { }
+  };
+
+  const clearAuthStorage = () => {
+    try {
+      if (typeof window === 'undefined') return;
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      localStorage.removeItem(LEGACY_STORAGE_KEY);
+    } catch { }
+  };
+
+  const createMockSession = (nextUser: AuthUser): AuthSession => {
+    const expiresAt = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7;
+    return {
+      user: nextUser,
+      access_token: `mock-${nextUser.id}-${Date.now()}`,
+      expires_at: expiresAt,
+    };
+  };
+
+  const loadProfiles = async (): Promise<UserProfile[]> => {
+    let baseProfiles: UserProfile[] = [];
+    try {
+      const response = await fetch('/mocks/usuarios.json');
+      if (response.ok) {
+        const json = (await response.json()) as MockUsersFile;
+        baseProfiles = (json.usuarios || json.user_profiles || []) as UserProfile[];
+      }
+    } catch { }
+
+    try {
+      if (typeof window !== 'undefined') {
+        const local = localStorage.getItem(MOCK_PROFILES_KEY);
+        if (local) {
+          const parsed = JSON.parse(local) as UserProfile[];
+          const byId = new Map<string, UserProfile>();
+          [...baseProfiles, ...parsed].forEach((item) => byId.set(item.id, item));
+          return Array.from(byId.values());
+        }
+      }
+    } catch { }
+
+    return baseProfiles;
+  };
+
+  const loadUserProfile = async (userId: string) => {
+    const found = profiles.find((item) => item.id === userId) || null;
+    if (found) return found;
+    const loaded = await loadProfiles();
+    setProfiles(loaded);
+    return loaded.find((item) => item.id === userId) || null;
+  };
+
   const createUserProfile = async (
-    user: User,
+    authUser: AuthUser,
     additionalData?: Partial<UserProfile>
   ) => {
+    const now = new Date().toISOString();
+    const nextProfile: UserProfile = {
+      id: authUser.id,
+      username:
+        additionalData?.username ||
+        String(authUser.user_metadata?.user_name || authUser.email?.split('@')[0] || 'usuario'),
+      full_name:
+        additionalData?.full_name ||
+        String(authUser.user_metadata?.full_name || authUser.user_metadata?.name || 'Usuario'),
+      email: additionalData?.email || authUser.email || '',
+      role: (additionalData?.role || 'student') as UserProfile['role'],
+      avatar_url:
+        additionalData?.avatar_url ||
+        (String(authUser.user_metadata?.avatar_url || '') || null),
+      bio: additionalData?.bio || null,
+      phone: additionalData?.phone || null,
+      linkedin_url: additionalData?.linkedin_url || null,
+      created_at: now,
+      updated_at: now,
+    };
+
+    const nextProfiles = [nextProfile, ...profiles.filter((item) => item.id !== nextProfile.id)];
+    setProfiles(nextProfiles);
+    saveProfilesToStorage(nextProfiles);
+    return nextProfile;
+  };
+
+  const applyAuthState = (nextSession: AuthSession, nextProfile: UserProfile) => {
+    setSession(nextSession);
+    setUser(nextSession.user);
+    setProfile(nextProfile);
+    saveAuthToStorage(nextSession, nextProfile);
+  };
+
+  const restoreSavedSession = async () => {
     try {
-      const profileData = {
-        id: user.id,
-        username:
-          additionalData?.username ||
-          user.user_metadata?.user_name ||
-          user.email?.split('@')[0] ||
-          'usuario',
-        full_name:
-          additionalData?.full_name ||
-          user.user_metadata?.full_name ||
-          user.user_metadata?.name ||
-          'Usuario',
-        email: user.email!,
-        role: (additionalData?.role || 'student') as UserProfile['role'],
-        avatar_url:
-          additionalData?.avatar_url || user.user_metadata?.avatar_url || null,
-        bio: additionalData?.bio || null,
-        phone: additionalData?.phone || null,
-        linkedin_url: additionalData?.linkedin_url || null,
+      if (typeof window === 'undefined') return false;
+      const raw = localStorage.getItem(AUTH_STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
+      if (!raw) return false;
+      const parsed = JSON.parse(raw) as {
+        session?: AuthSession;
+        profile?: UserProfile;
       };
-
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .insert(profileData)
-        .select()
-        .single();
-
-      if (error) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error creating user profile:', error);
-        }
-        return null;
-      }
-
-      return data as UserProfile;
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error creating user profile:', error);
-      }
-      return null;
+      if (!parsed?.session?.user || !parsed?.profile) return false;
+      applyAuthState(parsed.session, parsed.profile);
+      return true;
+    } catch {
+      return false;
     }
   };
 
@@ -128,72 +198,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let isMounted = true;
 
-    // Intentar restaurar sesión de localStorage de forma síncrona
-    const tryRestoreSessionSync = () => {
-      try {
-        if (typeof window === 'undefined') return;
-
-        const savedSession = localStorage.getItem('techlab_supabase_auth');
-        if (savedSession) {
-          const sessionData = JSON.parse(savedSession);
-          if (sessionData?.session?.user) {
-            // Hay sesión guardada, no mostramos loading spinner
-            setUser(sessionData.session.user);
-            setSession(sessionData.session);
-            return true;
-          }
-        }
-      } catch (e) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error restoring session from localStorage:', e);
-        }
-      }
-      return false;
-    };
-
-    // Obtener sesión inicial
     const initializeAuth = async () => {
       try {
-        const {
-          data: { session },
-          error,
-        } = await supabase.auth.getSession();
-
         if (!isMounted) return;
 
-        if (error) {
-          if (process.env.NODE_ENV === 'development') {
-            console.error('Error getting session:', error);
-          }
-          setLoading(false);
-          return;
-        }
+        const loadedProfiles = await loadProfiles();
+        if (!isMounted) return;
+        setProfiles(loadedProfiles);
 
-        setSession(session);
-        setUser(session?.user || null);
-
-        if (session?.user) {
-          // Cargar o crear perfil
-          let userProfile = await loadUserProfile(session.user.id);
-
-          if (!isMounted) return;
-
-          if (!userProfile) {
-            // Si no existe perfil, crearlo
-            userProfile = await createUserProfile(session.user);
-          }
-
-          if (isMounted) {
-            setProfile(userProfile);
-          }
-        } else {
-          if (isMounted) {
-            setProfile(null);
-          }
-        }
-      } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error initializing auth:', error);
+        const restored = await restoreSavedSession();
+        if (!restored) {
+          setUser(null);
+          setSession(null);
+          setProfile(null);
         }
       } finally {
         if (isMounted) {
@@ -202,66 +219,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    // Primero intentar restaurar de localStorage
-    const hasRestoredSession = tryRestoreSessionSync();
-
-    // Luego hacer la inicialización completa
     initializeAuth();
-
-    // Escuchar cambios de autenticación
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!isMounted) return;
-
-      setSession(session);
-      setUser(session?.user || null);
-
-      if (session?.user) {
-        // Cargar o crear perfil
-        let userProfile = await loadUserProfile(session.user.id);
-
-        if (!isMounted) return;
-
-        if (!userProfile && event === 'SIGNED_IN') {
-          // Si es un nuevo registro, crear perfil
-          userProfile = await createUserProfile(session.user);
-        }
-
-        if (isMounted) {
-          setProfile(userProfile);
-        }
-      } else {
-        if (isMounted) {
-          setProfile(null);
-        }
-      }
-
-      if (isMounted) {
-        setLoading(false);
-      }
-    });
 
     return () => {
       isMounted = false;
-      subscription.unsubscribe();
     };
   }, []);
 
   // Funciones de autenticación
   const signInWithGoogle = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
-        },
-      });
-      return { error: error || null };
+      return {
+        error: new Error('Autenticación OAuth deshabilitada en modo mock. Usa email/contraseña.'),
+      };
     } catch (error) {
       return { error: error as Error };
     }
@@ -269,13 +239,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGitHub = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'github',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-      return { error: error || null };
+      return {
+        error: new Error('Autenticación OAuth deshabilitada en modo mock. Usa email/contraseña.'),
+      };
     } catch (error) {
       return { error: error as Error };
     }
@@ -283,11 +249,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithEmail = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      return { error: error || null };
+      if (!password) return { error: new Error('Contraseña requerida') };
+
+      const normalized = email.trim().toLowerCase();
+      const loadedProfiles = profiles.length ? profiles : await loadProfiles();
+
+      const matchedProfile = loadedProfiles.find(
+        (item) =>
+          (item.email || '').toLowerCase() === normalized ||
+          item.username.toLowerCase() === normalized
+      );
+
+      if (!matchedProfile) {
+        return { error: new Error('Usuario no encontrado') };
+      }
+
+      const nextUser: AuthUser = {
+        id: matchedProfile.id,
+        email: matchedProfile.email,
+        user_metadata: {
+          full_name: matchedProfile.full_name,
+          user_name: matchedProfile.username,
+          avatar_url: matchedProfile.avatar_url,
+        },
+      };
+      const nextSession = createMockSession(nextUser);
+      applyAuthState(nextSession, matchedProfile);
+
+      return { error: null };
     } catch (error) {
       return { error: error as Error };
     }
@@ -299,14 +288,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     userData?: Partial<UserProfile>
   ) => {
     try {
-      const { error } = await supabase.auth.signUp({
+      if (!password || password.length < 6) {
+        return { error: new Error('La contraseña debe tener al menos 6 caracteres') };
+      }
+
+      const loadedProfiles = profiles.length ? profiles : await loadProfiles();
+      const exists = loadedProfiles.some(
+        (item) => (item.email || '').toLowerCase() === email.toLowerCase()
+      );
+      if (exists) {
+        return { error: new Error('El email ya está registrado') };
+      }
+
+      const now = new Date().toISOString();
+      const nextProfile: UserProfile = {
+        id: crypto.randomUUID(),
+        username: userData?.username || email.split('@')[0],
+        full_name: userData?.full_name || 'Usuario',
         email,
-        password,
-        options: {
-          data: userData || {},
+        role: (userData?.role || 'student') as UserProfile['role'],
+        avatar_url: userData?.avatar_url || null,
+        bio: userData?.bio || null,
+        phone: userData?.phone || null,
+        linkedin_url: userData?.linkedin_url || null,
+        created_at: now,
+        updated_at: now,
+      };
+
+      const nextProfiles = [nextProfile, ...loadedProfiles.filter((item) => item.id !== nextProfile.id)];
+      setProfiles(nextProfiles);
+      saveProfilesToStorage(nextProfiles);
+
+      const nextUser: AuthUser = {
+        id: nextProfile.id,
+        email: nextProfile.email,
+        user_metadata: {
+          full_name: nextProfile.full_name,
+          user_name: nextProfile.username,
+          avatar_url: nextProfile.avatar_url,
         },
-      });
-      return { error: error || null };
+      };
+      const nextSession = createMockSession(nextUser);
+      applyAuthState(nextSession, nextProfile);
+
+      return { error: null };
     } catch (error) {
       return { error: error as Error };
     }
@@ -314,8 +339,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      return { error: error || null };
+      setUser(null);
+      setProfile(null);
+      setSession(null);
+      clearAuthStorage();
+      return { error: null };
     } catch (error) {
       return { error: error as Error };
     }
@@ -327,17 +355,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error: new Error('No user logged in') };
       }
 
-      const { error } = await supabase
-        .from('user_profiles')
-        .update(updates)
-        .eq('id', user.id);
-
-      if (!error && profile) {
-        // Actualizar estado local
-        setProfile({ ...profile, ...updates });
+      const currentProfile = profile || (await loadUserProfile(user.id));
+      if (!currentProfile) {
+        return { error: new Error('Perfil no encontrado') };
       }
 
-      return { error: error || null };
+      const nextProfile: UserProfile = {
+        ...currentProfile,
+        ...updates,
+        updated_at: new Date().toISOString(),
+      };
+
+      const nextProfiles = profiles.map((item) =>
+        item.id === nextProfile.id ? nextProfile : item
+      );
+      setProfiles(nextProfiles);
+      saveProfilesToStorage(nextProfiles);
+      setProfile(nextProfile);
+
+      if (session) {
+        saveAuthToStorage(session, nextProfile);
+      }
+
+      return { error: null };
     } catch (error) {
       return { error: error as Error };
     }

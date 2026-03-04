@@ -236,58 +236,58 @@ export default function InventoryPage() {
         <div className="bg-theme-card rounded-lg p-6 border border-theme-border mb-6">
           <div className="flex flex-col lg:flex-row gap-4 mb-4">
             {/* Búsqueda */}
-              <SearchBar
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                locationQuery={locationQuery}
-                setLocationQuery={setLocationQuery}
-                availableOnly={availableOnly}
-                setAvailableOnly={setAvailableOnly}
-              />
+            <SearchBar
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              locationQuery={locationQuery}
+              setLocationQuery={setLocationQuery}
+              availableOnly={availableOnly}
+              setAvailableOnly={setAvailableOnly}
+            />
 
-              {/* Filtros */}
-              <div className="flex flex-wrap gap-2 items-center">
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full sm:w-auto px-4 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
+            {/* Filtros */}
+            <div className="flex flex-wrap gap-2 items-center">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full sm:w-auto px-4 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
+              >
+                <option value="">Todas las categorías</option>
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={selectedCondition}
+                onChange={(e) =>
+                  setSelectedCondition(
+                    e.target.value as SupabaseEquipment['condition'] | ''
+                  )
+                }
+                className="w-full sm:w-auto px-4 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
+              >
+                <option value="">Todas las condiciones</option>
+                {conditions.map((condition) => (
+                  <option key={condition} value={condition}>
+                    {conditionLabels[condition]}
+                  </option>
+                ))}
+              </select>
+
+              {/* Botón Agregar - Solo para administradores */}
+              {isAdmin && (
+                <button
+                  onClick={() => setShowAddModal(true)}
+                  className="flex items-center gap-2 bg-gradient-to-r from-neon-pink to-bright-blue text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
                 >
-                  <option value="">Todas las categorías</option>
-                  {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-
-                <select
-                  value={selectedCondition}
-                  onChange={(e) =>
-                    setSelectedCondition(
-                      e.target.value as SupabaseEquipment['condition'] | ''
-                    )
-                  }
-                  className="w-full sm:w-auto px-4 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
-                >
-                  <option value="">Todas las condiciones</option>
-                  {conditions.map((condition) => (
-                    <option key={condition} value={condition}>
-                      {conditionLabels[condition]}
-                    </option>
-                  ))}
-                </select>
-
-                {/* Botón Agregar - Solo para administradores */}
-                {isAdmin && (
-                  <button
-                    onClick={() => setShowAddModal(true)}
-                    className="flex items-center gap-2 bg-gradient-to-r from-neon-pink to-bright-blue text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Agregar Equipo
-                  </button>
-                )}
-              </div>
+                  <Plus className="w-4 h-4" />
+                  Agregar Equipo
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Estadísticas */}
@@ -495,6 +495,47 @@ function ViewItemModal({
   item: SupabaseEquipment;
   onClose: () => void;
 }) {
+  const parseSpecifications = () => {
+    const raw = item.specifications as unknown;
+
+    if (!raw) {
+      return { entries: [] as Array<[string, string]>, plainText: '' };
+    }
+
+    if (typeof raw === 'string') {
+      const trimmed = raw.trim();
+      if (!trimmed) {
+        return { entries: [] as Array<[string, string]>, plainText: '' };
+      }
+
+      try {
+        const parsed = JSON.parse(trimmed) as Record<string, unknown>;
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          const entries = Object.entries(parsed).map(([key, value]) => [
+            key,
+            String(value ?? ''),
+          ] as [string, string]);
+          return { entries, plainText: '' };
+        }
+      } catch {
+        return { entries: [] as Array<[string, string]>, plainText: trimmed };
+      }
+
+      return { entries: [] as Array<[string, string]>, plainText: trimmed };
+    }
+
+    if (typeof raw === 'object' && !Array.isArray(raw)) {
+      const entries = Object.entries(raw as Record<string, unknown>).map(
+        ([key, value]) => [key, String(value ?? '')] as [string, string]
+      );
+      return { entries, plainText: '' };
+    }
+
+    return { entries: [] as Array<[string, string]>, plainText: String(raw) };
+  };
+
+  const specificationsView = parseSpecifications();
+
   const getConditionIcon = (condition: SupabaseEquipment['condition']) => {
     switch (condition) {
       case 'excellent':
@@ -639,16 +680,31 @@ function ViewItemModal({
             )}
           </div>
 
-          {item.specifications && (
+          {(specificationsView.entries.length > 0 || specificationsView.plainText) && (
             <div>
               <label className="block text-sm font-medium text-theme-secondary mb-1">
                 Especificaciones
               </label>
-              <pre className="bg-theme-background p-3 rounded text-sm text-theme-text whitespace-pre-wrap">
-                {typeof item.specifications === 'string'
-                  ? item.specifications
-                  : JSON.stringify(item.specifications, null, 2)}
-              </pre>
+              {specificationsView.entries.length > 0 ? (
+                <div className="bg-theme-background p-3 rounded">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {specificationsView.entries.map(([key, value]) => (
+                      <div key={key}>
+                        <label className="block text-xs font-medium text-theme-secondary mb-1 capitalize">
+                          {key.replace(/_/g, ' ')}
+                        </label>
+                        <p className="text-sm text-theme-text break-words">{value}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-theme-background p-3 rounded">
+                  <p className="text-sm text-theme-text whitespace-pre-wrap break-words">
+                    {specificationsView.plainText}
+                  </p>
+                </div>
+              )}
             </div>
           )}
 

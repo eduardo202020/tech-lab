@@ -38,6 +38,18 @@ interface PeopleCounterApiResponse {
   aforo: number;
 }
 
+interface LocalPeopleCounterResponse {
+  counter: {
+    camId: string;
+    timestamp: string;
+    currentCount: number;
+    maxCapacity: number;
+    trend: 'up' | 'down' | 'stable';
+    occupancyPercent: number;
+    alert?: string;
+  };
+}
+
 // Transformar datos de la API al formato esperado
 const transformPeopleCounterData = (apiResponse: PeopleCounterApiResponse): CounterData => {
   const maxCapacity = 50; // Default capacity
@@ -292,19 +304,26 @@ function PeopleCounterScene({ camId = 'cuenta_personas:A1', refreshMs = 10000 }:
 
   const fetchData = useCallback(async () => {
     try {
-      const url = `/api/sensors-proxy/people-counter?cam_id=${encodeURIComponent(camId)}`;
-      const res = await fetch(url, { cache: 'no-store' });
+      const proxyUrl = `/api/sensors-proxy/people-counter?cam_id=${encodeURIComponent(camId)}`;
+      const proxyRes = await fetch(proxyUrl, { cache: 'no-store' });
 
-      if (!res.ok) {
-        throw new Error(`HTTP Error: ${res.status} ${res.statusText}`);
+      if (proxyRes.ok) {
+        const proxyData: PeopleCounterApiResponse = await proxyRes.json();
+        const nextData = transformPeopleCounterData(proxyData);
+        setCounterData(nextData);
+        setError(null);
+        return;
       }
 
-      const apiResponse: PeopleCounterApiResponse = await res.json();
+      const localUrl = `/api/people-counter?counterCamId=${encodeURIComponent(camId)}`;
+      const localRes = await fetch(localUrl, { cache: 'no-store' });
 
-      // Transformar datos de la API al formato esperado
-      const counterData = transformPeopleCounterData(apiResponse);
+      if (!localRes.ok) {
+        throw new Error(`HTTP Error: ${localRes.status} ${localRes.statusText}`);
+      }
 
-      setCounterData(counterData);
+      const localData: LocalPeopleCounterResponse = await localRes.json();
+      setCounterData(localData.counter);
       setError(null);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error desconocido';
