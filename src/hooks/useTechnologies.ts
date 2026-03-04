@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/lib/supabase';
 import { useSupabaseProjects, SupabaseProject } from './useSupabaseProjects';
 
 export interface SupabaseTechnology {
@@ -112,17 +111,17 @@ export function useTechnologies() {
       setLoading(true);
       setError(null);
 
-      // Cargar tecnologías desde Supabase
-      const { data: technologiesData, error: techError } = await supabase
-        .from('technologies')
-        .select('*')
-        .order('name', { ascending: true });
-
-      if (techError) {
-        console.error('Error loading technologies:', techError);
-        setError(techError.message);
-        return;
+      const response = await fetch('/mocks/technologies.json');
+      if (!response.ok) {
+        throw new Error('No se pudo cargar technologies.json');
       }
+      const json = await response.json();
+      const technologiesData: SupabaseTechnology[] = (json.technologies || []).map(
+        (item: Record<string, unknown>) => ({
+          ...item,
+          example_projects: (item.projects as SupabaseTechnology['example_projects']) || [],
+        })
+      ) as SupabaseTechnology[];
 
       // Convertir y enriquecer con proyectos relacionados
       const enrichedTechnologies = technologiesData.map(

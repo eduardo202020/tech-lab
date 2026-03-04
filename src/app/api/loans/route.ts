@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { readFile } from 'fs/promises';
+import path from 'path';
 
 interface Borrower {
   id: string;
@@ -14,42 +15,61 @@ interface ItemRow {
   [key: string]: unknown;
 }
 
+type LoanRow = {
+  id: string;
+  item_id: string;
+  borrower_id?: string;
+  user_name?: string;
+  loan_date: string;
+  expected_return_date: string;
+  status?: string;
+  [key: string]: unknown;
+};
+
+type GlobalWithLoans = typeof globalThis & {
+  __techLabLoans?: LoanRow[];
+};
+
+const runtime = globalThis as GlobalWithLoans;
+
+const readMockJson = async <T,>(fileName: string): Promise<T> => {
+  const filePath = path.join(process.cwd(), 'public', 'mocks', fileName);
+  const content = await readFile(filePath, 'utf-8');
+  return JSON.parse(content) as T;
+};
+
+const getLoanStore = async (): Promise<LoanRow[]> => {
+  if (!runtime.__techLabLoans) {
+    const initial = await readMockJson<{ prestamos?: LoanRow[] }>('investigadores.json');
+    runtime.__techLabLoans = initial.prestamos || [];
+  }
+  return runtime.__techLabLoans;
+};
+
 // GET: list loans
 export async function GET() {
   try {
-    const { data: loans, error } = await supabase
-      .from('loans')
-      .select('*')
-      .order('loan_date', { ascending: true });
+    const loans = await getLoanStore();
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    // Enrich loans with borrower name and item name by batching queries
+    // Enrich loans with borrower name and item name
     const borrowerIds = Array.from(
       new Set((loans || []).map((l) => l.borrower_id).filter(Boolean) as string[])
     );
     const itemIds = Array.from(new Set((loans || []).map((l) => l.item_id).filter(Boolean) as string[]));
 
-    const borrowersPromise = borrowerIds.length
-      ? supabase.from('user_profiles').select('id, full_name, username').in('id', borrowerIds)
-      : Promise.resolve({ data: [] as Borrower[], error: null });
+    const [usersJson, items] = await Promise.all([
+      readMockJson<{ usuarios?: Borrower[] }>('usuarios.json'),
+      readMockJson<ItemRow[]>('equipos.json'),
+    ]);
 
-    const itemsPromise = itemIds.length
-      ? supabase.from('inventory_items').select('id, name').in('id', itemIds)
-      : Promise.resolve({ data: [] as ItemRow[], error: null });
-
-    const [borrowersRes, itemsRes] = await Promise.all([borrowersPromise, itemsPromise]);
-
-    const borrowers = (borrowersRes?.data as Borrower[]) || [];
-    const items = (itemsRes?.data as ItemRow[]) || [];
+    const borrowers = (usersJson.usuarios || []).filter((user) => borrowerIds.includes(String(user.id)));
+    const filteredItems = (items || []).filter((item) => itemIds.includes(String(item.id)));
 
     const borrowerMap: Record<string, Borrower | undefined> = {};
     borrowers.forEach((b) => (borrowerMap[String(b.id)] = b));
 
     const itemMap: Record<string, ItemRow | undefined> = {};
-    items.forEach((it) => (itemMap[String(it.id)] = it));
+    filteredItems.forEach((it) => (itemMap[String(it.id)] = it));
 
     const enriched = (loans || []).map((l) => ({
       ...l,
@@ -76,31 +96,34 @@ export async function POST(req: Request) {
     }
 
     // Check for conflicts for the same item where ranges overlap
-    const { data: conflicts, error: conflictError } = await supabase
-      .from('loans')
-      .select('*')
-      .eq('item_id', item_id)
-      .or(
-        `and(loan_date.lte.${expected_return_date},expected_return_date.gte.${loan_date})`
-      );
+    const loans = await getLoanStore();
 
-    if (conflictError) {
-      return NextResponse.json({ error: conflictError.message }, { status: 500 });
-    }
+    const conflicts = loans.filter((loan) => {
+      if (loan.item_id !== item_id) return false;
+      const loanStart = new Date(loan.loan_date).getTime();
+      const loanEnd = new Date(String(loan.expected_return_date)).getTime();
+      const newStart = new Date(String(loan_date)).getTime();
+      const newEnd = new Date(String(expected_return_date)).getTime();
+      return loanStart <= newEnd && loanEnd >= newStart;
+    });
 
     if (conflicts && conflicts.length > 0) {
       return NextResponse.json({ error: 'Conflict', conflicts }, { status: 409 });
     }
 
-    const { data, error } = await supabase
-      .from('loans')
-      .insert({ item_id, borrower_id, loan_date, expected_return_date })
-      .select()
-      .single();
+    const now = new Date().toISOString();
+    const data: LoanRow = {
+      id: crypto.randomUUID(),
+      item_id,
+      borrower_id,
+      loan_date,
+      expected_return_date,
+      status: 'active',
+      created_at: now,
+      updated_at: now,
+    };
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    loans.push(data);
 
     return NextResponse.json({ loan: data }, { status: 201 });
   } catch (error) {

@@ -1,7 +1,6 @@
-'use client';
+"use client";
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { supabase } from '@/lib/supabase';
 
 export interface SupabaseProject {
   id: string;
@@ -64,86 +63,16 @@ export function useSupabaseProjects(options?: UseSupabaseProjectsOptions) {
   const [error, setError] = useState<string | null>(null);
   const hasAutoFetched = useRef(false);
 
-  // Cargar todos los proyectos con relaciones
+  // Cargar todos los proyectos desde el mock JSON
   const fetchProjects = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const { data: projectsData, error: projectsError } = await supabase
-        .from('projects')
-        .select(
-          `
-          *,
-          project_researchers (
-            researcher_id,
-            role,
-            is_current,
-            researchers (
-              id,
-              name
-            )
-          ),
-          project_technologies (
-            technology_id,
-            usage_type,
-            technologies (
-              id,
-              name,
-              icon
-            )
-          )
-        `
-        )
-        .order('created_at', { ascending: false });
-
-      if (projectsError) {
-        throw new Error(projectsError.message);
-      }
-
-      // Tipos intermedios para las relaciones devueltas por supabase
-      type ProjectResearchRow = {
-        researcher_id?: string;
-        role?: string;
-        is_current?: boolean;
-        researchers?: { id?: string; name?: string } | null;
-      };
-
-      type ProjectTechRow = {
-        technology_id?: string;
-        usage_type?: string;
-        technologies?: { id?: string; name?: string; icon?: string } | null;
-      };
-
-      // Transformar datos para que coincidan con la interfaz
-      type RawProjectRow = Record<string, unknown> & {
-        project_researchers?: ProjectResearchRow[];
-        project_technologies?: ProjectTechRow[];
-      };
-
-      const transformedProjects: SupabaseProject[] =
-        (projectsData as RawProjectRow[] | undefined)?.map((project) => ({
-          // spread safely from a generic record
-          ...(project as Record<string, unknown>),
-          researchers:
-            (project.project_researchers as ProjectResearchRow[])
-              ?.map((pr) => ({
-                id: pr.researchers?.id || '',
-                name: pr.researchers?.name || '',
-                role: pr.role || '',
-                is_current: !!pr.is_current,
-              })) || [],
-          related_technologies:
-            (project.project_technologies as ProjectTechRow[])
-              ?.map((pt) => ({
-                id: pt.technologies?.id || '',
-                name: pt.technologies?.name || '',
-                icon: pt.technologies?.icon || '',
-                usage_type: pt.usage_type || '',
-              })) || [],
-        } as unknown as SupabaseProject)) || [];
-
-      setProjects(transformedProjects);
+      const res = await fetch('/mocks/projects.json');
+      if (!res.ok) throw new Error('No se pudo cargar projects.json');
+      const json = await res.json();
+      setProjects(json.projects || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
       console.error('Error fetching projects:', err);
@@ -152,111 +81,32 @@ export function useSupabaseProjects(options?: UseSupabaseProjectsOptions) {
     }
   }, []);
 
-  // Obtener proyecto por ID
+  // Obtener proyecto por ID desde el estado local
   const getProject = useCallback(
-    async (id: string): Promise<SupabaseProject | null> => {
-      try {
-        const { data, error } = await supabase
-          .from('projects')
-          .select(
-            `
-          *,
-          project_researchers (
-            researcher_id,
-            role,
-            is_current,
-            researchers (
-              id,
-              name,
-              email,
-              avatar_url,
-              position
-            )
-          ),
-          project_technologies (
-            technology_id,
-            usage_type,
-            technologies (
-              id,
-              name,
-              icon,
-              primary_color
-            )
-          )
-        `
-          )
-          .eq('id', id)
-          .single();
-
-        if (error) {
-          throw new Error(error.message);
-        }
-
-        if (!data) return null;
-
-        type ProjectResearchRow = {
-          researcher_id?: string;
-          role?: string;
-          is_current?: boolean;
-          researchers?: { id?: string; name?: string } | null;
-        };
-
-        type ProjectTechRow = {
-          technology_id?: string;
-          usage_type?: string;
-          technologies?: { id?: string; name?: string; icon?: string } | null;
-        };
-
-        return {
-          ...data,
-          researchers:
-            (data.project_researchers as ProjectResearchRow[])
-              ?.map((pr) => ({
-                id: pr.researchers?.id || '',
-                name: pr.researchers?.name || '',
-                role: pr.role || '',
-                is_current: !!pr.is_current,
-              })) || [],
-          related_technologies:
-            (data.project_technologies as ProjectTechRow[])
-              ?.map((pt) => ({
-                id: pt.technologies?.id || '',
-                name: pt.technologies?.name || '',
-                icon: pt.technologies?.icon || '',
-                usage_type: pt.usage_type || '',
-              })) || [],
-        };
-      } catch (err) {
-        console.error('Error fetching project:', err);
-        return null;
-      }
+    (id: string): SupabaseProject | null => {
+      return projects.find((project) => project.id === id) || null;
     },
-    []
+    [projects]
   );
 
-  // Filtrar proyectos
+  // Filtrar proyectos según filtros
   const filterProjects = useCallback(
     (filters: ProjectFilters): SupabaseProject[] => {
       return projects.filter((project) => {
         if (filters.status && project.status !== filters.status) return false;
-        if (filters.category && project.category !== filters.category)
-          return false;
-        if (filters.priority && project.priority !== filters.priority)
-          return false;
+        if (filters.category && project.category !== filters.category) return false;
+        if (filters.priority && project.priority !== filters.priority) return false;
         if (
           filters.technology &&
           !project.related_technology_ids.includes(filters.technology)
-        )
-          return false;
+        ) return false;
         if (filters.search) {
           const searchTerm = filters.search.toLowerCase();
           return (
             project.title.toLowerCase().includes(searchTerm) ||
             project.description.toLowerCase().includes(searchTerm) ||
             project.category.toLowerCase().includes(searchTerm) ||
-            project.technologies.some((tech) =>
-              tech.toLowerCase().includes(searchTerm)
-            )
+            project.technologies.some((tech) => tech.toLowerCase().includes(searchTerm))
           );
         }
         return true;
@@ -281,20 +131,16 @@ export function useSupabaseProjects(options?: UseSupabaseProjectsOptions) {
       projectData: Omit<SupabaseProject, 'id' | 'created_at' | 'updated_at'>
     ): Promise<SupabaseProject | null> => {
       try {
-        const { data, error } = await supabase
-          .from('projects')
-          .insert([projectData])
-          .select()
-          .single();
+        const now = new Date().toISOString();
+        const newProject: SupabaseProject = {
+          ...projectData,
+          id: crypto.randomUUID(),
+          created_at: now,
+          updated_at: now,
+        };
 
-        if (error) {
-          throw new Error(error.message);
-        }
-
-        // Recargar la lista
-        await fetchProjects();
-
-        return data;
+        setProjects((prev) => [newProject, ...prev]);
+        return newProject;
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error creando proyecto');
         console.error('Error creating project:', err);
@@ -308,18 +154,22 @@ export function useSupabaseProjects(options?: UseSupabaseProjectsOptions) {
   const updateProject = useCallback(
     async (id: string, updates: Partial<SupabaseProject>): Promise<boolean> => {
       try {
-        const { error } = await supabase
-          .from('projects')
-          .update(updates)
-          .eq('id', id);
+        let found = false;
+        setProjects((prev) =>
+          prev.map((project) => {
+            if (project.id !== id) return project;
+            found = true;
+            return {
+              ...project,
+              ...updates,
+              updated_at: new Date().toISOString(),
+            };
+          })
+        );
 
-        if (error) {
-          throw new Error(error.message);
+        if (!found) {
+          throw new Error('Proyecto no encontrado');
         }
-
-        // Recargar la lista
-        await fetchProjects();
-
         return true;
       } catch (err) {
         setError(
@@ -329,22 +179,23 @@ export function useSupabaseProjects(options?: UseSupabaseProjectsOptions) {
         return false;
       }
     },
-    [fetchProjects]
+    []
   );
 
   // Eliminar proyecto
   const deleteProject = useCallback(
     async (id: string): Promise<boolean> => {
       try {
-        const { error } = await supabase.from('projects').delete().eq('id', id);
+        let deleted = false;
+        setProjects((prev) => {
+          const next = prev.filter((project) => project.id !== id);
+          deleted = next.length !== prev.length;
+          return next;
+        });
 
-        if (error) {
-          throw new Error(error.message);
+        if (!deleted) {
+          throw new Error('Proyecto no encontrado');
         }
-
-        // Recargar la lista
-        await fetchProjects();
-
         return true;
       } catch (err) {
         setError(
@@ -354,7 +205,7 @@ export function useSupabaseProjects(options?: UseSupabaseProjectsOptions) {
         return false;
       }
     },
-    [fetchProjects]
+    []
   );
 
   // Obtener estadísticas

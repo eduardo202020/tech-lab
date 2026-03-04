@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { supabase } from '@/lib/supabase';
 
 export interface SupabaseEquipment {
   id: string;
@@ -10,7 +9,7 @@ export interface SupabaseEquipment {
   category: string;
   quantity: number;
   available_quantity: number;
-  condition: 'excellent' | 'good' | 'fair' | 'poor' | 'damaged';
+  condition: 'excellent' | 'good' | 'fair' | 'poor' | 'damaged' | 'broken';
   location?: string;
   purchase_date?: string;
   purchase_price?: number;
@@ -45,44 +44,40 @@ export function useSupabaseEquipment(options?: UseSupabaseEquipmentOptions) {
   const [error, setError] = useState<string | null>(null);
   const hasAutoFetched = useRef(false);
 
-  // Cargar todos los equipos
+  // Cargar todos los equipos desde el mock JSON
   const fetchEquipment = useCallback(async (filters?: EquipmentFilters, search?: string) => {
     try {
       setLoading(true);
       setError(null);
 
-      let query = supabase
-        .from('inventory_items')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const res = await fetch('/mocks/equipos.json');
+      if (!res.ok) throw new Error('No se pudo cargar equipos.json');
+      let data = await res.json();
 
-      // Si se envía búsqueda, usar ilike server-side para varios campos
+      // Aplicar búsqueda y filtros en el cliente
       if (search && search.trim()) {
-        const like = `%${search.trim()}%`;
-        const orCondition = `name.ilike.${like},brand.ilike.${like},model.ilike.${like},category.ilike.${like},serial_number.ilike.${like},description.ilike.${like},location.ilike.${like}`;
-        query = query.or(orCondition);
+        const like = search.trim().toLowerCase();
+        data = data.filter((item: any) =>
+          item.name?.toLowerCase().includes(like) ||
+          item.brand?.toLowerCase().includes(like) ||
+          item.model?.toLowerCase().includes(like) ||
+          item.category?.toLowerCase().includes(like) ||
+          item.serial_number?.toLowerCase().includes(like) ||
+          item.description?.toLowerCase().includes(like) ||
+          item.location?.toLowerCase().includes(like)
+        );
       }
-
-      // Aplicar filtros
       if (filters?.condition) {
-        query = query.eq('condition', filters.condition);
+        data = data.filter((item: any) => item.condition === filters.condition);
       }
       if (filters?.category) {
-        query = query.eq('category', filters.category);
+        data = data.filter((item: any) => item.category === filters.category);
       }
       if (filters?.location) {
-        query = query.eq('location', filters.location);
+        data = data.filter((item: any) => item.location === filters.location);
       }
       if (filters?.available_only) {
-        query = query.gt('available_quantity', 0);
-      }
-
-      const { data, error: fetchError } = await query;
-
-      if (fetchError) {
-        console.error('Error fetching equipment:', fetchError);
-        setError(fetchError.message);
-        return;
+        data = data.filter((item: any) => item.available_quantity > 0);
       }
 
       setEquipment(data || []);
@@ -97,23 +92,14 @@ export function useSupabaseEquipment(options?: UseSupabaseEquipmentOptions) {
   // Obtener equipo por ID
   const getEquipmentById = useCallback(
     async (id: string): Promise<SupabaseEquipment | null> => {
-    try {
-      const { data, error } = await supabase
-        .from('inventory_items')
-        .select('*')
-        .eq('id', id)
-        .single();        if (error) {
-          console.error('Error fetching equipment by ID:', error);
-          return null;
-        }
-
-        return data;
+      try {
+        return equipment.find((item) => item.id === id) || null;
       } catch (err) {
         console.error('Error in getEquipmentById:', err);
         return null;
       }
     },
-    []
+    [equipment]
   );
 
   // Crear nuevo equipo
@@ -121,16 +107,14 @@ export function useSupabaseEquipment(options?: UseSupabaseEquipmentOptions) {
     async (
       equipmentData: Omit<SupabaseEquipment, 'id' | 'created_at' | 'updated_at'>
     ): Promise<SupabaseEquipment | null> => {
-    try {
-      const { data, error } = await supabase
-        .from('inventory_items')
-        .insert(equipmentData)
-        .select()
-        .single();        if (error) {
-          console.error('Error creating equipment:', error);
-          setError(error.message);
-          return null;
-        }
+      try {
+        const now = new Date().toISOString();
+        const data: SupabaseEquipment = {
+          ...equipmentData,
+          id: crypto.randomUUID(),
+          created_at: now,
+          updated_at: now,
+        };
 
         // Actualizar la lista local
         setEquipment((prev) => [data, ...prev]);
@@ -150,20 +134,18 @@ export function useSupabaseEquipment(options?: UseSupabaseEquipmentOptions) {
       id: string,
       updates: Partial<Omit<SupabaseEquipment, 'id' | 'created_at'>>
     ): Promise<SupabaseEquipment | null> => {
-    try {
-      const { data, error } = await supabase
-        .from('inventory_items')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', id)
-        .select()
-        .single();        if (error) {
-          console.error('Error updating equipment:', error);
-          setError(error.message);
+      try {
+        const current = equipment.find((item) => item.id === id);
+        if (!current) {
+          setError('Equipo no encontrado');
           return null;
         }
+
+        const data: SupabaseEquipment = {
+          ...current,
+          ...updates,
+          updated_at: new Date().toISOString(),
+        };
 
         // Actualizar la lista local
         setEquipment((prev) =>
@@ -176,17 +158,15 @@ export function useSupabaseEquipment(options?: UseSupabaseEquipmentOptions) {
         return null;
       }
     },
-    []
+    [equipment]
   );
 
   // Eliminar equipo
   const deleteEquipment = useCallback(async (id: string): Promise<boolean> => {
     try {
-      const { error } = await supabase.from('inventory_items').delete().eq('id', id);
-
-      if (error) {
-        console.error('Error deleting equipment:', error);
-        setError(error.message);
+      const exists = equipment.some((item) => item.id === id);
+      if (!exists) {
+        setError('Equipo no encontrado');
         return false;
       }
 
@@ -198,7 +178,7 @@ export function useSupabaseEquipment(options?: UseSupabaseEquipmentOptions) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
       return false;
     }
-  }, []);
+  }, [equipment]);
 
   // Obtener estadísticas de equipos
   const getEquipmentStats = useCallback(() => {

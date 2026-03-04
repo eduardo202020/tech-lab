@@ -1,22 +1,6 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
-
-const { NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY } =
-    process.env;
-
-const supabaseKey = SUPABASE_SERVICE_ROLE_KEY ?? NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-const supabase =
-    NEXT_PUBLIC_SUPABASE_URL && supabaseKey
-        ? createClient(NEXT_PUBLIC_SUPABASE_URL, supabaseKey, {
-            auth: {
-                persistSession: false,
-                autoRefreshToken: false,
-            },
-        })
-        : null;
 
 type LocationPayload = {
     lat?: number;
@@ -29,6 +13,19 @@ type LocationRow = {
     lng: number;
     source: string;
     created_at: string;
+};
+
+type GlobalWithLocations = typeof globalThis & {
+    __techLabMapLocations?: LocationRow[];
+};
+
+const runtime = globalThis as GlobalWithLocations;
+
+const getLocationStore = (): LocationRow[] => {
+    if (!runtime.__techLabMapLocations) {
+        runtime.__techLabMapLocations = [];
+    }
+    return runtime.__techLabMapLocations;
 };
 
 const isValidCoordinate = (lat: number, lng: number) =>
@@ -46,13 +43,6 @@ const formatLocation = (row: LocationRow) => ({
     updatedAt: new Date(row.created_at).toISOString(),
 });
 
-const getSupabaseClient = () => {
-    if (!supabase) {
-        throw new Error('Supabase env vars missing (NEXT_PUBLIC_SUPABASE_URL + key).');
-    }
-    return supabase;
-};
-
 export async function POST(request: Request) {
     try {
         const body = (await request.json()) as LocationPayload;
@@ -66,14 +56,17 @@ export async function POST(request: Request) {
             );
         }
 
-        const { data, error } = await getSupabaseClient()
-            .from('map_locations')
-            .insert({ lat, lng, source: body.source ?? 'external-app' })
-            .select('lat,lng,source,created_at')
-            .single();
+        const data: LocationRow = {
+            lat,
+            lng,
+            source: body.source ?? 'external-app',
+            created_at: new Date().toISOString(),
+        };
 
-        if (error || !data) {
-            throw new Error(error?.message ?? 'Supabase insert failed');
+        const store = getLocationStore();
+        store.unshift(data);
+        if (store.length > 100) {
+            store.length = 100;
         }
 
         return NextResponse.json(
@@ -100,15 +93,12 @@ export async function GET(request: Request) {
             ? Math.min(Math.max(Math.trunc(rawLimit), 1), 50)
             : 1;
 
-        const { data, error } = await getSupabaseClient()
-            .from('map_locations')
-            .select('lat,lng,source,created_at')
-            .order('created_at', { ascending: false })
-            .limit(limit);
-
-        if (error) {
-            throw new Error(error.message);
-        }
+        const data = getLocationStore()
+            .slice()
+            .sort((a, b) =>
+                new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            )
+            .slice(0, limit);
 
         if (!data || data.length === 0) {
             return NextResponse.json(
