@@ -231,7 +231,7 @@ export default function ResearchersPage() {
     <div className="min-h-screen bg-theme-background">
       <Header />
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-theme-text mb-2">
             {isAdmin
@@ -262,7 +262,7 @@ export default function ResearchersPage() {
         </div>
 
         {/* Controles */}
-        <div className="bg-theme-card rounded-lg p-6 border border-theme-border mb-6">
+        <div className="bg-theme-card rounded-lg p-4 sm:p-6 border border-theme-border mb-6">
           <div className="flex flex-col lg:flex-row gap-4 mb-4">
             {/* Búsqueda */}
             <div className="flex-1">
@@ -279,13 +279,13 @@ export default function ResearchersPage() {
             </div>
 
             {/* Filtros */}
-            <div className="flex gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full lg:w-auto">
               <select
                 value={selectedStatus}
                 onChange={(e) =>
                   setSelectedStatus(e.target.value as Researcher['status'] | '')
                 }
-                className="px-4 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
+                className="w-full min-w-0 px-3 sm:px-4 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text text-sm sm:text-base"
               >
                 <option value="">Todos los estados</option>
                 {statuses.map((status) => (
@@ -298,7 +298,7 @@ export default function ResearchersPage() {
               <select
                 value={selectedProject}
                 onChange={(e) => setSelectedProject(e.target.value)}
-                className="px-4 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
+                className="w-full min-w-0 px-3 sm:px-4 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text text-sm sm:text-base"
               >
                 <option value="">Todos los proyectos</option>
                 {projectOptions.map((project) => (
@@ -315,7 +315,7 @@ export default function ResearchersPage() {
                 onClick={() =>
                   alert('Funcionalidad de agregar investigador próximamente')
                 }
-                className="flex items-center gap-2 bg-gradient-to-r from-neon-pink to-bright-blue text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+                className="flex items-center justify-center gap-2 w-full lg:w-auto bg-gradient-to-r from-neon-pink to-bright-blue text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
               >
                 <Plus className="w-4 h-4" />
                 Nuevo Investigador
@@ -368,7 +368,7 @@ export default function ResearchersPage() {
             return (
               <div
                 key={researcher.id}
-                className="group bg-theme-card border border-theme-border/40 rounded-2xl p-5 hover:border-theme-accent/60 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 h-full flex flex-col"
+                className="group bg-theme-card border border-theme-border/40 rounded-2xl p-4 sm:p-5 hover:border-theme-accent/60 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 h-full flex flex-col"
               >
                 <div className="h-1.5 w-14 rounded-full bg-theme-accent/40 mb-4" />
 
@@ -381,11 +381,11 @@ export default function ResearchersPage() {
                         alt={researcher.name}
                         width={60}
                         height={60}
-                        className="w-[60px] h-[60px] rounded-full object-cover border-2 border-theme-border group-hover:border-theme-accent/50 transition-colors"
+                        className="w-12 h-12 sm:w-[60px] sm:h-[60px] rounded-full object-cover border-2 border-theme-border group-hover:border-theme-accent/50 transition-colors"
                       />
                     ) : (
-                      <div className="w-[60px] h-[60px] rounded-full bg-theme-accent/10 border-2 border-theme-border group-hover:border-theme-accent/50 flex items-center justify-center transition-colors">
-                        <User className="w-7 h-7 text-theme-accent" />
+                      <div className="w-12 h-12 sm:w-[60px] sm:h-[60px] rounded-full bg-theme-accent/10 border-2 border-theme-border group-hover:border-theme-accent/50 flex items-center justify-center transition-colors">
+                        <User className="w-6 h-6 sm:w-7 sm:h-7 text-theme-accent" />
                       </div>
                     )}
                     <span
@@ -398,7 +398,7 @@ export default function ResearchersPage() {
                   <div className="flex-1 min-w-0">
                     <Link
                       href={`/researchers/${researcher.id}`}
-                      className="block text-[22px] leading-tight font-bold text-theme-text hover:text-theme-accent truncate transition-colors"
+                      className="block text-lg sm:text-[22px] leading-tight font-bold text-theme-text hover:text-theme-accent truncate transition-colors"
                     >
                       {researcher.name}
                     </Link>
@@ -470,8 +470,8 @@ export default function ResearchersPage() {
                 </div>
 
                 {/* Botones de Acción */}
-                <div className="mt-auto flex items-center justify-between pt-3.5 border-t border-theme-border/60">
-                  <div className="flex gap-2">
+                <div className="mt-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-3.5 border-t border-theme-border/60">
+                  <div className="flex flex-wrap gap-2">
                     {/* Botón Ver Página Completa - Todos los usuarios */}
                     <Link
                       href={`/researchers/${researcher.id}`}
@@ -542,7 +542,7 @@ export default function ResearchersPage() {
 
                   {/* Botones Admin */}
                   {isAdmin && (
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <button
                         onClick={() => alert('Edición próximamente')}
                         className="p-2.5 text-theme-secondary hover:text-theme-text hover:bg-theme-accent/10 border border-theme-border/60 rounded-lg transition-colors"
