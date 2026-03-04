@@ -147,7 +147,7 @@ export function useSupabaseProjects(options?: UseSupabaseProjectsOptions) {
         return null;
       }
     },
-    [fetchProjects]
+    []
   );
 
   // Actualizar proyecto

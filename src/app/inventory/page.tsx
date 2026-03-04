@@ -120,6 +120,7 @@ export default function InventoryPage() {
     'fair',
     'poor',
     'damaged',
+    'broken',
   ];
 
   const isAdmin = isAuthenticated && user?.role === 'admin';
@@ -137,6 +138,8 @@ export default function InventoryPage() {
         return <Wrench className="w-4 h-4 text-orange-500" />;
       case 'damaged':
         return <AlertCircle className="w-4 h-4 text-red-500" />;
+      case 'broken':
+        return <AlertCircle className="w-4 h-4 text-red-600" />;
     }
   };
 
@@ -152,6 +155,8 @@ export default function InventoryPage() {
         return 'bg-orange-500/10 text-orange-400 border-orange-500/20';
       case 'damaged':
         return 'bg-red-500/10 text-red-400 border-red-500/20';
+      case 'broken':
+        return 'bg-red-600/10 text-red-500 border-red-600/20';
     }
   };
 
@@ -161,6 +166,7 @@ export default function InventoryPage() {
     fair: 'Regular',
     poor: 'Malo',
     damaged: 'Dañado',
+    broken: 'Roto',
   };
 
   // Función para agregar nuevo equipo
@@ -548,6 +554,8 @@ function ViewItemModal({
         return <Wrench className="w-4 h-4 text-orange-500" />;
       case 'damaged':
         return <AlertCircle className="w-4 h-4 text-red-500" />;
+      case 'broken':
+        return <AlertCircle className="w-4 h-4 text-red-600" />;
     }
   };
 
@@ -557,6 +565,7 @@ function ViewItemModal({
     fair: 'Regular',
     poor: 'Malo',
     damaged: 'Dañado',
+    broken: 'Roto',
   };
 
   return (

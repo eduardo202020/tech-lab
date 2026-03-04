@@ -52,12 +52,12 @@ export function useSupabaseEquipment(options?: UseSupabaseEquipmentOptions) {
 
       const res = await fetch('/mocks/equipos.json');
       if (!res.ok) throw new Error('No se pudo cargar equipos.json');
-      let data = await res.json();
+      let data: SupabaseEquipment[] = await res.json();
 
       // Aplicar búsqueda y filtros en el cliente
       if (search && search.trim()) {
         const like = search.trim().toLowerCase();
-        data = data.filter((item: any) =>
+        data = data.filter((item) =>
           item.name?.toLowerCase().includes(like) ||
           item.brand?.toLowerCase().includes(like) ||
           item.model?.toLowerCase().includes(like) ||
@@ -68,16 +68,16 @@ export function useSupabaseEquipment(options?: UseSupabaseEquipmentOptions) {
         );
       }
       if (filters?.condition) {
-        data = data.filter((item: any) => item.condition === filters.condition);
+        data = data.filter((item) => item.condition === filters.condition);
       }
       if (filters?.category) {
-        data = data.filter((item: any) => item.category === filters.category);
+        data = data.filter((item) => item.category === filters.category);
       }
       if (filters?.location) {
-        data = data.filter((item: any) => item.location === filters.location);
+        data = data.filter((item) => item.location === filters.location);
       }
       if (filters?.available_only) {
-        data = data.filter((item: any) => item.available_quantity > 0);
+        data = data.filter((item) => item.available_quantity > 0);
       }
 
       setEquipment(data || []);

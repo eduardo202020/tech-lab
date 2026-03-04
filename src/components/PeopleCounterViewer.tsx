@@ -24,12 +24,6 @@ interface CounterData {
   reason?: string;
 }
 
-interface ApiResponse {
-  counter: CounterData;
-  mock?: boolean;
-  reason?: string;
-}
-
 // API Response from backend
 interface PeopleCounterApiResponse {
   id: number;

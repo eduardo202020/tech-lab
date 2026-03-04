@@ -1,6 +1,12 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from 'react';
 
 type AuthUser = {
   id: string;
@@ -139,45 +145,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return loaded.find((item) => item.id === userId) || null;
   };
 
-  const createUserProfile = async (
-    authUser: AuthUser,
-    additionalData?: Partial<UserProfile>
-  ) => {
-    const now = new Date().toISOString();
-    const nextProfile: UserProfile = {
-      id: authUser.id,
-      username:
-        additionalData?.username ||
-        String(authUser.user_metadata?.user_name || authUser.email?.split('@')[0] || 'usuario'),
-      full_name:
-        additionalData?.full_name ||
-        String(authUser.user_metadata?.full_name || authUser.user_metadata?.name || 'Usuario'),
-      email: additionalData?.email || authUser.email || '',
-      role: (additionalData?.role || 'student') as UserProfile['role'],
-      avatar_url:
-        additionalData?.avatar_url ||
-        (String(authUser.user_metadata?.avatar_url || '') || null),
-      bio: additionalData?.bio || null,
-      phone: additionalData?.phone || null,
-      linkedin_url: additionalData?.linkedin_url || null,
-      created_at: now,
-      updated_at: now,
-    };
+  const applyAuthState = useCallback(
+    (nextSession: AuthSession, nextProfile: UserProfile) => {
+      setSession(nextSession);
+      setUser(nextSession.user);
+      setProfile(nextProfile);
+      saveAuthToStorage(nextSession, nextProfile);
+    },
+    []
+  );
 
-    const nextProfiles = [nextProfile, ...profiles.filter((item) => item.id !== nextProfile.id)];
-    setProfiles(nextProfiles);
-    saveProfilesToStorage(nextProfiles);
-    return nextProfile;
-  };
-
-  const applyAuthState = (nextSession: AuthSession, nextProfile: UserProfile) => {
-    setSession(nextSession);
-    setUser(nextSession.user);
-    setProfile(nextProfile);
-    saveAuthToStorage(nextSession, nextProfile);
-  };
-
-  const restoreSavedSession = async () => {
+  const restoreSavedSession = useCallback(async () => {
     try {
       if (typeof window === 'undefined') return false;
       const raw = localStorage.getItem(AUTH_STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
@@ -192,7 +170,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {
       return false;
     }
-  };
+  }, [applyAuthState]);
 
   // Inicializar autenticación
   useEffect(() => {
@@ -224,7 +202,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [restoreSavedSession]);
 
   // Funciones de autenticación
   const signInWithGoogle = async () => {

@@ -247,7 +247,7 @@ function ParkingAreaViewer({ area, theme, lastUpdate }: { area: ParkingArea; the
   );
 }
 
-function ParkingScene({ camId = 'smart_parking:A1', counterCamId = 'cuenta_personas:A1', refreshMs = 10000 }: ViewerProps) {
+function ParkingScene({ camId = 'smart_parking:A1', refreshMs = 10000 }: ViewerProps) {
   const { theme } = useTheme();
   const [parkingData, setParkingData] = useState<ParkingData | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
@@ -279,7 +279,7 @@ function ParkingScene({ camId = 'smart_parking:A1', counterCamId = 'cuenta_perso
     } finally {
       setLoading(false);
     }
-  }, [camId, counterCamId]);
+  }, [camId]);
 
   useEffect(() => {
     fetchData();
