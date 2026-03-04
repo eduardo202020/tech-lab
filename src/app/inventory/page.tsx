@@ -650,14 +650,17 @@ function ViewItemModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black/25 dark:bg-black/80 backdrop-blur-[1px] dark:backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-theme-card rounded-2xl p-0 max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-theme-border shadow-xl dark:shadow-2xl"
+        className="bg-theme-card rounded-2xl p-0 max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-theme-border shadow-2xl"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="sticky top-0 z-10 bg-white dark:bg-theme-card border-b border-slate-200 dark:border-theme-border px-6 py-4 flex justify-between items-center">
+        <div
+          className="sticky top-0 z-40 relative isolate border-b border-theme-border px-6 py-4 flex justify-between items-center shadow-sm"
+          style={{ backgroundColor: 'var(--theme-bg)' }}
+        >
           <div>
             <h2 className="text-xl sm:text-2xl font-bold text-theme-text">
               Detalles del Equipo
@@ -666,7 +669,7 @@ function ViewItemModal({
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-slate-50 dark:bg-theme-background border border-slate-300 dark:border-theme-border text-slate-600 dark:text-theme-secondary hover:text-slate-900 dark:hover:text-theme-text hover:border-theme-accent/50 transition-colors"
+            className="w-9 h-9 rounded-full bg-theme-bg border border-theme-border text-theme-secondary hover:text-theme-text hover:border-theme-accent/50 transition-colors"
           >
             ×
           </button>
@@ -687,7 +690,7 @@ function ViewItemModal({
 
           <div className="space-y-5">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs border border-theme-border bg-theme-background text-theme-text">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs border border-theme-border bg-theme-bg text-theme-text">
                 {getConditionIcon(item.condition)}
                 {conditionLabels[item.condition]}
               </span>
@@ -702,7 +705,7 @@ function ViewItemModal({
             </div>
 
             {item.description && (
-              <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-4">
+              <div className="rounded-xl border border-theme-border bg-theme-bg p-4">
                 <label className="block text-sm font-medium text-theme-secondary mb-1">
                   Descripción
                 </label>
@@ -711,14 +714,14 @@ function ViewItemModal({
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-3">
+              <div className="rounded-xl border border-theme-border bg-theme-bg p-3">
                 <label className="block text-xs font-medium text-theme-secondary mb-1">
                   Categoría
                 </label>
                 <p className="text-theme-text font-medium">{item.category}</p>
               </div>
 
-              <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-3">
+              <div className="rounded-xl border border-theme-border bg-theme-bg p-3">
                 <label className="block text-xs font-medium text-theme-secondary mb-1">
                   Disponibilidad
                 </label>
@@ -728,7 +731,7 @@ function ViewItemModal({
               </div>
 
               {item.brand && (
-                <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-3">
+                <div className="rounded-xl border border-theme-border bg-theme-bg p-3">
                   <label className="block text-xs font-medium text-theme-secondary mb-1">
                     Marca
                   </label>
@@ -737,7 +740,7 @@ function ViewItemModal({
               )}
 
               {item.model && (
-                <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-3">
+                <div className="rounded-xl border border-theme-border bg-theme-bg p-3">
                   <label className="block text-xs font-medium text-theme-secondary mb-1">
                     Modelo
                   </label>
@@ -746,7 +749,7 @@ function ViewItemModal({
               )}
 
               {item.serial_number && (
-                <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-3">
+                <div className="rounded-xl border border-theme-border bg-theme-bg p-3">
                   <label className="block text-xs font-medium text-theme-secondary mb-1">
                     Número de Serie
                   </label>
@@ -755,7 +758,7 @@ function ViewItemModal({
               )}
 
               {item.location && (
-                <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-3">
+                <div className="rounded-xl border border-theme-border bg-theme-bg p-3">
                   <label className="block text-xs font-medium text-theme-secondary mb-1">
                     Ubicación
                   </label>
@@ -764,7 +767,7 @@ function ViewItemModal({
               )}
 
               {item.purchase_date && (
-                <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-3">
+                <div className="rounded-xl border border-theme-border bg-theme-bg p-3">
                   <label className="block text-xs font-medium text-theme-secondary mb-1">
                     Fecha de Compra
                   </label>
@@ -772,8 +775,8 @@ function ViewItemModal({
                 </div>
               )}
 
-              {item.purchase_price && (
-                <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-3">
+              {item.purchase_price !== null && item.purchase_price !== undefined && (
+                <div className="rounded-xl border border-theme-border bg-theme-bg p-3">
                   <label className="block text-xs font-medium text-theme-secondary mb-1">
                     Precio de Compra
                   </label>
@@ -783,12 +786,12 @@ function ViewItemModal({
             </div>
 
             {(specificationsView.entries.length > 0 || specificationsView.plainText) && (
-              <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-4">
+              <div className="rounded-xl border border-theme-border bg-theme-bg p-4">
                 <label className="block text-sm font-medium text-theme-secondary mb-2">
                   Especificaciones
                 </label>
                 {specificationsView.entries.length > 0 ? (
-                  <div className="bg-white dark:bg-theme-card border border-slate-200 dark:border-theme-border rounded-lg p-3">
+                  <div className="bg-theme-card border border-theme-border rounded-lg p-3">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {specificationsView.entries.map(([key, value]) => (
                         <div key={key}>
@@ -801,7 +804,7 @@ function ViewItemModal({
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-white dark:bg-theme-card border border-slate-200 dark:border-theme-border rounded-lg p-3">
+                  <div className="bg-theme-card border border-theme-border rounded-lg p-3">
                     <p className="text-sm text-theme-text whitespace-pre-wrap break-words">
                       {specificationsView.plainText}
                     </p>
@@ -811,7 +814,7 @@ function ViewItemModal({
             )}
 
             {item.notes && (
-              <div className="rounded-xl border border-slate-200 dark:border-theme-border bg-slate-50 dark:bg-theme-background p-4">
+              <div className="rounded-xl border border-theme-border bg-theme-bg p-4">
                 <label className="block text-sm font-medium text-theme-secondary mb-1">
                   Notas
                 </label>
