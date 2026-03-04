@@ -65,6 +65,7 @@ type MockUserProfile = {
   role: string;
   avatar_url?: string;
   bio?: string;
+  projects?: string | string[];
   phone?: string;
   linkedin_url?: string;
   created_at: string;
@@ -100,17 +101,53 @@ export function useSupabaseResearchers(options?: UseSupabaseResearchersOptions) 
   const [error, setError] = useState<string | null>(null);
   const hasAutoFetched = useRef(false);
 
+  const normalizeText = (value: string) =>
+    value
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim();
+
+  const parseUserProjectNames = (projects: MockUserProfile['projects']): string[] => {
+    if (!projects) return [];
+
+    if (Array.isArray(projects)) {
+      return projects.map((item) => item.trim()).filter(Boolean);
+    }
+
+    return projects
+      .split('/')
+      .map((item) => item.trim())
+      .filter(Boolean);
+  };
+
   const mapMockUserToResearcher = useCallback(
     (user: MockUserProfile, projectsData: MockProject[]): SupabaseResearcher => {
       const fullNameLower = user.full_name.toLowerCase();
 
-      const relatedProjects = projectsData.filter((project) => {
+      const relatedProjectsByTeam = projectsData.filter((project) => {
         const teamLead = (project.team_lead || '').toLowerCase();
         const teamMembers = (project.team_members || []).map((member) =>
           member.toLowerCase()
         );
         return teamLead === fullNameLower || teamMembers.includes(fullNameLower);
       });
+
+      const declaredProjectNames = parseUserProjectNames(user.projects);
+      const relatedProjectsByDeclaredNames = projectsData.filter((project) => {
+        const normalizedProjectTitle = normalizeText(project.title);
+        return declaredProjectNames.some((declaredName) => {
+          const normalizedDeclared = normalizeText(declaredName);
+          return (
+            normalizedProjectTitle.includes(normalizedDeclared) ||
+            normalizedDeclared.includes(normalizedProjectTitle)
+          );
+        });
+      });
+
+      const relatedProjects = relatedProjectsByDeclaredNames.length
+        ? relatedProjectsByDeclaredNames
+        : relatedProjectsByTeam;
 
       const currentProjects = relatedProjects
         .filter((project) => project.status === 'active' || project.status === 'planning')
@@ -139,8 +176,8 @@ export function useSupabaseResearchers(options?: UseSupabaseResearchersOptions) 
         avatar_url: user.avatar_url || '',
         position: user.role === 'admin' ? 'Coordinador' : 'Investigador',
         department: 'Tech Lab',
-        specializations: user.bio ? [user.bio] : [],
-        biography: user.bio || '',
+        specializations: declaredProjectNames.length ? declaredProjectNames : user.bio ? [user.bio] : [],
+        biography: user.bio || (declaredProjectNames.length ? `Investigador Tech Lab (${declaredProjectNames.join(' / ')}).` : ''),
         academic_level: 'bachelor',
         status: 'active',
         join_date: user.created_at?.slice(0, 10) || new Date().toISOString().slice(0, 10),
@@ -152,10 +189,10 @@ export function useSupabaseResearchers(options?: UseSupabaseResearchersOptions) 
         personal_website: '',
         university: 'Universidad Nacional de Ingeniería',
         degree: '',
-        research_interests: user.bio ? [user.bio] : [],
+        research_interests: declaredProjectNames.length ? declaredProjectNames : user.bio ? [user.bio] : [],
         publications: [],
         achievements: [],
-        projects_completed: pastProjects.length,
+        projects_completed: relatedProjects.length,
         publications_count: 0,
         years_experience: 1,
         created_by: 'mock-system',

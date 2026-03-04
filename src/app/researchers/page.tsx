@@ -348,162 +348,159 @@ export default function ResearchersPage() {
 
         {/* Grid de Investigadores */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredResearchers.map((researcher) => (
-            <div
-              key={researcher.id}
-              className="bg-theme-card border border-theme-border rounded-lg p-6 hover:border-theme-accent/50 transition-colors"
-            >
-              {/* Cabecera del Perfil */}
-              <div className="flex items-start gap-4 mb-4">
-                <div className="relative">
-                  {researcher.avatar_url ? (
-                    <Image
-                      src={researcher.avatar_url}
-                      alt={researcher.name}
-                      width={64}
-                      height={64}
-                      className="w-16 h-16 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-16 h-16 rounded-full bg-theme-accent/10 flex items-center justify-center">
-                      <User className="w-8 h-8 text-theme-accent" />
-                    </div>
-                  )}
-                  <span
-                    className={`absolute -bottom-1 -right-1 px-2 py-0.5 rounded-full text-xs border ${getStatusColor(researcher.status)}`}
-                  >
-                    {statusLabels[researcher.status]}
-                  </span>
-                </div>
+          {filteredResearchers.map((researcher) => {
+            const displayedProjects = [
+              ...(researcher.current_projects || []),
+              ...((researcher.past_projects || []).map((project) => ({
+                ...project,
+                progress: 0,
+              })) as Array<{
+                id: string;
+                title: string;
+                role: string;
+                status: string;
+                progress: number;
+              }>),
+            ].filter(
+              (project, index, array) =>
+                array.findIndex((item) => item.id === project.id) === index
+            );
 
-                <div className="flex-1 min-w-0">
-                  <Link
-                    href={`/researchers/${researcher.id}`}
-                    className="text-lg font-bold text-theme-text hover:text-theme-accent truncate transition-colors"
-                  >
-                    {researcher.name}
-                  </Link>
-                  <p className="text-theme-secondary text-sm mb-1">
-                    {researcher.position}
-                  </p>
-                  <p className="text-theme-secondary text-xs">
-                    {researcher.department}
-                  </p>
-                  <span
-                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs border mt-2 ${getAcademicLevelColor(researcher.academic_level)}`}
-                  >
-                    <GraduationCap className="w-3 h-3 mr-1" />
-                    {academicLevelLabels[researcher.academic_level]}
-                  </span>
-                </div>
-              </div>
-
-              {/* Especializaciones */}
-              <div className="mb-4">
-                <div className="flex flex-wrap gap-1">
-                  {researcher.specializations.slice(0, 3).map((spec, index) => (
+            return (
+              <div
+                key={researcher.id}
+                className="bg-theme-card border border-theme-border rounded-lg p-6 hover:border-theme-accent/50 transition-colors h-full flex flex-col"
+              >
+                {/* Cabecera del Perfil */}
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="relative">
+                    {researcher.avatar_url ? (
+                      <Image
+                        src={researcher.avatar_url}
+                        alt={researcher.name}
+                        width={64}
+                        height={64}
+                        className="w-16 h-16 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-theme-accent/10 flex items-center justify-center">
+                        <User className="w-8 h-8 text-theme-accent" />
+                      </div>
+                    )}
                     <span
-                      key={index}
-                      className="px-2 py-1 bg-theme-accent/10 text-theme-accent rounded-md text-xs"
+                      className={`absolute -bottom-1 -right-1 px-2 py-0.5 rounded-full text-xs border ${getStatusColor(researcher.status)}`}
                     >
-                      {spec}
+                      {statusLabels[researcher.status]}
                     </span>
-                  ))}
-                  {researcher.specializations.length > 3 && (
-                    <span className="px-2 py-1 bg-theme-secondary/10 text-theme-secondary rounded-md text-xs">
-                      +{researcher.specializations.length - 3}
-                    </span>
-                  )}
-                </div>
-              </div>
+                  </div>
 
-              {/* Estadísticas Rápidas */}
-              <div className="grid grid-cols-3 gap-3 mb-4 text-center">
-                <div>
-                  <div className="text-sm font-bold text-theme-text">
-                    {researcher.projects_completed}
-                  </div>
-                  <div className="text-xs text-theme-secondary">Proyectos</div>
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-theme-text">
-                    {researcher.publications_count}
-                  </div>
-                  <div className="text-xs text-theme-secondary">
-                    Publicaciones
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-theme-text">
-                    {researcher.years_experience}
-                  </div>
-                  <div className="text-xs text-theme-secondary">Años Exp.</div>
-                </div>
-              </div>
-
-              {/* Proyectos Actuales */}
-              {researcher.current_projects &&
-                researcher.current_projects.length > 0 && (
-                  <div className="mb-4">
-                    <p className="text-xs text-theme-secondary mb-2">
-                      Proyectos Actuales:
+                  <div className="flex-1 min-w-0">
+                    <Link
+                      href={`/researchers/${researcher.id}`}
+                      className="block text-lg font-bold text-theme-text hover:text-theme-accent truncate transition-colors"
+                    >
+                      {researcher.name}
+                    </Link>
+                    <p className="text-theme-secondary text-sm mb-1">
+                      {researcher.position}
                     </p>
-                    <div className="space-y-1">
-                      {researcher.current_projects
-                        .slice(0, 2)
-                        .map((project) => (
-                          <div
-                            key={project.id}
-                            className="flex items-center gap-2"
-                          >
-                            <Target className="w-3 h-3 text-green-400" />
-                            <span className="text-xs text-theme-text truncate">
-                              {project.title}
-                            </span>
-                          </div>
-                        ))}
-                      {researcher.current_projects.length > 2 && (
-                        <p className="text-xs text-theme-secondary">
-                          +{researcher.current_projects.length - 2} más
-                        </p>
-                      )}
+                    <p className="text-theme-secondary text-xs">
+                      {researcher.department}
+                    </p>
+                    <span
+                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs border mt-2 ${getAcademicLevelColor(researcher.academic_level)}`}
+                    >
+                      <GraduationCap className="w-3 h-3 mr-1" />
+                      {academicLevelLabels[researcher.academic_level]}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Estadísticas Rápidas */}
+                <div className="grid grid-cols-3 gap-3 mb-4 text-center">
+                  <div>
+                    <div className="text-sm font-bold text-theme-text">
+                      {displayedProjects.length}
+                    </div>
+                    <div className="text-xs text-theme-secondary">Proyectos</div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-theme-text">
+                      {researcher.publications_count}
+                    </div>
+                    <div className="text-xs text-theme-secondary">
+                      Publicaciones
                     </div>
                   </div>
-                )}
+                  <div>
+                    <div className="text-sm font-bold text-theme-text">
+                      {researcher.years_experience}
+                    </div>
+                    <div className="text-xs text-theme-secondary">Años Exp.</div>
+                  </div>
+                </div>
 
-              {/* Botones de Acción */}
-              <div className="flex items-center justify-between pt-4 border-t border-theme-border">
-                <div className="flex gap-2">
-                  {/* Botón Ver Página Completa - Todos los usuarios */}
-                  <Link
-                    href={`/researchers/${researcher.id}`}
-                    className="p-2 text-theme-secondary hover:text-theme-text hover:bg-theme-accent/10 rounded-lg transition-colors"
-                    title="Ver página completa del perfil"
-                  >
-                    <User className="w-4 h-4" />
-                  </Link>
-
-                  {/* Botón Ver Modal - Todos los usuarios */}
-                  <button
-                    onClick={() => alert('Vista detallada próximamente')}
-                    className="p-2 text-theme-secondary hover:text-theme-text hover:bg-theme-accent/10 rounded-lg transition-colors"
-                    title="Vista rápida del perfil"
-                  >
-                    <Eye className="w-4 h-4" />
-                  </button>
-
-                  {/* Enlaces externos - Solo usuarios autenticados */}
-                  {isAuthenticated && researcher.email && (
-                    <a
-                      href={`mailto:${researcher.email}`}
-                      className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-lg transition-colors"
-                      title="Enviar email"
-                    >
-                      <Mail className="w-4 h-4" />
-                    </a>
+                {/* Proyectos Actuales */}
+                <div className="mb-4 min-h-[74px]">
+                  <p className="text-xs text-theme-secondary mb-2">
+                    Proyectos:
+                  </p>
+                  {displayedProjects.length > 0 ? (
+                    <div className="space-y-1">
+                      {displayedProjects.map((project) => (
+                        <Link
+                          key={project.id}
+                          href={`/projects/${project.id}`}
+                          className="flex items-center gap-2 hover:text-theme-accent transition-colors"
+                          title={project.title}
+                        >
+                          <Target className="w-3 h-3 text-green-400" />
+                          <span className="text-xs text-theme-text break-words">
+                            {project.title}
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-theme-secondary/70 italic">
+                      Sin proyectos actuales
+                    </p>
                   )}
+                </div>
 
-                  {/* LinkedIn link temporarily disabled for build 
+                {/* Botones de Acción */}
+                <div className="mt-auto flex items-center justify-between pt-4 border-t border-theme-border">
+                  <div className="flex gap-2">
+                    {/* Botón Ver Página Completa - Todos los usuarios */}
+                    <Link
+                      href={`/researchers/${researcher.id}`}
+                      className="p-2 text-theme-secondary hover:text-theme-text hover:bg-theme-accent/10 rounded-lg transition-colors"
+                      title="Ver página completa del perfil"
+                    >
+                      <User className="w-4 h-4" />
+                    </Link>
+
+                    {/* Botón Ver Modal - Todos los usuarios */}
+                    <button
+                      onClick={() => alert('Vista detallada próximamente')}
+                      className="p-2 text-theme-secondary hover:text-theme-text hover:bg-theme-accent/10 rounded-lg transition-colors"
+                      title="Vista rápida del perfil"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+
+                    {/* Enlaces externos - Solo usuarios autenticados */}
+                    {isAuthenticated && researcher.email && (
+                      <a
+                        href={`mailto:${researcher.email}`}
+                        className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-lg transition-colors"
+                        title="Enviar email"
+                      >
+                        <Mail className="w-4 h-4" />
+                      </a>
+                    )}
+
+                    {/* LinkedIn link temporarily disabled for build 
                   {isAuthenticated && researcher.linkedIn && (
                     <a
                       href={researcher.linkedIn}
@@ -516,30 +513,31 @@ export default function ResearchersPage() {
                     </a>
                   )}
                   */}
-                </div>
-
-                {/* Botones Admin */}
-                {isAdmin && (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => alert('Edición próximamente')}
-                      className="p-2 text-theme-secondary hover:text-theme-text hover:bg-theme-accent/10 rounded-lg transition-colors"
-                      title="Editar"
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => deleteResearcher(researcher.id)}
-                      className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
-                      title="Eliminar"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
                   </div>
-                )}
+
+                  {/* Botones Admin */}
+                  {isAdmin && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => alert('Edición próximamente')}
+                        className="p-2 text-theme-secondary hover:text-theme-text hover:bg-theme-accent/10 rounded-lg transition-colors"
+                        title="Editar"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => deleteResearcher(researcher.id)}
+                        className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
+                        title="Eliminar"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           {filteredResearchers.length === 0 && (
             <div className="col-span-full text-center py-12">
@@ -549,9 +547,9 @@ export default function ResearchersPage() {
               </h3>
               <p className="text-theme-secondary">
                 {searchQuery ||
-                selectedDepartment ||
-                selectedStatus ||
-                selectedLevel
+                  selectedDepartment ||
+                  selectedStatus ||
+                  selectedLevel
                   ? 'Intenta ajustar los filtros de búsqueda'
                   : 'Agrega el primer investigador al directorio'}
               </p>
