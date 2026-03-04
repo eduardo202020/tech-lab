@@ -1,8 +1,14 @@
 import type { NextConfig } from 'next';
+import nextra from 'nextra';
+
+const withNextra = nextra({});
 
 const nextConfig: NextConfig = {
   turbopack: {
     root: '/home/eduardo/proyectos/tech-lab',
+    resolveAlias: {
+      'next-mdx-import-source-file': './mdx-components.tsx',
+    },
   },
   images: {
     remotePatterns: [
@@ -34,4 +40,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextra(nextConfig);
