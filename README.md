@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Next.js](https://img.shields.io/badge/Next.js-15.5.4-black?style=for-the-badge&logo=next.js) ![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react) ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-38B2AC?style=for-the-badge&logo=tailwind-css) ![Three.js](https://img.shields.io/badge/Three.js-Latest-000000?style=for-the-badge&logo=three.js) ![Supabase](https://img.shields.io/badge/Supabase-Database-3FCF8E?style=for-the-badge&logo=supabase)
+![Next.js](https://img.shields.io/badge/Next.js-15.5.7-black?style=for-the-badge&logo=next.js) ![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react) ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38B2AC?style=for-the-badge&logo=tailwind-css) ![Three.js](https://img.shields.io/badge/Three.js-Latest-000000?style=for-the-badge&logo=three.js) ![Nextra](https://img.shields.io/badge/Nextra-Docs-000000?style=for-the-badge)
 
 **Plataforma moderna para la gestión integral del Laboratorio Tecnológico OTI UNI**
 
@@ -14,7 +14,7 @@
 
 **OTI UNI Tech Lab** es una plataforma web moderna y futurista diseñada para la gestión integral de equipos tecnológicos de vanguardia en el laboratorio de la Oficina de Tecnologías de la Información (OTI) de la Universidad Nacional de Ingeniería.
 
-La plataforma integra gestión de inventario, sistema de préstamos, catálogo de tecnologías emergentes, portafolio de proyectos y simulaciones 3D interactivas en una experiencia unificada y moderna.
+La plataforma integra gestión de inventario, sistema de préstamos, catálogo de tecnologías emergentes, portafolio de proyectos, simulaciones 3D interactivas y documentación de usuario con Nextra en una experiencia unificada y moderna.
 
 ### 🎯 Objetivos
 
@@ -230,16 +230,17 @@ Proyecto destacado con simulación 3D interactiva:
 - **Hooks Personalizados**:
   - `useTechnologies` - Gestión de tecnologías
   - `useAuthRedirect` - Redirección inteligente
-  - `useSupabaseProjects` - Proyectos desde Supabase
-  - `useSupabaseResearchers` - Investigadores desde Supabase
-  - `useSupabaseEquipment` - Equipos desde Supabase
+  - `useSupabaseProjects` - Proyectos desde API local/mock (nomenclatura legacy)
+  - `useSupabaseResearchers` - Investigadores desde API local/mock (nomenclatura legacy)
+  - `useSupabaseEquipment` - Inventario desde API local/mock (nomenclatura legacy)
   - `useDebounce` - Debouncing para búsquedas
 - **localStorage** - Persistencia de preferencias y sesiones
 
 ### **Base de Datos y Backend**
-- **Supabase** - Database PostgreSQL en la nube
-- **Supabase Auth** - Autenticación integrada
-- **Supabase RLS** - Row Level Security para seguridad
+- **API Routes de Next.js** - Endpoints internos en `src/app/api/*`
+- **Mocks JSON** - Fuente principal de datos en `public/mocks/*`
+- **Mock Auth local** - Sesión y perfiles persistidos en `localStorage`
+- **Scripts SQL de referencia** - Carpeta `supabase/` mantenida para escenarios opcionales
 
 ### **Tipografía y Fuentes**
 - **Google Fonts**: Geist, Montserrat, Roboto, Poppins
@@ -268,6 +269,8 @@ tech-lab/
 ├── 📁 public/                  # Archivos estáticos
 │   ├── 📁 models/              # Modelos 3D (.gltf, .bin)
 │   │   └── textures/           # Texturas para modelos
+│   ├── 📁 mocks/               # Datos mock (equipos, proyectos, investigadores, etc.)
+│   ├── 📁 docs/                # Assets de documentación (capturas)
 │   └── favicon.ico
 │
 ├── 📁 src/
@@ -308,7 +311,8 @@ tech-lab/
 │   │   │
 │   │   ├── 📁 contact/         # Página de contacto
 │   │   │
-│   │   └── 📁 test-supabase/   # Testing de Supabase
+│   │   ├── 📁 docs/            # Documentación de usuario (Nextra)
+│   │   └── 📁 test-supabase/   # Página técnica legacy de pruebas
 │   │
 │   ├── 📁 components/          # Componentes reutilizables
 │   │   ├── 📄 Header.tsx       # Navegación principal
@@ -336,7 +340,7 @@ tech-lab/
 │   │   ├── 📄 ThemeContext.tsx           # Contexto de temas
 │   │   ├── 📄 AuthContext.tsx           # Contexto de autenticación
 │   │   ├── 📄 AuthContextLegacy.tsx     # Autenticación legacy
-│   │   ├── 📄 SupabaseAuthContext.tsx   # Autenticación Supabase
+│   │   ├── 📄 SupabaseAuthContext.tsx   # Autenticación mock (nombre legacy)
 │   │   ├── 📄 ProjectContext.tsx        # Contexto de proyectos
 │   │   ├── 📄 InventoryContext.tsx      # Contexto de inventario
 │   │   └── 📄 ResearcherContext.tsx     # Contexto de investigadores
@@ -344,15 +348,14 @@ tech-lab/
 │   ├── 📁 hooks/               # Hooks personalizados
 │   │   ├── 📄 useAuthRedirect.ts       # Redirección inteligente
 │   │   ├── 📄 useTechnologies.ts       # Gestión de tecnologías
-│   │   ├── 📄 useSupabaseProjects.ts   # Proyectos desde Supabase
-│   │   ├── 📄 useSupabaseResearchers.ts # Investigadores de Supabase
-│   │   ├── 📄 useSupabaseEquipment.ts  # Equipos de Supabase
+│   │   ├── 📄 useSupabaseProjects.ts   # Proyectos desde API/mocks (nombre legacy)
+│   │   ├── 📄 useSupabaseResearchers.ts # Investigadores desde API/mocks (nombre legacy)
+│   │   ├── 📄 useSupabaseEquipment.ts  # Equipos desde API/mocks (nombre legacy)
 │   │   └── 📄 useDebounce.ts           # Debounce para búsquedas
 │   │
 │   └── 📁 lib/                 # Librerías y utilidades
-│       └── 📄 supabase.ts      # Cliente de Supabase
 │
-├── 📁 supabase/                # Scripts SQL y configuración
+├── 📁 supabase/                # Scripts SQL históricos/opcionales
 │   ├── 📄 schema.sql           # Esquema de base de datos
 │   ├── 📄 seed-data.sql        # Datos iniciales
 │   ├── 📄 configure-auth.sql   # Configuración de autenticación
@@ -360,7 +363,7 @@ tech-lab/
 │   ├── 📄 create-equipment-table.sql
 │   └── 📄 fix-rls.sql          # Configuración de Row Level Security
 │
-└── 📁 docs/                    # Documentación adicional
+└── 📁 docs/                    # Documentación adicional y guías internas
     ├── 📄 MIGRACION-SUPABASE.md # Guía de migración a Supabase
     └── 📄 OAUTH-GOOGLE.md      # Configuración OAuth Google
 ```
@@ -374,7 +377,7 @@ tech-lab/
 - Node.js 18+ ([nodejs.org](https://nodejs.org/))
 - npm o yarn
 - Git
-- Cuenta de Supabase ([supabase.com](https://supabase.com))
+- Cuenta de Supabase (opcional, solo para escenarios avanzados)
 
 ### **1. Clonar el Repositorio**
 
@@ -396,31 +399,28 @@ yarn install
 Crear archivo `.env.local` en la raíz del proyecto:
 
 ```env
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=xxxxxxxxxxxxxx
-
-# OAuth (Opcional)
+# OAuth (Opcional, actualmente deshabilitado en modo mock)
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=xxxxxxxxxxxxxx
 NEXT_PUBLIC_GITHUB_CLIENT_ID=xxxxxxxxxxxxxx
 ```
 
-### **4. Configurar Base de Datos**
+Nota: para levantar la app en entorno local con mocks no se requieren variables de entorno obligatorias.
+
+### **4. Preparar Datos Locales (Mock)**
 
 ```bash
-# Aplicar esquema a Supabase (manualmente en supabase.com)
-# Copiar contenido de supabase/schema.sql
-# Pegar en SQL Editor en https://supabase.com/dashboard
-
-# Insertar datos iniciales (opcional)
-# Copiar contenido de supabase/seed-data.sql
+# Los datos vienen listos en:
+# public/mocks/equipos.json
+# public/mocks/investigadores.json
+# public/mocks/projects.json
+# public/mocks/technologies.json
+# public/mocks/usuarios.json
 ```
 
-**Orden recomendado (enero 2026):**
-- Esquema base: [supabase/schema.sql](supabase/schema.sql) y luego [supabase/configure-auth.sql](supabase/configure-auth.sql) para trigger y políticas.
-- Semillas completas con limpieza: [supabase/seed-data-clean.sql](supabase/seed-data-clean.sql); si solo quieres agregar sin truncar usa [supabase/seed-data.sql](supabase/seed-data.sql).
-- Solo inventario: [supabase/seed-inventory-data-fixed.sql](supabase/seed-inventory-data-fixed.sql) (evita la versión previa con `created_by`).
-- No usar en prod: [supabase/fix-rls.sql](supabase/fix-rls.sql) desactiva RLS para debugging. Ignora [supabase/create-equipment-table.sql](supabase/create-equipment-table.sql) y [supabase/create-loans-table.sql](supabase/create-loans-table.sql) porque duplican tablas legacy.
+**Si deseas usar Supabase de forma opcional:**
+- Revisa [docs/MIGRACION-SUPABASE.md](docs/MIGRACION-SUPABASE.md).
+- Usa `supabase/schema.sql` y luego `supabase/configure-auth.sql`.
+- Carga semillas con `supabase/seed-data-clean.sql` o `supabase/seed-data.sql`.
 
 ### **5. Ejecutar en Modo Desarrollo**
 
@@ -450,10 +450,6 @@ npm start               # Iniciar servidor de producción
 
 # Linting y Tipado
 npm run lint            # Ejecutar ESLint
-npm run type-check      # Verificar tipos TypeScript (si aplica)
-
-# Limpieza
-npm run clean           # Limpiar caché de build
 ```
 
 ---
@@ -507,11 +503,10 @@ module.exports = {
 
 ### **Agregar Nuevas Tecnologías**
 
-Las tecnologías se cargan de Supabase. Para agregar una:
+Las tecnologías se cargan desde `public/mocks/technologies.json`. Para agregar una:
 
-1. Ir a [Supabase Dashboard](https://supabase.com/dashboard)
-2. Ir a tabla `technologies`
-3. Insertar nuevo registro con estructura:
+1. Abrir `public/mocks/technologies.json`.
+2. Agregar un objeto en el arreglo de tecnologías con la estructura:
 
 ```json
 {
@@ -533,57 +528,49 @@ Las tecnologías se cargan de Supabase. Para agregar una:
 
 ### **Agregar Nuevos Proyectos**
 
-En [Supabase Dashboard](https://supabase.com/dashboard):
+En modo local/mock:
 
-1. Ir a tabla `projects`
-2. Insertar nuevo registro con estructura completa
-3. Vincular con tecnologías en `project_technologies`
-4. Vincular con investigadores en `project_researchers`
+1. Abrir `public/mocks/projects.json`.
+2. Agregar el proyecto con su estructura completa.
+3. Verificar IDs y relaciones en `public/mocks/technologies.json` y `public/mocks/investigadores.json`.
+4. Si aplica, ajustar datos de usuario en `public/mocks/usuarios.json`.
 
 ---
 
 ## 🔐 Configuración de Autenticación
 
-### **Supabase Auth**
+### **Modo Actual (Mock Auth Local)**
 
-Las credenciales de Supabase deben colocarse en `.env.local`:
+El proyecto usa autenticación mock por defecto con persistencia local (localStorage). No requiere variables de entorno adicionales.
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=tu_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_key
-```
+La implementación vive en `src/contexts/SupabaseAuthContext.tsx` y mantiene compatibilidad de llaves legacy para migraciones internas.
 
-Nota de sesión (enero 2026): el cliente Supabase usa una `storageKey` estable (`techlab_supabase_auth`) en [src/lib/supabase.ts](src/lib/supabase.ts) para compartir sesión entre pestañas y evitar loops al abrir nuevas ventanas. No requiere configuración adicional.
+### **OAuth Google/GitHub (Estado actual)**
 
-### **OAuth con Google**
+Actualmente los métodos OAuth están deshabilitados en modo mock y el login funcional es por email/contraseña contra datos en `public/mocks/usuarios.json`.
 
-1. Ir a [Google Cloud Console](https://console.cloud.google.com)
-2. Crear OAuth 2.0 credentials
-3. Agregar a `.env.local`:
+Si se reactiva OAuth en una etapa posterior, usar:
 
 ```env
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=tu_google_id
 ```
 
-4. Configurar en Supabase Auth providers
+Más detalles históricos en [docs/OAUTH-GOOGLE.md](docs/OAUTH-GOOGLE.md).
 
-### **Row Level Security (RLS)**
+### **Supabase (Opcional / Avanzado)**
 
-Las políticas RLS se encuentran en [supabase/fix-rls.sql](supabase/fix-rls.sql)
+Los scripts SQL se conservan en `supabase/` para usos puntuales, pero no forman parte del flujo local por defecto.
 
 ```sql
--- Ejemplo: Usuarios solo pueden ver sus propios datos
-CREATE POLICY "Users can view own data"
-  ON users
-  FOR SELECT
-  USING (auth.uid() = id);
+-- Referencia histórica (no requerida para entorno mock)
+-- Ver carpeta supabase/
 ```
 
-### **Notas de carga de datos (enero 2026)**
+### **Notas de carga de datos**
 
-- Los hooks de Supabase permiten desactivar la carga automática (`autoFetch`) para evitar dobles requests en React Strict Mode: [src/hooks/useSupabaseEquipment.ts](src/hooks/useSupabaseEquipment.ts), [src/hooks/useSupabaseProjects.ts](src/hooks/useSupabaseProjects.ts), [src/hooks/useSupabaseResearchers.ts](src/hooks/useSupabaseResearchers.ts).
-- Las páginas de inventario, proyectos e investigadores disparan el fetch inicial una sola vez con llaves internas para no repetir llamadas: [src/app/inventory/page.tsx](src/app/inventory/page.tsx), [src/app/projects/page.tsx](src/app/projects/page.tsx), [src/app/researchers/page.tsx](src/app/researchers/page.tsx).
-- El contexto de proyectos consume el hook con `autoFetch: false` y expone `refreshProjects` para controlar la carga: [src/contexts/ProjectContext.tsx](src/contexts/ProjectContext.tsx).
+- Los hooks de datos mantienen la opción `autoFetch` para evitar dobles requests en React Strict Mode: `useSupabaseEquipment`, `useSupabaseProjects`, `useSupabaseResearchers`.
+- Las páginas principales ejecutan carga controlada inicial para no duplicar llamadas.
+- La fuente principal de verdad en desarrollo son los endpoints internos y archivos de `public/mocks`.
 
 ---
 
@@ -640,7 +627,7 @@ git commit -m "docs: actualizar README"
 
 - [Migración a Supabase](docs/MIGRACION-SUPABASE.md) - Proceso de migración completa
 - [Configuración OAuth Google](docs/OAUTH-GOOGLE.md) - Autenticación social
-- [API de Supabase](https://supabase.com/docs) - Documentación oficial
+- [Nextra Docs](https://nextra.site/docs) - Documentación del sistema de docs
 - [Three.js Documentation](https://threejs.org/docs/) - Gráficos 3D
 
 ---
@@ -677,6 +664,32 @@ copies or substantial portions of the Software.
 ---
 
 ## 🆕 Changelog
+
+### **Versión 1.6.2 - Marzo 2026 (Hoy)**
+
+- Separación de visualizaciones para evitar mezclar simulaciones: la vista de Smart Parking ya no renderiza el módulo de Cuenta Personas en la misma página de detalle de proyecto.
+- Ajuste de condición en la vista de detalle de proyecto para que `PeopleCounterViewer` solo aparezca en proyectos de conteo de personas.
+
+### **Versión 1.6.1 - Marzo 2026 (Ayer)**
+
+- Integración de documentación con Nextra en `/docs` con layout, navegación y páginas funcionales para acceso, inventario, investigadores, proyectos, tecnologías, préstamos y FAQ.
+- Guía de capturas para documentación y estructura inicial en `public/docs/screenshots/`.
+- Limpieza de scripts y documentos legacy de migración/autenticación para reducir ruido técnico.
+- Mejora visual de `ViewItemModal` en inventario para mayor legibilidad y contraste.
+- Ajuste de interacción en `Model3DViewer` con `pointerEvents` para mejorar el manejo del canvas.
+- Actualización de URL de demo del proyecto Blockchain.
+- Mejoras de estilo y UX en la página de investigadores.
+
+### **Versión 1.6.0 - Marzo 2026 (Anteayer)**
+
+- Migración operativa a datos mock para desarrollo local: incorporación y normalización de datasets en `public/mocks/`.
+- Refactor de endpoints para consumir mocks en préstamos, ubicaciones de mapa, inventario, proyectos e investigadores.
+- Refactor de autenticación para modo mock y compatibilidad con flujo existente en la UI.
+- Incorporación de nuevas visualizaciones de proyecto: `AirQualityViewer`, `BlockchainViewer` y `TechLabPlatformViewer`.
+- Mejoras en perfiles de investigadores: detalle de proyectos vinculados y filtros más útiles.
+- Añadido contacto por WhatsApp y mejoras de filtrado en investigadores.
+- Soporte de estado `broken` en inventario con ajustes en componentes relacionados.
+- Enlaces dinámicos de tecnologías en home usando datos reales del hook de tecnologías.
 
 ### **Versión 1.5.1 - Enero 2026**
 
@@ -719,7 +732,7 @@ copies or substantial portions of the Software.
 
 ## 🔮 Roadmap Futuro
 
-### **Versión 1.6 (Próximo)**
+### **Versión 1.7 (Próximo)**
 
 - [ ] 📊 **Dashboard mejorado** con gráficos de estadísticas
 - [ ] 🔔 **Sistema de notificaciones** en tiempo real
@@ -754,7 +767,7 @@ copies or substantial portions of the Software.
 - **Next.js Team** - Framework que hace posible esto
 - **Tailwind CSS** - Sistema de diseño increíble
 - **Three.js Community** - Gráficos 3D fantásticos
-- **Supabase** - Backend moderno y escalable
+- **Nextra** - Sistema de documentación integrado
 - Todos los **contribuidores y usuarios** que han reportado bugs y sugerencias
 
 ---
@@ -776,6 +789,6 @@ copies or substantial portions of the Software.
 
 **Hecho con ❤️ para la comunidad tecnológica de la UNI**
 
-Última actualización: Diciembre 2025
+Última actualización: Marzo 2026
 
 </div>
