@@ -248,10 +248,7 @@ export default function ProjectDetailPage() {
               project.id === '4104a0b2-24ea-45b6-8b56-b0ef7ead7539' ||
               project.id === '00000000-0000-0000-0000-000000000007' ||
               project.title.toLowerCase().includes('conteo de personas') ||
-              project.title.toLowerCase().includes('cuenta personas') ||
-              project.title.toLowerCase().includes('personas') ||
-              project.category === 'IA & Visión Artificial' ||
-              project.category.toLowerCase().includes('computer vision')
+              project.title.toLowerCase().includes('cuenta personas')
             ) && (
                 <div className="bg-theme-card rounded-xl p-6 border border-theme-border">
                   <h2 className="text-xl font-bold text-theme-text mb-4 flex items-center gap-2">
