@@ -6,7 +6,7 @@
 
 **Plataforma moderna para la gestión integral del Laboratorio Tecnológico OTI UNI**
 
-[🌐 Características](#-características) | [🛠️ Instalación](#-instalación) | [📁 Estructura](#-estructura-del-proyecto) | [🚀 Roadmap](#-roadmap-futuro)
+[🌐 Características](#-características) | [🛠️ Instalación](#-instalación) | [🐳 Docker](#-docker) | [📁 Estructura](#-estructura-del-proyecto) | [🚀 Roadmap](#-roadmap-futuro)
 
 </div>
 
@@ -377,6 +377,7 @@ tech-lab/
 - Node.js 18+ ([nodejs.org](https://nodejs.org/))
 - npm o yarn
 - Git
+- Docker + Docker Compose (opcional)
 - Cuenta de Supabase (opcional, solo para escenarios avanzados)
 
 ### **1. Clonar el Repositorio**
@@ -450,6 +451,47 @@ npm start               # Iniciar servidor de producción
 
 # Linting y Tipado
 npm run lint            # Ejecutar ESLint
+```
+
+---
+
+## 🐳 Docker
+
+El proyecto incluye:
+
+- `Dockerfile` multi-stage para imagen de producción optimizada
+- `.dockerignore` para reducir contexto de build
+- `docker-compose.yml` con servicio de producción y perfil de desarrollo
+
+### **Producción con Docker Compose**
+
+```bash
+docker compose up --build -d app
+```
+
+Detener:
+
+```bash
+docker compose down
+```
+
+### **Desarrollo con Docker Compose (perfil `dev`)**
+
+```bash
+docker compose --profile dev up --build app-dev
+```
+
+### **Build y ejecución manual con Docker**
+
+```bash
+docker build -t tech-lab:latest .
+docker run --rm -p 3000:3000 --name tech-lab tech-lab:latest
+```
+
+La app quedará disponible en:
+
+```text
+http://localhost:3000
 ```
 
 ---
@@ -751,7 +793,7 @@ copies or substantial portions of the Software.
 - [ ] 🤖 **Chatbot IA** para soporte técnico
 - [ ] 📦 **API REST** completa documentada
 - [ ] 🧪 **Testing** automatizado (Jest, Cypress)
-- [ ] 🐳 **Dockerización** y CI/CD pipeline
+- [x] 🐳 **Dockerización** (imagen de producción y compose)
 - [ ] 📝 **Sistema de reservas** avanzado
 - [ ] 🎨 **Editor de simulaciones 3D** personalizable
 - [ ] 🌍 **Internacionalización** (i18n)

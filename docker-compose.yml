@@ -1,0 +1,42 @@
+services:
+  app:
+    image: eduardo2626/techlab-frontend:latest
+    profiles:
+      - prod
+    container_name: tech-lab-app
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      NEXT_TELEMETRY_DISABLED: "1"
+    restart: unless-stopped
+
+  app-local:
+    profiles:
+      - local
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tech-lab-app-local
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      NEXT_TELEMETRY_DISABLED: "1"
+    restart: unless-stopped
+
+  app-dev:
+    profiles:
+      - dev
+    image: node:20-alpine
+    container_name: tech-lab-dev
+    working_dir: /app
+    command: sh -c "npm ci && npm run dev -- -H 0.0.0.0 -p 3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      NEXT_TELEMETRY_DISABLED: "1"
