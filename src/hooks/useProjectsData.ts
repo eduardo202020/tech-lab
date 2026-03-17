@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-export interface SupabaseProject {
+export interface ProjectRecord {
   id: string;
   title: string;
   description: string;
@@ -44,21 +44,21 @@ export interface SupabaseProject {
 }
 
 interface ProjectFilters {
-  status?: SupabaseProject['status'];
+  status?: ProjectRecord['status'];
   category?: string;
-  priority?: SupabaseProject['priority'];
+  priority?: ProjectRecord['priority'];
   technology?: string;
   search?: string;
 }
 
-interface UseSupabaseProjectsOptions {
+interface UseProjectRecordsOptions {
   /** Si true, el hook hará una carga inicial al montar (con guard para StrictMode). */
   autoFetch?: boolean;
 }
 
-export function useSupabaseProjects(options?: UseSupabaseProjectsOptions) {
+export function useProjectsData(options?: UseProjectRecordsOptions) {
   const autoFetch = options?.autoFetch ?? true;
-  const [projects, setProjects] = useState<SupabaseProject[]>([]);
+  const [projects, setProjects] = useState<ProjectRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const hasAutoFetched = useRef(false);
@@ -72,7 +72,7 @@ export function useSupabaseProjects(options?: UseSupabaseProjectsOptions) {
       const res = await fetch('/api/projects');
       if (!res.ok) throw new Error('No se pudo cargar proyectos desde PostgreSQL');
       const json = await res.json();
-      setProjects((json.projects || []) as SupabaseProject[]);
+      setProjects((json.projects || []) as ProjectRecord[]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
       console.error('Error fetching projects:', err);
@@ -83,7 +83,7 @@ export function useSupabaseProjects(options?: UseSupabaseProjectsOptions) {
 
   // Obtener proyecto por ID desde el estado local
   const getProject = useCallback(
-    (id: string): SupabaseProject | null => {
+    (id: string): ProjectRecord | null => {
       return projects.find((project) => project.id === id) || null;
     },
     [projects]
@@ -91,7 +91,7 @@ export function useSupabaseProjects(options?: UseSupabaseProjectsOptions) {
 
   // Filtrar proyectos según filtros
   const filterProjects = useCallback(
-    (filters: ProjectFilters): SupabaseProject[] => {
+    (filters: ProjectFilters): ProjectRecord[] => {
       return projects.filter((project) => {
         if (filters.status && project.status !== filters.status) return false;
         if (filters.category && project.category !== filters.category) return false;
@@ -117,7 +117,7 @@ export function useSupabaseProjects(options?: UseSupabaseProjectsOptions) {
 
   // Obtener proyectos por tecnología
   const getProjectsByTechnology = useCallback(
-    (technologyId: string): SupabaseProject[] => {
+    (technologyId: string): ProjectRecord[] => {
       return projects.filter((project) =>
         project.related_technology_ids.includes(technologyId)
       );
@@ -128,8 +128,8 @@ export function useSupabaseProjects(options?: UseSupabaseProjectsOptions) {
   // Crear proyecto
   const createProject = useCallback(
     async (
-      projectData: Omit<SupabaseProject, 'id' | 'created_at' | 'updated_at'>
-    ): Promise<SupabaseProject | null> => {
+      projectData: Omit<ProjectRecord, 'id' | 'created_at' | 'updated_at'>
+    ): Promise<ProjectRecord | null> => {
       try {
         const res = await fetch('/api/projects', {
           method: 'POST',
@@ -142,7 +142,7 @@ export function useSupabaseProjects(options?: UseSupabaseProjectsOptions) {
         }
 
         const json = await res.json();
-        const created = json.project as SupabaseProject;
+        const created = json.project as ProjectRecord;
         setProjects((prev) => [created, ...prev]);
         return created;
       } catch (err) {
@@ -156,7 +156,7 @@ export function useSupabaseProjects(options?: UseSupabaseProjectsOptions) {
 
   // Actualizar proyecto
   const updateProject = useCallback(
-    async (id: string, updates: Partial<SupabaseProject>): Promise<boolean> => {
+    async (id: string, updates: Partial<ProjectRecord>): Promise<boolean> => {
       try {
         const res = await fetch('/api/projects', {
           method: 'PUT',
@@ -169,7 +169,7 @@ export function useSupabaseProjects(options?: UseSupabaseProjectsOptions) {
         }
 
         const json = await res.json();
-        const updated = json.project as SupabaseProject;
+        const updated = json.project as ProjectRecord;
         setProjects((prev) =>
           prev.map((project) => (project.id === id ? updated : project))
         );

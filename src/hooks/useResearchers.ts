@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-export interface SupabaseResearcher {
+export interface ResearcherRecord {
   id: string;
   user_id?: string;
   name: string;
@@ -59,20 +59,20 @@ export interface SupabaseResearcher {
 
 interface ResearcherFilters {
   department?: string;
-  status?: SupabaseResearcher['status'];
-  academic_level?: SupabaseResearcher['academic_level'];
+  status?: ResearcherRecord['status'];
+  academic_level?: ResearcherRecord['academic_level'];
   specialization?: string;
   search?: string;
 }
 
-interface UseSupabaseResearchersOptions {
+interface UseResearcherRecordsOptions {
   /** Si true, el hook hará una carga inicial al montar (con guard para StrictMode). */
   autoFetch?: boolean;
 }
 
-export function useSupabaseResearchers(options?: UseSupabaseResearchersOptions) {
+export function useResearchers(options?: UseResearcherRecordsOptions) {
   const autoFetch = options?.autoFetch ?? true;
-  const [researchers, setResearchers] = useState<SupabaseResearcher[]>([]);
+  const [researchers, setResearchers] = useState<ResearcherRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const hasAutoFetched = useRef(false);
@@ -87,7 +87,7 @@ export function useSupabaseResearchers(options?: UseSupabaseResearchersOptions) 
       if (!res.ok) throw new Error('No se pudo cargar investigadores desde PostgreSQL');
 
       const json = await res.json();
-      setResearchers((json.researchers || []) as SupabaseResearcher[]);
+      setResearchers((json.researchers || []) as ResearcherRecord[]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
       console.error('Error fetching researchers:', err);
@@ -97,12 +97,12 @@ export function useSupabaseResearchers(options?: UseSupabaseResearchersOptions) 
   }, []);
 
   // Obtener investigador por ID
-  const getResearcher = useCallback(async (id: string): Promise<SupabaseResearcher | null> => {
+  const getResearcher = useCallback(async (id: string): Promise<ResearcherRecord | null> => {
     return researchers.find((researcher) => researcher.id === id) || null;
   }, [researchers]);
 
   // Filtrar investigadores
-  const filterResearchers = useCallback((filters: ResearcherFilters): SupabaseResearcher[] => {
+  const filterResearchers = useCallback((filters: ResearcherFilters): ResearcherRecord[] => {
     return researchers.filter(researcher => {
       if (filters.department && researcher.department !== filters.department) return false;
       if (filters.status && researcher.status !== filters.status) return false;
@@ -123,7 +123,7 @@ export function useSupabaseResearchers(options?: UseSupabaseResearchersOptions) 
   }, [researchers]);
 
   // Obtener investigadores por proyecto
-  const getResearchersByProject = useCallback(async (projectId: string): Promise<SupabaseResearcher[]> => {
+  const getResearchersByProject = useCallback(async (projectId: string): Promise<ResearcherRecord[]> => {
     return researchers.filter(
       (researcher) =>
         researcher.current_projects?.some((project) => project.id === projectId) ||
@@ -133,8 +133,8 @@ export function useSupabaseResearchers(options?: UseSupabaseResearchersOptions) 
 
   // Crear investigador
   const createResearcher = useCallback(async (
-    researcherData: Omit<SupabaseResearcher, 'id' | 'created_at' | 'updated_at' | 'current_projects' | 'past_projects'>
-  ): Promise<SupabaseResearcher | null> => {
+    researcherData: Omit<ResearcherRecord, 'id' | 'created_at' | 'updated_at' | 'current_projects' | 'past_projects'>
+  ): Promise<ResearcherRecord | null> => {
     try {
       const res = await fetch('/api/researchers', {
         method: 'POST',
@@ -147,7 +147,7 @@ export function useSupabaseResearchers(options?: UseSupabaseResearchersOptions) 
       }
 
       const json = await res.json();
-      const created = json.researcher as SupabaseResearcher;
+      const created = json.researcher as ResearcherRecord;
       setResearchers((prev) => [created, ...prev]);
       return created;
     } catch (err) {
@@ -160,7 +160,7 @@ export function useSupabaseResearchers(options?: UseSupabaseResearchersOptions) 
   // Actualizar investigador
   const updateResearcher = useCallback(async (
     id: string,
-    updates: Partial<SupabaseResearcher>
+    updates: Partial<ResearcherRecord>
   ): Promise<boolean> => {
     try {
       const res = await fetch('/api/researchers', {
@@ -174,7 +174,7 @@ export function useSupabaseResearchers(options?: UseSupabaseResearchersOptions) 
       }
 
       const json = await res.json();
-      const updated = json.researcher as SupabaseResearcher;
+      const updated = json.researcher as ResearcherRecord;
       setResearchers((prev) =>
         prev.map((researcher) => (researcher.id === id ? updated : researcher))
       );

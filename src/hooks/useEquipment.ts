@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-export interface SupabaseEquipment {
+export interface EquipmentRecord {
   id: string;
   name: string;
   description?: string;
@@ -26,20 +26,20 @@ export interface SupabaseEquipment {
 }
 
 export interface EquipmentFilters {
-  condition?: SupabaseEquipment['condition'];
+  condition?: EquipmentRecord['condition'];
   category?: string;
   location?: string;
   available_only?: boolean;
 }
 
-interface UseSupabaseEquipmentOptions {
+interface UseEquipmentRecordOptions {
   /** Si true, el hook hará una carga inicial al montar (con guard para StrictMode). */
   autoFetch?: boolean;
 }
 
-export function useSupabaseEquipment(options?: UseSupabaseEquipmentOptions) {
+export function useEquipment(options?: UseEquipmentRecordOptions) {
   const autoFetch = options?.autoFetch ?? true;
-  const [equipment, setEquipment] = useState<SupabaseEquipment[]>([]);
+  const [equipment, setEquipment] = useState<EquipmentRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const hasAutoFetched = useRef(false);
@@ -61,7 +61,7 @@ export function useSupabaseEquipment(options?: UseSupabaseEquipmentOptions) {
       if (!res.ok) throw new Error('No se pudo cargar equipos desde PostgreSQL');
 
       const json = await res.json();
-      setEquipment((json.equipment || []) as SupabaseEquipment[]);
+      setEquipment((json.equipment || []) as EquipmentRecord[]);
     } catch (err) {
       console.error('Error in fetchEquipment:', err);
       setError(err instanceof Error ? err.message : 'Error desconocido');
@@ -72,7 +72,7 @@ export function useSupabaseEquipment(options?: UseSupabaseEquipmentOptions) {
 
   // Obtener equipo por ID
   const getEquipmentById = useCallback(
-    async (id: string): Promise<SupabaseEquipment | null> => {
+    async (id: string): Promise<EquipmentRecord | null> => {
       try {
         return equipment.find((item) => item.id === id) || null;
       } catch (err) {
@@ -86,8 +86,8 @@ export function useSupabaseEquipment(options?: UseSupabaseEquipmentOptions) {
   // Crear nuevo equipo
   const createEquipment = useCallback(
     async (
-      equipmentData: Omit<SupabaseEquipment, 'id' | 'created_at' | 'updated_at'>
-    ): Promise<SupabaseEquipment | null> => {
+      equipmentData: Omit<EquipmentRecord, 'id' | 'created_at' | 'updated_at'>
+    ): Promise<EquipmentRecord | null> => {
       try {
         const res = await fetch('/api/equipment', {
           method: 'POST',
@@ -100,7 +100,7 @@ export function useSupabaseEquipment(options?: UseSupabaseEquipmentOptions) {
         }
 
         const json = await res.json();
-        const created = json.equipment as SupabaseEquipment;
+        const created = json.equipment as EquipmentRecord;
         setEquipment((prev) => [created, ...prev]);
         return created;
       } catch (err) {
@@ -116,8 +116,8 @@ export function useSupabaseEquipment(options?: UseSupabaseEquipmentOptions) {
   const updateEquipment = useCallback(
     async (
       id: string,
-      updates: Partial<Omit<SupabaseEquipment, 'id' | 'created_at'>>
-    ): Promise<SupabaseEquipment | null> => {
+      updates: Partial<Omit<EquipmentRecord, 'id' | 'created_at'>>
+    ): Promise<EquipmentRecord | null> => {
       try {
         const res = await fetch('/api/equipment', {
           method: 'PUT',
@@ -130,7 +130,7 @@ export function useSupabaseEquipment(options?: UseSupabaseEquipmentOptions) {
         }
 
         const json = await res.json();
-        const updated = json.equipment as SupabaseEquipment;
+        const updated = json.equipment as EquipmentRecord;
 
         setEquipment((prev) =>
           prev.map((item) => (item.id === id ? updated : item))
