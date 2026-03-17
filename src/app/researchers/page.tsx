@@ -16,20 +16,20 @@ import {
   MessageCircle,
 } from 'lucide-react';
 import Image from 'next/image';
-import { useAuth as useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
-import { useSupabaseResearchers } from '@/hooks/useSupabaseResearchers';
+import { useAuth as useAuthSession } from '@/contexts/SessionAuthContext';
+import { useResearchers } from '@/hooks/useResearchers';
 
-// Usar la interfaz de Supabase directamente
-import type { SupabaseResearcher } from '@/hooks/useSupabaseResearchers';
+// Usar la interfaz del registro de investigadores
+import type { ResearcherRecord } from '@/hooks/useResearchers';
 
-type Researcher = SupabaseResearcher;
+type Researcher = ResearcherRecord;
 import { useProjects } from '@/contexts/ProjectContext';
 import Header from '@/components/Header';
 import Modal from '@/components/Modal';
 import { useRef } from 'react';
 
 export default function ResearchersPage() {
-  const { user: sbUser, profile } = useSupabaseAuth();
+  const { user: sbUser, profile } = useAuthSession();
   const isAuthenticated = !!sbUser;
   const user = { role: profile?.role } as { role?: string };
   const {
@@ -40,7 +40,7 @@ export default function ResearchersPage() {
     filterResearchers,
     loading: isLoading,
     fetchResearchers,
-  } = useSupabaseResearchers({ autoFetch: false });
+  } = useResearchers({ autoFetch: false });
 
   // Función de búsqueda simulada
   const searchResearchers = useCallback(

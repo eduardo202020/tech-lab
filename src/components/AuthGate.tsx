@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/SupabaseAuthContext';
+import { useAuth } from '@/contexts/SessionAuthContext';
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
   const { loading } = useAuth();

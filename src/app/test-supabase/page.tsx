@@ -1,26 +1,26 @@
 'use client';
 
-import { useSupabaseProjects } from '@/hooks/useSupabaseProjects';
-import { useSupabaseResearchers } from '@/hooks/useSupabaseResearchers';
+import { useProjectsData } from '@/hooks/useProjectsData';
+import { useResearchers } from '@/hooks/useResearchers';
 
-export default function SupabaseTest() {
+export default function DatabaseTestPage() {
   const {
     projects,
     loading: projectsLoading,
     error: projectsError,
-  } = useSupabaseProjects();
+  } = useProjectsData();
   const {
     researchers,
     loading: researchersLoading,
     error: researchersError,
-  } = useSupabaseResearchers();
+  } = useResearchers();
 
   if (projectsLoading || researchersLoading) {
     return (
       <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-white mx-auto"></div>
-          <p className="mt-4 text-xl">Conectando con Supabase...</p>
+          <p className="mt-4 text-xl">Conectando con PostgreSQL...</p>
         </div>
       </div>
     );
@@ -43,7 +43,7 @@ export default function SupabaseTest() {
     <div className="min-h-screen bg-gray-900 text-white p-8">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold text-center mb-8 text-green-400">
-          🎉 ¡Supabase Conectado Exitosamente!
+          🎉 ¡PostgreSQL Conectado Exitosamente!
         </h1>
 
         {/* Estadísticas */}
@@ -82,11 +82,10 @@ export default function SupabaseTest() {
                 </p>
                 <div className="flex justify-between items-center">
                   <span
-                    className={`px-2 py-1 rounded text-xs ${
-                      project.status === 'active'
+                    className={`px-2 py-1 rounded text-xs ${project.status === 'active'
                         ? 'bg-green-600'
                         : 'bg-yellow-600'
-                    }`}
+                      }`}
                   >
                     {project.status}
                   </span>
@@ -132,7 +131,7 @@ export default function SupabaseTest() {
 
         <div className="text-center mt-8">
           <p className="text-gray-400">
-            ✅ Base de datos Supabase funcionando correctamente
+            ✅ Base de datos PostgreSQL funcionando correctamente
           </p>
           <p className="text-gray-500 text-sm mt-2">
             Datos cargados desde PostgreSQL en tiempo real

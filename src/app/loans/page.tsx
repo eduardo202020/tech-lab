@@ -4,7 +4,7 @@ import Header from '@/components/Header';
 import LoansCalendar from '@/components/LoansCalendar';
 import Footer from '@/components/Footer';
 import { useState } from 'react';
-import { useAuth as useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+import { useAuth as useAuthSession } from '@/contexts/SessionAuthContext';
 
 interface Loan {
   id: string;
@@ -74,7 +74,7 @@ const loansData: Loan[] = [
 ];
 
 export default function LoansPage() {
-  const { user: sbUser, profile } = useSupabaseAuth();
+  const { user: sbUser, profile } = useAuthSession();
   const isAuthenticated = !!sbUser;
   const user = { role: profile?.role } as { role?: string };
   const [statusFilter, setStatusFilter] = useState('Todos');

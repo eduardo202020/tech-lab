@@ -1,5 +1,4 @@
 "use client";
-"use client";
 
 import React, { useEffect, useState } from 'react';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
@@ -9,8 +8,8 @@ import startOfWeek from 'date-fns/startOfWeek';
 import getDay from 'date-fns/getDay';
 import enUS from 'date-fns/locale/en-US';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { useAuth as useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
-import { useSupabaseEquipment, SupabaseEquipment } from '@/hooks/useSupabaseEquipment';
+import { useAuth as useAuthSession } from '@/contexts/SessionAuthContext';
+import { useEquipment, EquipmentRecord } from '@/hooks/useEquipment';
 import Modal from '@/components/Modal';
 
 type LoanEvent = {
@@ -33,7 +32,7 @@ type Loan = {
   [key: string]: unknown;
 };
 
-// reuse SupabaseEquipment type from hook
+// reuse EquipmentRecord type from hook
 
 const locales = {
   'en-US': enUS,
@@ -44,8 +43,8 @@ const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales
 export default function LoansCalendar({ onSelectEvent }: { onSelectEvent?: (event: LoanEvent) => void }) {
   const [events, setEvents] = useState<LoanEvent[]>([]);
   const [loading, setLoading] = useState(false);
-  const { user: sbUser, profile } = useSupabaseAuth();
-  const { equipment } = useSupabaseEquipment();
+  const { user: sbUser, profile } = useAuthSession();
+  const { equipment } = useEquipment();
   const [loansList, setLoansList] = useState<Loan[]>([]);
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -268,7 +267,7 @@ export default function LoansCalendar({ onSelectEvent }: { onSelectEvent?: (even
             <tbody className="divide-y divide-theme-border bg-theme-card">
               {loansList.map((l) => (
                 <tr key={l.id} className="hover:bg-theme-bg">
-                  <td className="px-4 py-3 text-sm text-theme-text">{l.item_name || (equipment.find((eq: SupabaseEquipment) => eq.id === l.item_id)?.name) || '—'}</td>
+                  <td className="px-4 py-3 text-sm text-theme-text">{l.item_name || (equipment.find((eq: EquipmentRecord) => eq.id === l.item_id)?.name) || '—'}</td>
                   <td className="px-4 py-3 text-sm text-theme-text">
                     {l.borrower_name || l.user_name ? (
                       <button
@@ -309,7 +308,7 @@ export default function LoansCalendar({ onSelectEvent }: { onSelectEvent?: (even
               className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg text-theme-text"
             >
               <option value="">Selecciona un equipo</option>
-              {equipment.map((eq: SupabaseEquipment) => (
+              {equipment.map((eq: EquipmentRecord) => (
                 <option key={eq.id} value={eq.id}>{eq.name}</option>
               ))}
             </select>
@@ -358,7 +357,7 @@ export default function LoansCalendar({ onSelectEvent }: { onSelectEvent?: (even
           <div className="text-sm text-theme-secondary space-y-2 mb-4">
             <div>
               <div className="text-xs text-theme-secondary">Equipo</div>
-              <div className="text-theme-text">{selectedLoan.item_name || (equipment.find((eq: SupabaseEquipment) => eq.id === selectedLoan.item_id)?.name) || '—'}</div>
+              <div className="text-theme-text">{selectedLoan.item_name || (equipment.find((eq: EquipmentRecord) => eq.id === selectedLoan.item_id)?.name) || '—'}</div>
             </div>
             <div>
               <div className="text-xs text-theme-secondary">Usuario</div>

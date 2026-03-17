@@ -1,10 +1,10 @@
 'use client';
 
-// Archivo de compatibilidad que mapea el contexto legacy con Supabase
+// Archivo de compatibilidad que mapea el contexto legacy con auth de sesión
 import {
-  useAuth as useSupabaseAuth,
+  useAuth as useAuthSession,
   UserProfile,
-} from '@/contexts/SupabaseAuthContext';
+} from '@/contexts/SessionAuthContext';
 
 interface User {
   id: string;
@@ -41,12 +41,12 @@ const convertProfileToUser = (profile: UserProfile | null): User | null => {
 // Hook de compatibilidad
 export const useAuth = (): AuthContextType => {
   const {
-    user: supabaseUser,
+    user: authUser,
     profile,
     signInWithEmail,
     signOut,
     loading,
-  } = useSupabaseAuth();
+  } = useAuthSession();
 
   // Simulación de redirect path (localStorage)
   const setRedirectPath = (path: string) => {
@@ -61,7 +61,7 @@ export const useAuth = (): AuthContextType => {
     localStorage.removeItem('redirectPath');
   };
 
-  // Función de login legacy que usa Supabase
+  // Función de login legacy sobre auth de sesión
   const login = async (
     username: string,
     password: string
@@ -82,7 +82,7 @@ export const useAuth = (): AuthContextType => {
     login,
     logout,
     isLoading: loading,
-    isAuthenticated: !!supabaseUser && !!profile,
+    isAuthenticated: !!authUser && !!profile,
     setRedirectPath,
     getRedirectPath,
     clearRedirectPath,

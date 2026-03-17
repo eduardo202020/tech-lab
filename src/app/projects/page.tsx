@@ -18,7 +18,7 @@ import {
   Pause,
   Play,
 } from 'lucide-react';
-import { useAuth as useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+import { useAuth as useAuthSession } from '@/contexts/SessionAuthContext';
 import { useProjects, TechProject } from '@/contexts/ProjectContext';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import Header from '@/components/Header';
@@ -26,7 +26,7 @@ import { AddProjectModal, ViewProjectModal } from '@/components/ProjectModals';
 import { useRef } from 'react';
 
 export default function ProjectsPage() {
-  const { user: sbUser, profile } = useSupabaseAuth();
+  const { user: sbUser, profile } = useAuthSession();
   const isAuthenticated = !!sbUser;
   const user = { role: profile?.role } as { role?: string };
   const { redirectToLogin } = useAuthRedirect();

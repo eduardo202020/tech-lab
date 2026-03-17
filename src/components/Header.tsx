@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { LogOut, User, Shield, GraduationCap, Search, Eye, Menu, X } from 'lucide-react';
-import { useAuth } from '@/contexts/SupabaseAuthContext';
+import { useAuth } from '@/contexts/SessionAuthContext';
 import ThemeToggle from './ThemeToggle';
 import { useState } from 'react';
 

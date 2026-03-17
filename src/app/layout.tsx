@@ -8,7 +8,7 @@ import {
 } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/contexts/ThemeContext';
-import { AuthProvider as SupabaseAuthProvider } from '@/contexts/SupabaseAuthContext';
+import { AuthProvider as SessionAuthProvider } from '@/contexts/SessionAuthContext';
 import { InventoryProvider } from '@/contexts/InventoryContext';
 import { ProjectProvider } from '@/contexts/ProjectContext';
 import { ResearcherProvider } from '@/contexts/ResearcherContext';
@@ -85,7 +85,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} ${roboto.variable} ${poppins.variable} antialiased`}
       >
         <ThemeProvider>
-          <SupabaseAuthProvider>
+          <SessionAuthProvider>
             <AuthGate>
               <InventoryProvider>
                 <ProjectProvider>
@@ -93,7 +93,7 @@ export default function RootLayout({
                 </ProjectProvider>
               </InventoryProvider>
             </AuthGate>
-          </SupabaseAuthProvider>
+          </SessionAuthProvider>
         </ThemeProvider>
       </body>
     </html>

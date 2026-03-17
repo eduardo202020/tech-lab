@@ -12,11 +12,11 @@ import {
   Clock,
   Wrench,
 } from 'lucide-react';
-import { useAuth as useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+import { useAuth as useAuthSession } from '@/contexts/SessionAuthContext';
 import {
-  useSupabaseEquipment,
-  SupabaseEquipment,
-} from '@/hooks/useSupabaseEquipment';
+  useEquipment,
+  EquipmentRecord,
+} from '@/hooks/useEquipment';
 import { useRef } from 'react';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import Header from '@/components/Header';
@@ -24,7 +24,7 @@ import useDebounce from '@/hooks/useDebounce';
 import SearchBar from '@/components/SearchBar';
 
 export default function InventoryPage() {
-  const { user: sbUser, profile } = useSupabaseAuth();
+  const { user: sbUser, profile } = useAuthSession();
   const isAuthenticated = !!sbUser;
   const user = { role: profile?.role } as { role?: string };
   const { redirectToLogin } = useAuthRedirect();
@@ -35,31 +35,31 @@ export default function InventoryPage() {
     deleteEquipment: deleteItem,
     loading: isLoading,
     fetchEquipment,
-  } = useSupabaseEquipment({ autoFetch: false });
+  } = useEquipment({ autoFetch: false });
 
   // Estados del componente
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedCondition, setSelectedCondition] = useState<
-    SupabaseEquipment['condition'] | ''
+    EquipmentRecord['condition'] | ''
   >('');
   const [locationQuery, setLocationQuery] = useState('');
   const [availableOnly, setAvailableOnly] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<SupabaseEquipment | null>(
+  const [selectedItem, setSelectedItem] = useState<EquipmentRecord | null>(
     null
   );
   const [filteredItems, setFilteredItems] =
-    useState<SupabaseEquipment[]>(items);
+    useState<EquipmentRecord[]>(items);
   const [currentPage, setCurrentPage] = useState(1);
   const lastFetchKey = useRef<string | null>(null);
   const ITEMS_PER_PAGE = 9;
   const MAX_VISIBLE_PAGES = 5;
 
   // Funciones auxiliares para filtros
-  const filterByCondition = (condition: SupabaseEquipment['condition']) => {
+  const filterByCondition = (condition: EquipmentRecord['condition']) => {
     return items.filter((item) => item.condition === condition);
   };
 
@@ -134,7 +134,7 @@ export default function InventoryPage() {
 
   // Datos para filtros
   const categories = [...new Set(items.map((item) => item.category))];
-  const conditions: SupabaseEquipment['condition'][] = [
+  const conditions: EquipmentRecord['condition'][] = [
     'excellent',
     'good',
     'fair',
@@ -146,7 +146,7 @@ export default function InventoryPage() {
   const isAdmin = isAuthenticated && user?.role === 'admin';
 
   // Funciones para íconos y colores según condición
-  const getConditionIcon = (condition: SupabaseEquipment['condition']) => {
+  const getConditionIcon = (condition: EquipmentRecord['condition']) => {
     switch (condition) {
       case 'excellent':
         return <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-500" />;
@@ -163,7 +163,7 @@ export default function InventoryPage() {
     }
   };
 
-  const getConditionColor = (condition: SupabaseEquipment['condition']) => {
+  const getConditionColor = (condition: EquipmentRecord['condition']) => {
     switch (condition) {
       case 'excellent':
         return 'bg-green-100 text-green-700 border-green-300 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20';
@@ -191,7 +191,7 @@ export default function InventoryPage() {
 
   // Función para agregar nuevo equipo
   const handleAddItem = async (
-    formData: Omit<SupabaseEquipment, 'id' | 'created_at' | 'updated_at'>
+    formData: Omit<EquipmentRecord, 'id' | 'created_at' | 'updated_at'>
   ) => {
     await addItem(formData);
     setShowAddModal(false);
@@ -199,7 +199,7 @@ export default function InventoryPage() {
 
   // Función para editar equipo
   const handleEditItem = async (
-    formData: Omit<SupabaseEquipment, 'id' | 'created_at' | 'updated_at'>
+    formData: Omit<EquipmentRecord, 'id' | 'created_at' | 'updated_at'>
   ) => {
     if (!selectedItem) return;
     await updateItem(selectedItem.id, formData);
@@ -290,7 +290,7 @@ export default function InventoryPage() {
                 value={selectedCondition}
                 onChange={(e) =>
                   setSelectedCondition(
-                    e.target.value as SupabaseEquipment['condition'] | ''
+                    e.target.value as EquipmentRecord['condition'] | ''
                   )
                 }
                 className="w-full sm:w-auto px-4 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
@@ -578,7 +578,7 @@ function ViewItemModal({
   item,
   onClose,
 }: {
-  item: SupabaseEquipment;
+  item: EquipmentRecord;
   onClose: () => void;
 }) {
   const parseSpecifications = () => {
@@ -622,7 +622,7 @@ function ViewItemModal({
 
   const specificationsView = parseSpecifications();
 
-  const getConditionIcon = (condition: SupabaseEquipment['condition']) => {
+  const getConditionIcon = (condition: EquipmentRecord['condition']) => {
     switch (condition) {
       case 'excellent':
         return <CheckCircle className="w-4 h-4 text-green-500" />;
@@ -834,7 +834,7 @@ function AddItemModal({
   onClose,
 }: {
   onAdd: (
-    item: Omit<SupabaseEquipment, 'id' | 'created_at' | 'updated_at'>
+    item: Omit<EquipmentRecord, 'id' | 'created_at' | 'updated_at'>
   ) => void;
   onClose: () => void;
 }) {
@@ -844,7 +844,7 @@ function AddItemModal({
     description: '',
     quantity: 1,
     available_quantity: 1,
-    condition: 'good' as SupabaseEquipment['condition'],
+    condition: 'good' as EquipmentRecord['condition'],
     location: '',
     brand: '',
     model: '',
@@ -861,7 +861,7 @@ function AddItemModal({
     e.preventDefault();
 
     const equipmentData: Omit<
-      SupabaseEquipment,
+      EquipmentRecord,
       'id' | 'created_at' | 'updated_at'
     > = {
       name: formData.name,
@@ -1001,7 +1001,7 @@ function AddItemModal({
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    condition: e.target.value as SupabaseEquipment['condition'],
+                    condition: e.target.value as EquipmentRecord['condition'],
                   })
                 }
                 className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
@@ -1198,9 +1198,9 @@ function EditItemModal({
   onEdit,
   onClose,
 }: {
-  item: SupabaseEquipment;
+  item: EquipmentRecord;
   onEdit: (
-    item: Omit<SupabaseEquipment, 'id' | 'created_at' | 'updated_at'>
+    item: Omit<EquipmentRecord, 'id' | 'created_at' | 'updated_at'>
   ) => void;
   onClose: () => void;
 }) {
@@ -1230,7 +1230,7 @@ function EditItemModal({
     e.preventDefault();
 
     const equipmentData: Omit<
-      SupabaseEquipment,
+      EquipmentRecord,
       'id' | 'created_at' | 'updated_at'
     > = {
       name: formData.name,
@@ -1369,7 +1369,7 @@ function EditItemModal({
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    condition: e.target.value as SupabaseEquipment['condition'],
+                    condition: e.target.value as EquipmentRecord['condition'],
                   })
                 }
                 className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"

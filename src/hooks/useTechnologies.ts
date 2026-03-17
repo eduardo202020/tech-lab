@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useSupabaseProjects, SupabaseProject } from './useSupabaseProjects';
+import { useProjectsData, ProjectRecord } from './useProjectsData';
 
-export interface SupabaseTechnology {
+export interface TechnologyRecord {
   id: string;
   name: string;
   icon: string;
@@ -29,6 +29,10 @@ export interface SupabaseTechnology {
   }>;
   created_at: string;
   updated_at: string;
+}
+
+interface UseTechnologyRecordsOptions {
+  autoFetch?: boolean;
 }
 
 // Interfaz legacy para compatibilidad
@@ -68,71 +72,69 @@ export interface Technology {
   }[];
 }
 
-// Función para convertir datos de Supabase al formato legacy
-function convertSupabaseTechnologyToLegacy(
-  supabaseTech: SupabaseTechnology,
-  relatedProjects: SupabaseProject[]
+// Convierte el registro de API a estructura legacy usada por la UI
+function convertTechnologyRecordToLegacy(
+  technology: TechnologyRecord,
+  relatedProjects: ProjectRecord[]
 ): Technology {
   return {
-    id: supabaseTech.id,
-    name: supabaseTech.name,
-    icon: supabaseTech.icon,
-    gradient: supabaseTech.gradient,
-    primaryColor: supabaseTech.primary_color,
-    description: supabaseTech.description,
+    id: technology.id,
+    name: technology.name,
+    icon: technology.icon,
+    gradient: technology.gradient,
+    primaryColor: technology.primary_color,
+    description: technology.description,
     about: {
-      title: supabaseTech.about_title,
-      content: supabaseTech.about_content,
+      title: technology.about_title,
+      content: technology.about_content,
     },
     features: {
-      title: supabaseTech.features_title,
-      items: supabaseTech.features_items,
+      title: technology.features_title,
+      items: technology.features_items,
     },
-    projects: supabaseTech.example_projects,
+    projects: technology.example_projects,
     relatedProjects: relatedProjects.map((project) => ({
       id: project.id,
       title: project.title,
       status: project.status,
       progress: project.progress,
     })),
-    hasDirectLinks: supabaseTech.has_direct_links,
-    directLinks: supabaseTech.direct_links,
+    hasDirectLinks: technology.has_direct_links,
+    directLinks: technology.direct_links,
   };
 }
 
-export function useTechnologies() {
+export function useTechnologies(options?: UseTechnologyRecordsOptions) {
+  const autoFetch = options?.autoFetch ?? true;
   const [technologies, setTechnologies] = useState<Technology[]>([]);
+  const [technologyRecords, setTechnologyRecords] = useState<TechnologyRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { projects } = useSupabaseProjects();
+  const { projects } = useProjectsData();
 
   const loadTechnologies = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await fetch('/mocks/technologies.json');
+      const response = await fetch('/api/technologies');
       if (!response.ok) {
-        throw new Error('No se pudo cargar technologies.json');
+        throw new Error('No se pudo cargar tecnologías desde PostgreSQL');
       }
       const json = await response.json();
-      const technologiesData: SupabaseTechnology[] = (json.technologies || []).map(
-        (item: Record<string, unknown>) => ({
-          ...item,
-          example_projects: (item.projects as SupabaseTechnology['example_projects']) || [],
-        })
-      ) as SupabaseTechnology[];
+      const technologiesData = (json.technologies || []) as TechnologyRecord[];
+      setTechnologyRecords(technologiesData);
 
       // Convertir y enriquecer con proyectos relacionados
       const enrichedTechnologies = technologiesData.map(
-        (supabaseTech: SupabaseTechnology) => {
+        (technology: TechnologyRecord) => {
           // Encontrar proyectos relacionados por technology IDs
           const relatedProjects = projects.filter((project) =>
-            project.related_technology_ids?.includes(supabaseTech.id)
+            project.related_technology_ids?.includes(technology.id)
           );
 
-          return convertSupabaseTechnologyToLegacy(
-            supabaseTech,
+          return convertTechnologyRecordToLegacy(
+            technology,
             relatedProjects
           );
         }
@@ -148,8 +150,80 @@ export function useTechnologies() {
   }, [projects]);
 
   useEffect(() => {
+    if (!autoFetch) return;
     loadTechnologies();
-  }, [loadTechnologies]);
+  }, [autoFetch, loadTechnologies]);
+
+  const createTechnology = useCallback(
+    async (
+      technologyData: Omit<TechnologyRecord, 'id' | 'created_at' | 'updated_at'>
+    ): Promise<TechnologyRecord | null> => {
+      try {
+        const response = await fetch('/api/technologies', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(technologyData),
+        });
+
+        if (!response.ok) {
+          throw new Error('No se pudo crear tecnología en PostgreSQL');
+        }
+
+        const json = await response.json();
+        const created = json.technology as TechnologyRecord;
+        await loadTechnologies();
+        return created;
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error desconocido');
+        return null;
+      }
+    },
+    [loadTechnologies]
+  );
+
+  const updateTechnology = useCallback(
+    async (id: string, updates: Partial<TechnologyRecord>): Promise<boolean> => {
+      try {
+        const response = await fetch('/api/technologies', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, updates }),
+        });
+
+        if (!response.ok) {
+          throw new Error('No se pudo actualizar tecnología en PostgreSQL');
+        }
+
+        await loadTechnologies();
+        return true;
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error desconocido');
+        return false;
+      }
+    },
+    [loadTechnologies]
+  );
+
+  const deleteTechnology = useCallback(
+    async (id: string): Promise<boolean> => {
+      try {
+        const response = await fetch(`/api/technologies?id=${encodeURIComponent(id)}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          throw new Error('No se pudo eliminar tecnología en PostgreSQL');
+        }
+
+        await loadTechnologies();
+        return true;
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error desconocido');
+        return false;
+      }
+    },
+    [loadTechnologies]
+  );
 
   const getTechnology = useCallback(
     (id: string) => {
@@ -186,8 +260,12 @@ export function useTechnologies() {
 
   return {
     technologies,
+    technologyRecords,
     loading,
     error,
+    createTechnology,
+    updateTechnology,
+    deleteTechnology,
     getTechnology,
     getTechnologiesByProject,
     searchTechnologies,

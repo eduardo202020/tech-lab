@@ -2,9 +2,9 @@
 
 import React, { createContext, useContext, useCallback, useMemo } from 'react';
 import {
-  useSupabaseProjects,
-  SupabaseProject,
-} from '@/hooks/useSupabaseProjects';
+  useProjectsData,
+  ProjectRecord,
+} from '@/hooks/useProjectsData';
 
 // Interfaz legacy para mantener compatibilidad
 export interface TechProject {
@@ -55,42 +55,42 @@ interface ProjectContextType {
   refreshProjects: () => Promise<void>;
 }
 
-// Función para convertir SupabaseProject a TechProject
-function convertSupabaseProjectToLegacy(
-  supabaseProject: SupabaseProject
+// Función para convertir ProjectRecord a TechProject
+function convertProjectRecordToLegacy(
+  projectRecord: ProjectRecord
 ): TechProject {
   return {
-    id: supabaseProject.id,
-    title: supabaseProject.title,
-    description: supabaseProject.description,
-    category: supabaseProject.category,
-    technologies: supabaseProject.technologies,
-    relatedTechnologyIds: supabaseProject.related_technology_ids,
-    status: supabaseProject.status,
-    priority: supabaseProject.priority,
-    startDate: supabaseProject.start_date,
-    endDate: supabaseProject.end_date,
-    teamLead: supabaseProject.team_lead,
-    teamMembers: supabaseProject.team_members,
-    budget: supabaseProject.budget,
-    progress: supabaseProject.progress,
-    objectives: supabaseProject.objectives,
-    challenges: supabaseProject.challenges,
-    gallery: supabaseProject.gallery,
-    demoUrl: supabaseProject.demo_url,
-    repositoryUrl: supabaseProject.repository_url,
-    documentation: supabaseProject.documentation,
-    createdAt: supabaseProject.created_at,
-    updatedAt: supabaseProject.updated_at,
-    createdBy: supabaseProject.created_by || 'unknown',
+    id: projectRecord.id,
+    title: projectRecord.title,
+    description: projectRecord.description,
+    category: projectRecord.category,
+    technologies: projectRecord.technologies,
+    relatedTechnologyIds: projectRecord.related_technology_ids,
+    status: projectRecord.status,
+    priority: projectRecord.priority,
+    startDate: projectRecord.start_date,
+    endDate: projectRecord.end_date,
+    teamLead: projectRecord.team_lead,
+    teamMembers: projectRecord.team_members,
+    budget: projectRecord.budget,
+    progress: projectRecord.progress,
+    objectives: projectRecord.objectives,
+    challenges: projectRecord.challenges,
+    gallery: projectRecord.gallery,
+    demoUrl: projectRecord.demo_url,
+    repositoryUrl: projectRecord.repository_url,
+    documentation: projectRecord.documentation,
+    createdAt: projectRecord.created_at,
+    updatedAt: projectRecord.updated_at,
+    createdBy: projectRecord.created_by || 'unknown',
   };
 }
 
-// Función para convertir TechProject a datos para Supabase
-function convertLegacyProjectToSupabase(
+// Función para convertir TechProject a datos de almacenamiento
+function convertLegacyProjectToRecord(
   legacyProject: Omit<TechProject, 'id' | 'createdAt' | 'updatedAt'>
 ): Omit<
-  SupabaseProject,
+  ProjectRecord,
   'id' | 'created_at' | 'updated_at' | 'researchers' | 'related_technologies'
 > {
   return {
@@ -120,27 +120,27 @@ function convertLegacyProjectToSupabase(
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 export function ProjectProvider({ children }: { children: React.ReactNode }) {
   const {
-    projects: supabaseProjects,
+    projects: projectRecords,
     loading,
     error,
     createProject,
-    updateProject: updateSupabaseProject,
-    deleteProject: deleteSupabaseProject,
+    updateProject: updateProjectRecord,
+    deleteProject: deleteProjectRecord,
     fetchProjects,
-  } = useSupabaseProjects({ autoFetch: true });
+  } = useProjectsData({ autoFetch: true });
 
-  // Convertir proyectos de Supabase al formato legacy
+  // Convertir proyectos del API al formato legacy
   const projects = useMemo(() => {
-    return supabaseProjects.map(convertSupabaseProjectToLegacy);
-  }, [supabaseProjects]);
+    return projectRecords.map(convertProjectRecordToLegacy);
+  }, [projectRecords]);
 
   const addProject = useCallback(
     async (
       newProject: Omit<TechProject, 'id' | 'createdAt' | 'updatedAt'>
     ): Promise<boolean> => {
       try {
-        const supabaseData = convertLegacyProjectToSupabase(newProject);
-        const result = await createProject(supabaseData);
+        const projectData = convertLegacyProjectToRecord(newProject);
+        const result = await createProject(projectData);
         return result !== null;
       } catch (err) {
         console.error('Error adding project:', err);
@@ -153,57 +153,57 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
   const updateProject = useCallback(
     async (id: string, updates: Partial<TechProject>): Promise<boolean> => {
       try {
-        // Convertir updates al formato de Supabase
-        const supabaseUpdates: Partial<SupabaseProject> = {};
+        // Convertir updates al formato de almacenamiento
+        const projectUpdates: Partial<ProjectRecord> = {};
 
-        if (updates.title) supabaseUpdates.title = updates.title;
+        if (updates.title) projectUpdates.title = updates.title;
         if (updates.description)
-          supabaseUpdates.description = updates.description;
-        if (updates.category) supabaseUpdates.category = updates.category;
+          projectUpdates.description = updates.description;
+        if (updates.category) projectUpdates.category = updates.category;
         if (updates.technologies)
-          supabaseUpdates.technologies = updates.technologies;
+          projectUpdates.technologies = updates.technologies;
         if (updates.relatedTechnologyIds)
-          supabaseUpdates.related_technology_ids = updates.relatedTechnologyIds;
-        if (updates.status) supabaseUpdates.status = updates.status;
-        if (updates.priority) supabaseUpdates.priority = updates.priority;
-        if (updates.startDate) supabaseUpdates.start_date = updates.startDate;
-        if (updates.endDate) supabaseUpdates.end_date = updates.endDate;
-        if (updates.teamLead) supabaseUpdates.team_lead = updates.teamLead;
+          projectUpdates.related_technology_ids = updates.relatedTechnologyIds;
+        if (updates.status) projectUpdates.status = updates.status;
+        if (updates.priority) projectUpdates.priority = updates.priority;
+        if (updates.startDate) projectUpdates.start_date = updates.startDate;
+        if (updates.endDate) projectUpdates.end_date = updates.endDate;
+        if (updates.teamLead) projectUpdates.team_lead = updates.teamLead;
         if (updates.teamMembers)
-          supabaseUpdates.team_members = updates.teamMembers;
+          projectUpdates.team_members = updates.teamMembers;
         if (updates.budget !== undefined)
-          supabaseUpdates.budget = updates.budget;
+          projectUpdates.budget = updates.budget;
         if (updates.progress !== undefined)
-          supabaseUpdates.progress = updates.progress;
-        if (updates.objectives) supabaseUpdates.objectives = updates.objectives;
-        if (updates.challenges) supabaseUpdates.challenges = updates.challenges;
-        if (updates.gallery) supabaseUpdates.gallery = updates.gallery;
-        if (updates.demoUrl) supabaseUpdates.demo_url = updates.demoUrl;
+          projectUpdates.progress = updates.progress;
+        if (updates.objectives) projectUpdates.objectives = updates.objectives;
+        if (updates.challenges) projectUpdates.challenges = updates.challenges;
+        if (updates.gallery) projectUpdates.gallery = updates.gallery;
+        if (updates.demoUrl) projectUpdates.demo_url = updates.demoUrl;
         if (updates.repositoryUrl)
-          supabaseUpdates.repository_url = updates.repositoryUrl;
+          projectUpdates.repository_url = updates.repositoryUrl;
         if (updates.documentation)
-          supabaseUpdates.documentation = updates.documentation;
+          projectUpdates.documentation = updates.documentation;
 
-        const result = await updateSupabaseProject(id, supabaseUpdates);
+        const result = await updateProjectRecord(id, projectUpdates);
         return result !== null;
       } catch (err) {
         console.error('Error updating project:', err);
         return false;
       }
     },
-    [updateSupabaseProject]
+    [updateProjectRecord]
   );
 
   const deleteProject = useCallback(
     async (id: string): Promise<boolean> => {
       try {
-        return await deleteSupabaseProject(id);
+        return await deleteProjectRecord(id);
       } catch (err) {
         console.error('Error deleting project:', err);
         return false;
       }
     },
-    [deleteSupabaseProject]
+    [deleteProjectRecord]
   );
 
   const getProject = useCallback(
