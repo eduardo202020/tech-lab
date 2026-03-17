@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/postgres';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 
 export const runtime = 'nodejs';
 
@@ -28,9 +30,43 @@ const mapRow = (row: ProjectRecord) => ({
     updated_at: row.updated_at,
 });
 
+const readMockJson = async <T,>(fileName: string): Promise<T> => {
+    const filePath = path.join(process.cwd(), 'public', 'mocks', fileName);
+    const content = await readFile(filePath, 'utf-8');
+    return JSON.parse(content) as T;
+};
+
+const seedProjectsIfEmpty = async () => {
+    const countResult = await query<{ count: string }>('SELECT COUNT(*)::text AS count FROM techlab_projects');
+    const count = Number(countResult.rows[0]?.count || '0');
+    if (count > 0) return;
+
+    const now = new Date().toISOString();
+    const json = await readMockJson<{ projects?: Record<string, unknown>[] }>('projects.json');
+    const projects = json.projects || [];
+
+    for (const item of projects) {
+        const id = typeof item.id === 'string' && item.id ? item.id : crypto.randomUUID();
+        const payload = {
+            ...item,
+            id,
+            created_at: item.created_at || now,
+            updated_at: item.updated_at || now,
+        };
+
+        await query(
+            `INSERT INTO techlab_projects (id, payload, created_at, updated_at)
+             VALUES ($1, $2::jsonb, $3::timestamptz, $4::timestamptz)
+             ON CONFLICT (id) DO NOTHING`,
+            [id, JSON.stringify(payload), String(payload.created_at), String(payload.updated_at)]
+        );
+    }
+};
+
 export async function GET() {
     try {
         await ensureTable();
+        await seedProjectsIfEmpty();
 
         const result = await query<ProjectRecord>(
             `SELECT id, payload, created_at, updated_at
