@@ -395,7 +395,7 @@ npm install
 yarn install
 ```
 
-### **3. Configurar Variables de Entorno**
+### **3. Configurar Variables de Entorno (Opcional)**
 
 Crear archivo `.env.local` en la raíz del proyecto:
 
@@ -403,20 +403,91 @@ Crear archivo `.env.local` en la raíz del proyecto:
 # OAuth (Opcional, actualmente deshabilitado en modo mock)
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=xxxxxxxxxxxxxx
 NEXT_PUBLIC_GITHUB_CLIENT_ID=xxxxxxxxxxxxxx
+
+# PostgreSQL (Opcional - por defecto usa postgres local en Docker)
+# DATABASE_URL=postgres://usuario:contraseña@host:puerto/base_datos
 ```
 
-Nota: para levantar la app en entorno local con mocks no se requieren variables de entorno obligatorias.
+Nota: para levantar la app localmente **sin Docker**, no se requieren variables de entorno obligatorias (usa mocks automáticamente).
 
-### **4. Preparar Datos Locales (Mock)**
+### **4. Base de Datos - PostgreSQL**
+
+La app soporta dos modos:
+
+**Modo Local (Mocks - por defecto):**
+- Los datos vienen listos en `public/mocks/`
+- No requiere PostgreSQL instalado
+- Perfecto para desarrollo y pruebas rápidas
+
+**Modo PostgreSQL (recomendado para producción):**
+- Datastore persistente y confiable
+- Requiere variable `DATABASE_URL`
+- Docker Compose incluye PostgreSQL preconfigurado
+
+#### **Opción A: PostgreSQL Local en Docker Compose**
+
+El `docker-compose.yml` ya incluye PostgreSQL. Para usarlo:
 
 ```bash
-# Los datos vienen listos en:
-# public/mocks/equipos.json
-# public/mocks/investigadores.json
-# public/mocks/projects.json
-# public/mocks/technologies.json
-# public/mocks/usuarios.json
+# Levanta PostgreSQL + app-dev juntos
+docker compose --profile dev up postgres app-dev
+
+# O solo PostgreSQL si quieres correr la app en host
+docker compose up postgres
 ```
+
+Base de datos se crea automáticamente con:
+- **Usuario:** `techlab`
+- **Contraseña:** `techlab`
+- **DB:** `techlab`
+- **Puerto:** `5432`
+
+#### **Opción B: PostgreSQL Externo (Servidor Separate)**
+
+Si tu postgre está en un servidor diferente (proyecto más grande):
+
+```bash
+# En tu servidor de producción:
+DATABASE_URL="postgres://user:pass@tu-servidor.com:5432/techlab"
+
+# Luego levanta la app:
+docker compose up -d app
+
+# O en host local:
+npm run build
+npm start
+```
+
+La app automáticamente:
+- Crea tablas si no existen
+- No borra datos existentes
+- Soporta múltiples clientes apuntando a same DB
+
+### **5. Cargar Datos Mock a PostgreSQL (Bootstrap)**
+
+Una vez que PostgreSQL esté activo, carga datos mock con:
+
+```bash
+# Endpoint disponible en http://localhost:3050/api/bootstrap-mocks
+
+# Cargar todos los mocks (reset + recarga):
+curl -X POST http://localhost:3050/api/bootstrap-mocks \
+  -H "Content-Type: application/json" \
+  -d '{"reset":true}'
+
+# Cargar solo específicas tablas sin resetear:
+curl -X POST http://localhost:3050/api/bootstrap-mocks \
+  -H "Content-Type: application/json" \
+  -d '{"targets":["projects","researchers"]}'
+
+# Respuesta esperada:
+# {"ok":true,"reset":true,"targets":[...],"seeded":{"projects":6,"equipment":23,...}}
+```
+
+**Endpoint `POST /api/bootstrap-mocks`**
+- `reset` (boolean): Si true, vacía las tablas antes de cargar
+- `targets` (array): Qué entidades cargar: `equipment`, `projects`, `researchers`, `technologies`, `loans`
+- Devuelve conteos de registros cargados por tabla
 
 **Si deseas usar Supabase de forma opcional:**
 - Revisa [docs/MIGRACION-SUPABASE.md](docs/MIGRACION-SUPABASE.md).
@@ -434,7 +505,7 @@ yarn dev
 ### **6. Abrir en el Navegador**
 
 ```
-http://localhost:3000
+http://localhost:3050
 ```
 
 ---
@@ -461,42 +532,288 @@ El proyecto incluye:
 
 - `Dockerfile` multi-stage para imagen de producción optimizada
 - `.dockerignore` para reducir contexto de build
-- `docker-compose.yml` con servicio de producción y perfil de desarrollo
+- `docker-compose.yml` con servicios preconfigura­dos: PostgreSQL, app (prod), app-local (prod local), app-dev (desarrollo)
 
-### **Producción con Docker Compose**
+### **1. Desarrollo Local (con PostgreSQL en Docker)**
 
 ```bash
-docker compose up --build -d app
+# Levanta la app en modo desarrollo con PostgreSQL local
+docker compose --profile dev up app-dev postgres
+
+# Acceso: http://localhost:3050
 ```
 
-Detener:
+Esto agrupa:
+- **app-dev** en puerto 3050 (Next.js con hot reload)
+- **postgres** en puerto 5432 (BD persistente)
+
+### **2. Producción con Docker Compose (PostgreSQL Local)**
+
+```bash
+# Reconstruir imagen y correr en modo producción
+docker compose --profile local up --build app-local
+
+# O con postgres también:
+docker compose --profile local up --build postgres app-local
+
+# Acceso: http://localhost:3050
+```
+
+Detener todos los servicios:
 
 ```bash
 docker compose down
 ```
 
-### **Desarrollo con Docker Compose (perfil `dev`)**
+### **3. PostgreSQL Externo (Servidor Separado)**
+
+Si tienes PostgreSQL corriendo en otro servidor (proyecto más grande):
+
+**A. Vía variable de entorno en Docker:**
 
 ```bash
-docker compose --profile dev up --build app-dev
+# Crear archivo .env con tu conexión externa
+echo 'DATABASE_URL=postgres://usuario:contraseña@tu-servidor.com:5432/techlab' > .env
+
+# Levantar solo la app (sin postgres local)
+docker compose up -d app-local
 ```
 
-### **Build y ejecución manual con Docker**
+**B. Vía `docker-compose.override.yml` (recomendado):**
+
+Crear archivo `docker-compose.override.yml` en la raíz:
+
+```yaml
+version: '3.8'
+
+services:
+  app-local:
+    environment:
+      DATABASE_URL: postgres://usuario:contraseña@tu-servidor.com:5432/techlab
+      
+  app-dev:
+    environment:
+      DATABASE_URL: postgres://usuario:contraseña@tu-servidor.com:5432/techlab
+```
+
+Luego:
 
 ```bash
+docker compose --profile local up app-local
+# o modo desarrollo:
+docker compose --profile dev up app-dev
+```
+
+**C. En producción (Docker Swarm / Kubernetes):**
+
+Pasar variable al contenedor:
+
+```bash
+docker run -d \
+  -p 3050:3000 \
+  -e DATABASE_URL="postgres://user:pass@db-server:5432/techlab" \
+  -e NODE_ENV="production" \
+  tech-lab:latest
+```
+
+### **4. Build y Ejecución Manual**
+
+```bash
+# Construir imagen
 docker build -t tech-lab:latest .
-docker run --rm -p 3000:3000 --name tech-lab tech-lab:latest
+
+# Ejecutar sin PostgreSQL (usa conexión externa)
+docker run --rm -p 3050:3000 \
+  -e DATABASE_URL="postgres://user:pass@tu-servidor.com:5432/techlab" \
+  --name tech-lab \
+  tech-lab:latest
 ```
 
-La app quedará disponible en:
+### **5. Validar Conexión a PostgreSQL**
 
-```text
-http://localhost:3000
+Una vez que el contenedor esté arriba:
+
+```bash
+# Cargar datos mock en PostgreSQL
+curl -X POST http://localhost:3050/api/bootstrap-mocks \
+  -H "Content-Type: application/json" \
+  -d '{"reset":true}'
+
+# Verificar respuesta:
+# {"ok":true,"reset":true,"targets":[...],"seeded":{"projects":6,"equipment":23}}
+```
+
+Si falla con error de conexión:
+- Verifica que `DATABASE_URL` esté correcta
+- Confirma firewall/red permite conectar a la BD
+- Revisa logs: `docker logs nombre_contenedor`
+
+---
+
+## �️ Arquitectura Multi-Servidor (PostgreSQL Externo)
+
+### **Escenario: Integración con Proyecto Mayor**
+
+Si ya tienes un servidor PostgreSQL ejecutándose en un proyecto más grande (ej. backend Django, Go, etc.), puedes conectar esta app fácilmente:
+
+### **Diagrama de Arquitectura**
+
+```
+┌─────────────────────────────────────┐
+│   Tu Servidor Principal (Proyecto)  │
+├─────────────────────────────────────┤
+│  PostgreSQL 16 (puerto 5432)        │
+│  - Database: 'techlab'              │
+│  - Usuario: 'tu_usuario'            │
+│  - Host: 192.168.1.100 (interno)    │
+│  - O: tu-servidor.com (externo)     │
+└─────────────────────────────────────┘
+          ↑ Conexión TCP
+          │ (DATABASE_URL)
+          │
+┌─────────────────────────────────────┐
+│   Tech Lab App (Esta app)           │
+├─────────────────────────────────────┤
+│  Docker Container                   │
+│  - Puerto 3050 (localhost)          │
+│  - Conecta a PostgreSQL externo     │
+│  - Lee/Escribe datos compartidos    │
+└─────────────────────────────────────┘
+```
+
+### **Paso 1: Preparar PostgreSQL Externo**
+
+En tu servidor PostgreSQL (ejecución única):
+
+```sql
+-- Crear database si no existe
+CREATE DATABASE IF NOT EXISTS techlab;
+
+-- Conectar a la base de datos
+\c techlab
+
+-- La app creará las tablas automáticamente en primer acceso
+-- Tablas que se crearán: techlab_equipment, techlab_projects, 
+--                        techlab_researchers, techlab_technologies, 
+--                        techlab_loans
+```
+
+No necesitas crear tablas manualmente; la app lo hace en el primer boot.
+
+### **Paso 2: Configurar en Esta App**
+
+**Opción A: Vía fichero `.env.local`**
+
+```bash
+# En la raíz del proyecto, crear/editar .env.local
+DATABASE_URL="postgres://tu_usuario:tu_contraseña@tu-servidor.com:5432/techlab"
+```
+
+**Opción B: Vía `docker-compose.override.yml` (recomendado para equipos)**
+
+Crear archivo `docker-compose.override.yml` en la raíz:
+
+```yaml
+version: '3.8'
+
+services:
+  app-local:
+    environment:
+      DATABASE_URL: "postgres://tu_usuario:tu_contraseña@tu-servidor.com:5432/techlab"
+      NODE_ENV: production
+
+  app-dev:
+    environment:
+      DATABASE_URL: "postgres://tu_usuario:tu_contraseña@tu-servidor.com:5432/techlab"
+      NODE_ENV: development
+```
+
+Este archivo NO se commitea (agregalo a `.gitignore` ya si está ahí). Cada desarrollador puede tener su propia versión local.
+
+**Opción C: Variable global del sistema**
+
+```bash
+export DATABASE_URL="postgres://tu_usuario:tu_contraseña@tu-servidor.com:5432/techlab"
+npm start
+```
+
+### **Paso 3: Levantar la App**
+
+Con Docker Compose:
+
+```bash
+# Opción 1: Con docker-compose.override.yml (ambiente automático)
+docker compose --profile local up app-local
+
+# Opción 2: Con .env.local (docker carga automáticamente)
+docker compose --profile local up app-local
+
+# Opción 3: Sin Docker (en host)
+npm run build
+npm start
+```
+
+La app tardará unos segundos en:
+1. Conectar a PostgreSQL
+2. Crear tablas si no existen
+3. Disponibilizar endpoints en http://localhost:3050
+
+### **Paso 4: Verificar Conexión**
+
+```bash
+# Verificar que está arriba
+curl http://localhost:3050/
+
+# Cargar datos mock en PostgrSQL (opcional, si quieres datos iniciales)
+curl -X POST http://localhost:3050/api/bootstrap-mocks \
+  -H "Content-Type: application/json" \
+  -d '{"reset":true}'
+
+# Respuesta:
+# {"ok":true,"reset":true,"targets":[...],"seeded":{"projects":6,...}}
+```
+
+### **Paso 5: Acceso Compartido (Múltiples Clientes)**
+
+Si múltiples apps/equipo van a usar la misma BD:
+
+```bash
+# App 1 (Este proyecto)
+DATABASE_URL="postgres://tech:tech@db.empresa.com:5432/techlab" npm start
+
+# App 2 (Tu backend Django/Go)
+DATABASE_URL="postgres://tech:tech@db.empresa.com:5432/techlab" ./ run
+
+# Ambas escriben/leen de la misma DB sin conflictos
+```
+
+Las tablas están prefixadas (`techlab_*`) para evitar colisiones con otros esquemas.
+
+### **Solución de Problemas**
+
+| Error | Causa | Solución |
+|-------|-------|----------|
+| `connection refused` | Host/puerto incorrecto | Verifica `DATABASE_URL` con `psql -c "SELECT 1"` |
+| `authentication failed` | Usuario/contraseña | Confirma credenciales en servidor |
+| `database does not exist` | BD no creada | Ejecuta `CREATE DATABASE techlab;` en PostgreSQL |
+| `ECONNREFUSED` en logs | Firewall bloqueando | Abre puerto 5432 en firewall del servidor |
+| `FATAL: sorry, too many clients` || Reduce conexiones: limpia pools stale o incrementa max_connections |
+
+### **Variables de Conexión (Referencia)**
+
+```
+postgres://[usuario]:[contraseña]@[host]:[puerto]/[base_datos]
+
+Ejemplos:
+- Local:      postgres://techlab:techlab@localhost:5432/techlab
+- Red interna: postgres://techlab:techlab@192.168.1.100:5432/techlab
+- Servidor:   postgres://tech:pass123@tu-servidor.com:5432/techlab
+- Con SSL:    postgres://tech:pass@host:5432/techlab?sslmode=require
 ```
 
 ---
 
-## 🎨 Personalización
+## �🎨 Personalización
 
 ### **Temas Personalizados**
 
@@ -821,7 +1138,7 @@ copies or substantial portions of the Software.
 - 📧 Envía un email a [contacto@eduardoguevara.dev]
 - 🐙 Abre un [issue en GitHub](https://github.com/eduardo202020/tech-lab/issues)
 - 💬 Discute en [discussions](https://github.com/eduardo202020/tech-lab/discussions)
-- 📱 Contacta a través de [la página de contacto](http://localhost:3000/contact)
+- 📱 Contacta a través de [la página de contacto](http://localhost:3050/contact)
 
 ---
 
