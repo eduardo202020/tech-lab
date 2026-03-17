@@ -63,16 +63,16 @@ export function useSupabaseProjects(options?: UseSupabaseProjectsOptions) {
   const [error, setError] = useState<string | null>(null);
   const hasAutoFetched = useRef(false);
 
-  // Cargar todos los proyectos desde el mock JSON
+  // Cargar todos los proyectos desde PostgreSQL vía API interna
   const fetchProjects = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const res = await fetch('/mocks/projects.json');
-      if (!res.ok) throw new Error('No se pudo cargar projects.json');
+      const res = await fetch('/api/projects');
+      if (!res.ok) throw new Error('No se pudo cargar proyectos desde PostgreSQL');
       const json = await res.json();
-      setProjects(json.projects || []);
+      setProjects((json.projects || []) as SupabaseProject[]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
       console.error('Error fetching projects:', err);
@@ -131,16 +131,20 @@ export function useSupabaseProjects(options?: UseSupabaseProjectsOptions) {
       projectData: Omit<SupabaseProject, 'id' | 'created_at' | 'updated_at'>
     ): Promise<SupabaseProject | null> => {
       try {
-        const now = new Date().toISOString();
-        const newProject: SupabaseProject = {
-          ...projectData,
-          id: crypto.randomUUID(),
-          created_at: now,
-          updated_at: now,
-        };
+        const res = await fetch('/api/projects', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(projectData),
+        });
 
-        setProjects((prev) => [newProject, ...prev]);
-        return newProject;
+        if (!res.ok) {
+          throw new Error('No se pudo crear proyecto en PostgreSQL');
+        }
+
+        const json = await res.json();
+        const created = json.project as SupabaseProject;
+        setProjects((prev) => [created, ...prev]);
+        return created;
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error creando proyecto');
         console.error('Error creating project:', err);
@@ -154,22 +158,21 @@ export function useSupabaseProjects(options?: UseSupabaseProjectsOptions) {
   const updateProject = useCallback(
     async (id: string, updates: Partial<SupabaseProject>): Promise<boolean> => {
       try {
-        let found = false;
-        setProjects((prev) =>
-          prev.map((project) => {
-            if (project.id !== id) return project;
-            found = true;
-            return {
-              ...project,
-              ...updates,
-              updated_at: new Date().toISOString(),
-            };
-          })
-        );
+        const res = await fetch('/api/projects', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, updates }),
+        });
 
-        if (!found) {
-          throw new Error('Proyecto no encontrado');
+        if (!res.ok) {
+          throw new Error('No se pudo actualizar proyecto en PostgreSQL');
         }
+
+        const json = await res.json();
+        const updated = json.project as SupabaseProject;
+        setProjects((prev) =>
+          prev.map((project) => (project.id === id ? updated : project))
+        );
         return true;
       } catch (err) {
         setError(
@@ -186,16 +189,15 @@ export function useSupabaseProjects(options?: UseSupabaseProjectsOptions) {
   const deleteProject = useCallback(
     async (id: string): Promise<boolean> => {
       try {
-        let deleted = false;
-        setProjects((prev) => {
-          const next = prev.filter((project) => project.id !== id);
-          deleted = next.length !== prev.length;
-          return next;
+        const res = await fetch(`/api/projects?id=${encodeURIComponent(id)}`, {
+          method: 'DELETE',
         });
 
-        if (!deleted) {
-          throw new Error('Proyecto no encontrado');
+        if (!res.ok) {
+          throw new Error('No se pudo eliminar proyecto en PostgreSQL');
         }
+
+        setProjects((prev) => prev.filter((project) => project.id !== id));
         return true;
       } catch (err) {
         setError(

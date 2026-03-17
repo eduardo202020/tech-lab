@@ -44,43 +44,24 @@ export function useSupabaseEquipment(options?: UseSupabaseEquipmentOptions) {
   const [error, setError] = useState<string | null>(null);
   const hasAutoFetched = useRef(false);
 
-  // Cargar todos los equipos desde el mock JSON
+  // Cargar todos los equipos desde PostgreSQL vía API interna
   const fetchEquipment = useCallback(async (filters?: EquipmentFilters, search?: string) => {
     try {
       setLoading(true);
       setError(null);
 
-      const res = await fetch('/mocks/equipos.json');
-      if (!res.ok) throw new Error('No se pudo cargar equipos.json');
-      let data: SupabaseEquipment[] = await res.json();
+      const params = new URLSearchParams();
+      if (filters?.condition) params.set('condition', filters.condition);
+      if (filters?.category) params.set('category', filters.category);
+      if (filters?.location) params.set('location', filters.location);
+      if (filters?.available_only) params.set('available_only', 'true');
+      if (search?.trim()) params.set('search', search.trim());
 
-      // Aplicar búsqueda y filtros en el cliente
-      if (search && search.trim()) {
-        const like = search.trim().toLowerCase();
-        data = data.filter((item) =>
-          item.name?.toLowerCase().includes(like) ||
-          item.brand?.toLowerCase().includes(like) ||
-          item.model?.toLowerCase().includes(like) ||
-          item.category?.toLowerCase().includes(like) ||
-          item.serial_number?.toLowerCase().includes(like) ||
-          item.description?.toLowerCase().includes(like) ||
-          item.location?.toLowerCase().includes(like)
-        );
-      }
-      if (filters?.condition) {
-        data = data.filter((item) => item.condition === filters.condition);
-      }
-      if (filters?.category) {
-        data = data.filter((item) => item.category === filters.category);
-      }
-      if (filters?.location) {
-        data = data.filter((item) => item.location === filters.location);
-      }
-      if (filters?.available_only) {
-        data = data.filter((item) => item.available_quantity > 0);
-      }
+      const res = await fetch(`/api/equipment?${params.toString()}`);
+      if (!res.ok) throw new Error('No se pudo cargar equipos desde PostgreSQL');
 
-      setEquipment(data || []);
+      const json = await res.json();
+      setEquipment((json.equipment || []) as SupabaseEquipment[]);
     } catch (err) {
       console.error('Error in fetchEquipment:', err);
       setError(err instanceof Error ? err.message : 'Error desconocido');
@@ -108,17 +89,20 @@ export function useSupabaseEquipment(options?: UseSupabaseEquipmentOptions) {
       equipmentData: Omit<SupabaseEquipment, 'id' | 'created_at' | 'updated_at'>
     ): Promise<SupabaseEquipment | null> => {
       try {
-        const now = new Date().toISOString();
-        const data: SupabaseEquipment = {
-          ...equipmentData,
-          id: crypto.randomUUID(),
-          created_at: now,
-          updated_at: now,
-        };
+        const res = await fetch('/api/equipment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(equipmentData),
+        });
 
-        // Actualizar la lista local
-        setEquipment((prev) => [data, ...prev]);
-        return data;
+        if (!res.ok) {
+          throw new Error('No se pudo crear equipo en PostgreSQL');
+        }
+
+        const json = await res.json();
+        const created = json.equipment as SupabaseEquipment;
+        setEquipment((prev) => [created, ...prev]);
+        return created;
       } catch (err) {
         console.error('Error in createEquipment:', err);
         setError(err instanceof Error ? err.message : 'Error desconocido');
@@ -135,42 +119,43 @@ export function useSupabaseEquipment(options?: UseSupabaseEquipmentOptions) {
       updates: Partial<Omit<SupabaseEquipment, 'id' | 'created_at'>>
     ): Promise<SupabaseEquipment | null> => {
       try {
-        const current = equipment.find((item) => item.id === id);
-        if (!current) {
-          setError('Equipo no encontrado');
-          return null;
+        const res = await fetch('/api/equipment', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, updates }),
+        });
+
+        if (!res.ok) {
+          throw new Error('No se pudo actualizar equipo en PostgreSQL');
         }
 
-        const data: SupabaseEquipment = {
-          ...current,
-          ...updates,
-          updated_at: new Date().toISOString(),
-        };
+        const json = await res.json();
+        const updated = json.equipment as SupabaseEquipment;
 
-        // Actualizar la lista local
         setEquipment((prev) =>
-          prev.map((item) => (item.id === id ? data : item))
+          prev.map((item) => (item.id === id ? updated : item))
         );
-        return data;
+        return updated;
       } catch (err) {
         console.error('Error in updateEquipment:', err);
         setError(err instanceof Error ? err.message : 'Error desconocido');
         return null;
       }
     },
-    [equipment]
+    []
   );
 
   // Eliminar equipo
   const deleteEquipment = useCallback(async (id: string): Promise<boolean> => {
     try {
-      const exists = equipment.some((item) => item.id === id);
-      if (!exists) {
-        setError('Equipo no encontrado');
-        return false;
+      const res = await fetch(`/api/equipment?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        throw new Error('No se pudo eliminar equipo en PostgreSQL');
       }
 
-      // Actualizar la lista local
       setEquipment((prev) => prev.filter((item) => item.id !== id));
       return true;
     } catch (err) {
@@ -178,7 +163,7 @@ export function useSupabaseEquipment(options?: UseSupabaseEquipmentOptions) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
       return false;
     }
-  }, [equipment]);
+  }, []);
 
   // Obtener estadísticas de equipos
   const getEquipmentStats = useCallback(() => {

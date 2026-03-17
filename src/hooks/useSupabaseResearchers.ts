@@ -57,30 +57,6 @@ export interface SupabaseResearcher {
   }>;
 }
 
-type MockUserProfile = {
-  id: string;
-  username: string;
-  full_name: string;
-  email: string;
-  role: string;
-  avatar_url?: string;
-  bio?: string;
-  projects?: string | string[];
-  phone?: string;
-  linkedin_url?: string;
-  created_at: string;
-  updated_at: string;
-};
-
-type MockProject = {
-  id: string;
-  title: string;
-  status: string;
-  progress: number;
-  team_lead?: string;
-  team_members?: string[];
-};
-
 interface ResearcherFilters {
   department?: string;
   status?: SupabaseResearcher['status'];
@@ -101,142 +77,24 @@ export function useSupabaseResearchers(options?: UseSupabaseResearchersOptions) 
   const [error, setError] = useState<string | null>(null);
   const hasAutoFetched = useRef(false);
 
-  const normalizeText = (value: string) =>
-    value
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .trim();
-
-  const parseUserProjectNames = (projects: MockUserProfile['projects']): string[] => {
-    if (!projects) return [];
-
-    if (Array.isArray(projects)) {
-      return projects.map((item) => item.trim()).filter(Boolean);
-    }
-
-    return projects
-      .split('/')
-      .map((item) => item.trim())
-      .filter(Boolean);
-  };
-
-  const mapMockUserToResearcher = useCallback(
-    (user: MockUserProfile, projectsData: MockProject[]): SupabaseResearcher => {
-      const fullNameLower = user.full_name.toLowerCase();
-
-      const relatedProjectsByTeam = projectsData.filter((project) => {
-        const teamLead = (project.team_lead || '').toLowerCase();
-        const teamMembers = (project.team_members || []).map((member) =>
-          member.toLowerCase()
-        );
-        return teamLead === fullNameLower || teamMembers.includes(fullNameLower);
-      });
-
-      const declaredProjectNames = parseUserProjectNames(user.projects);
-      const relatedProjectsByDeclaredNames = projectsData.filter((project) => {
-        const normalizedProjectTitle = normalizeText(project.title);
-        return declaredProjectNames.some((declaredName) => {
-          const normalizedDeclared = normalizeText(declaredName);
-          return (
-            normalizedProjectTitle.includes(normalizedDeclared) ||
-            normalizedDeclared.includes(normalizedProjectTitle)
-          );
-        });
-      });
-
-      const relatedProjects = relatedProjectsByDeclaredNames.length
-        ? relatedProjectsByDeclaredNames
-        : relatedProjectsByTeam;
-
-      const currentProjects = relatedProjects
-        .filter((project) => project.status === 'active' || project.status === 'planning')
-        .map((project) => ({
-          id: project.id,
-          title: project.title,
-          role: (project.team_lead || '').toLowerCase() === fullNameLower ? 'team_lead' : 'team_member',
-          status: project.status,
-          progress: project.progress || 0,
-        }));
-
-      const pastProjects = relatedProjects
-        .filter((project) => project.status === 'completed' || project.status === 'paused')
-        .map((project) => ({
-          id: project.id,
-          title: project.title,
-          role: (project.team_lead || '').toLowerCase() === fullNameLower ? 'team_lead' : 'team_member',
-          status: project.status,
-        }));
-
-      return {
-        id: user.id,
-        user_id: user.id,
-        name: user.full_name,
-        email: user.email || `${user.username}@techlab.local`,
-        avatar_url: user.avatar_url || '',
-        position: user.role === 'admin' ? 'Coordinador' : 'Investigador',
-        department: 'Tech Lab',
-        specializations: declaredProjectNames.length ? declaredProjectNames : user.bio ? [user.bio] : [],
-        biography: user.bio || (declaredProjectNames.length ? `Investigador Tech Lab (${declaredProjectNames.join(' / ')}).` : ''),
-        academic_level: 'bachelor',
-        status: 'active',
-        join_date: user.created_at?.slice(0, 10) || new Date().toISOString().slice(0, 10),
-        end_date: undefined,
-        phone: user.phone || '',
-        linkedin_url: user.linkedin_url || '',
-        research_gate_url: '',
-        orcid: '',
-        personal_website: '',
-        university: 'Universidad Nacional de Ingeniería',
-        degree: '',
-        research_interests: declaredProjectNames.length ? declaredProjectNames : user.bio ? [user.bio] : [],
-        publications: [],
-        achievements: [],
-        projects_completed: relatedProjects.length,
-        publications_count: 0,
-        years_experience: 1,
-        created_by: 'mock-system',
-        created_at: user.created_at,
-        updated_at: user.updated_at,
-        current_projects: currentProjects,
-        past_projects: pastProjects,
-      };
-    },
-    []
-  );
-
-  // Cargar todos los investigadores con sus proyectos
+  // Cargar todos los investigadores desde PostgreSQL vía API interna
   const fetchResearchers = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const [usersRes, projectsRes] = await Promise.all([
-        fetch('/mocks/usuarios.json'),
-        fetch('/mocks/projects.json'),
-      ]);
+      const res = await fetch('/api/researchers');
+      if (!res.ok) throw new Error('No se pudo cargar investigadores desde PostgreSQL');
 
-      if (!usersRes.ok) throw new Error('No se pudo cargar usuarios.json');
-      if (!projectsRes.ok) throw new Error('No se pudo cargar projects.json');
-
-      const usersJson = await usersRes.json();
-      const projectsJson = await projectsRes.json();
-
-      const users: MockUserProfile[] = usersJson.usuarios || usersJson.user_profiles || [];
-      const projectsData: MockProject[] = projectsJson.projects || [];
-
-      const transformedResearchers = users
-        .filter((user) => user.role === 'researcher' || user.role === 'admin')
-        .map((user) => mapMockUserToResearcher(user, projectsData));
-
-      setResearchers(transformedResearchers);
+      const json = await res.json();
+      setResearchers((json.researchers || []) as SupabaseResearcher[]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
       console.error('Error fetching researchers:', err);
     } finally {
       setLoading(false);
     }
-  }, [mapMockUserToResearcher]);
+  }, []);
 
   // Obtener investigador por ID
   const getResearcher = useCallback(async (id: string): Promise<SupabaseResearcher | null> => {
@@ -278,18 +136,20 @@ export function useSupabaseResearchers(options?: UseSupabaseResearchersOptions) 
     researcherData: Omit<SupabaseResearcher, 'id' | 'created_at' | 'updated_at' | 'current_projects' | 'past_projects'>
   ): Promise<SupabaseResearcher | null> => {
     try {
-      const now = new Date().toISOString();
-      const newResearcher: SupabaseResearcher = {
-        ...researcherData,
-        id: crypto.randomUUID(),
-        created_at: now,
-        updated_at: now,
-        current_projects: [],
-        past_projects: [],
-      };
+      const res = await fetch('/api/researchers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(researcherData),
+      });
 
-      setResearchers((prev) => [newResearcher, ...prev]);
-      return newResearcher;
+      if (!res.ok) {
+        throw new Error('No se pudo crear investigador en PostgreSQL');
+      }
+
+      const json = await res.json();
+      const created = json.researcher as SupabaseResearcher;
+      setResearchers((prev) => [created, ...prev]);
+      return created;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error creando investigador');
       console.error('Error creating researcher:', err);
@@ -303,20 +163,22 @@ export function useSupabaseResearchers(options?: UseSupabaseResearchersOptions) 
     updates: Partial<SupabaseResearcher>
   ): Promise<boolean> => {
     try {
-      let found = false;
+      const res = await fetch('/api/researchers', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, updates }),
+      });
+
+      if (!res.ok) {
+        throw new Error('No se pudo actualizar investigador en PostgreSQL');
+      }
+
+      const json = await res.json();
+      const updated = json.researcher as SupabaseResearcher;
       setResearchers((prev) =>
-        prev.map((researcher) => {
-          if (researcher.id !== id) return researcher;
-          found = true;
-          return {
-            ...researcher,
-            ...updates,
-            updated_at: new Date().toISOString(),
-          };
-        })
+        prev.map((researcher) => (researcher.id === id ? updated : researcher))
       );
 
-      if (!found) throw new Error('Investigador no encontrado');
       return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error actualizando investigador');
@@ -328,14 +190,16 @@ export function useSupabaseResearchers(options?: UseSupabaseResearchersOptions) 
   // Eliminar investigador
   const deleteResearcher = useCallback(async (id: string): Promise<boolean> => {
     try {
-      let deleted = false;
-      setResearchers((prev) => {
-        const next = prev.filter((researcher) => researcher.id !== id);
-        deleted = next.length !== prev.length;
-        return next;
+      const res = await fetch(`/api/researchers?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
       });
 
-      if (!deleted) throw new Error('Investigador no encontrado');
+      if (!res.ok) {
+        throw new Error('No se pudo eliminar investigador en PostgreSQL');
+      }
+
+      setResearchers((prev) => prev.filter((researcher) => researcher.id !== id));
+
       return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error eliminando investigador');
