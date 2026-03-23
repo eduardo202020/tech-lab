@@ -4,6 +4,7 @@ export type ProtectedResource =
   | 'equipment'
   | 'researchers'
   | 'technologies'
+  | 'devices'
   | 'loans';
 export type ResourceAction = 'read' | 'create' | 'update' | 'delete';
 
@@ -25,6 +26,7 @@ export const PERMISSIONS: PermissionMatrix = {
     equipment: { read: true, create: false, update: false, delete: false },
     researchers: { read: true, create: false, update: false, delete: false },
     technologies: { read: true, create: false, update: false, delete: false },
+    devices: { read: true, create: false, update: false, delete: false },
     loans: { read: true, create: false, update: false, delete: false },
   },
   student: {
@@ -32,6 +34,7 @@ export const PERMISSIONS: PermissionMatrix = {
     equipment: { read: true, create: false, update: false, delete: false },
     researchers: { read: true, create: false, update: false, delete: false },
     technologies: { read: true, create: false, update: false, delete: false },
+    devices: { read: true, create: false, update: false, delete: false },
     loans: { read: true, create: true, update: false, delete: false },
   },
   researcher: {
@@ -39,6 +42,7 @@ export const PERMISSIONS: PermissionMatrix = {
     equipment: { read: true, create: false, update: false, delete: false },
     researchers: { read: true, create: false, update: false, delete: false },
     technologies: { read: true, create: false, update: false, delete: false },
+    devices: { read: true, create: false, update: false, delete: false },
     loans: { read: true, create: true, update: false, delete: false },
   },
   admin: {
@@ -46,6 +50,7 @@ export const PERMISSIONS: PermissionMatrix = {
     equipment: { read: true, create: true, update: true, delete: true },
     researchers: { read: true, create: true, update: true, delete: true },
     technologies: { read: true, create: true, update: true, delete: true },
+    devices: { read: true, create: true, update: true, delete: true },
     loans: { read: true, create: true, update: true, delete: true },
   },
 };

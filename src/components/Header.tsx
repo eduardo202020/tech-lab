@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { LogOut, User, Shield, GraduationCap, Search, Eye, Menu, X, KeyRound } from 'lucide-react';
+import { LogOut, User, Shield, GraduationCap, Search, Eye, Menu, X, KeyRound, Cpu } from 'lucide-react';
 import { useAuth } from '@/contexts/SessionAuthContext';
 import ThemeToggle from './ThemeToggle';
 import { useState } from 'react';
@@ -133,6 +133,14 @@ export default function Header() {
           >
             Préstamos
           </Link>
+          {profile?.role === 'admin' && (
+              <Link
+                className="font-poppins text-sm font-medium text-theme-secondary transition-colors hover:text-theme-text whitespace-nowrap"
+                href="/admin/devices"
+              >
+                Dispositivos
+              </Link>
+          )}
           <Link
             className="font-poppins text-sm font-medium text-theme-secondary transition-colors hover:text-theme-text whitespace-nowrap"
             href="/contact"
@@ -278,6 +286,18 @@ export default function Header() {
               >
                 Préstamos
               </Link>
+              {profile?.role === 'admin' && (
+                <Link
+                  href="/admin/devices"
+                  className="block py-2 text-theme-text hover:text-theme-accent transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <Cpu className="w-4 h-4" />
+                    Dispositivos
+                  </span>
+                </Link>
+              )}
               <Link
                 href="/contact"
                 className="block py-2 text-theme-text hover:text-theme-accent transition-colors"

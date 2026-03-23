@@ -32,6 +32,7 @@ interface LoRaApiResponse {
 }
 
 interface ViewerProps {
+    deviceId?: string;
     refreshMs?: number;
 }
 
@@ -76,7 +77,7 @@ const transformLoRaData = (apiResponse: LoRaApiResponse | LoRaApiResponse[]): Lo
     };
 };
 
-export default function LoRaSensorViewer({ refreshMs = 10000 }: ViewerProps) {
+export default function LoRaSensorViewer({ deviceId, refreshMs = 10000 }: ViewerProps) {
     const [data, setData] = useState<LoRaData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -86,7 +87,7 @@ export default function LoRaSensorViewer({ refreshMs = 10000 }: ViewerProps) {
 
     const fetchData = useCallback(async () => {
         try {
-            const url = '/api/sensors-proxy/lora?limit=30';
+            const url = `/api/sensors-proxy/lora?limit=30${deviceId ? `&deviceId=${encodeURIComponent(deviceId)}` : ''}`;
 
             const response = await fetch(url, {
                 cache: 'no-store',
@@ -114,7 +115,7 @@ export default function LoRaSensorViewer({ refreshMs = 10000 }: ViewerProps) {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [deviceId]);
 
     useEffect(() => {
         fetchData();

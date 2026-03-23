@@ -1,0 +1,33 @@
+services:
+  postgres:
+    networks:
+      - default
+      - testnet
+
+  app:
+    environment:
+      DECLARATIVE_DB_API_BASE_URL: ${DECLARATIVE_DB_API_BASE_URL:-http://db-api:3004}
+      LORA_DEVICE_ID: ${LORA_DEVICE_ID:-1102}
+    networks:
+      - default
+      - testnet
+
+  app-local:
+    environment:
+      DECLARATIVE_DB_API_BASE_URL: ${DECLARATIVE_DB_API_BASE_URL:-http://db-api:3004}
+      LORA_DEVICE_ID: ${LORA_DEVICE_ID:-1102}
+    networks:
+      - default
+      - testnet
+
+  app-dev:
+    environment:
+      DECLARATIVE_DB_API_BASE_URL: ${DECLARATIVE_DB_API_BASE_URL:-http://db-api:3004}
+      LORA_DEVICE_ID: ${LORA_DEVICE_ID:-1102}
+    networks:
+      - default
+      - testnet
+
+networks:
+  testnet:
+    external: true

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { DECLARATIVE_DB_API_BASE_URL } from '@/lib/sensorBackends';
 
 export const dynamic = 'force-dynamic';
 
@@ -7,7 +8,7 @@ export async function GET(request: Request) {
         const { searchParams } = new URL(request.url);
         const camId = searchParams.get('cam_id') || 'cuenta_personas:A1';
 
-        const backendUrl = `https://oti-test.jorgeparishuana.dev:4300/cupe/${camId}`;
+        const backendUrl = `${DECLARATIVE_DB_API_BASE_URL}/cupe/${camId}`;
 
         const response = await fetch(backendUrl, {
             method: 'GET',
