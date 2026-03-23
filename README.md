@@ -304,7 +304,7 @@ Para trabajar localmente con el estado actual del proyecto:
 - `src/lib/authUsers.ts`: tabla de usuarios, hash y seed inicial.
 - `src/lib/permissions.ts`: roles y capacidades.
 - `src/lib/projectDevices.ts`: tipos y utilidades de dispositivos por proyecto.
-- `src/lib/sensorBackends.ts`: resolucion central de URLs hacia `db-api`.
+- `src/lib/sensorBackends.ts`: punto unico para IPs, URLs e IDs hardcodeados de sensores.
 - `src/contexts/SupabaseAuthContext.tsx`: estado de sesion en cliente.
 - `src/app/api/auth/*`: login, registro, sesion, perfil y cambio de contrasena.
 - `src/app/api/bootstrap-mocks/route.ts`: carga de datos mock a PostgreSQL.
@@ -312,6 +312,52 @@ Para trabajar localmente con el estado actual del proyecto:
 - `src/components/Header.tsx`: accion de cambio de contrasena.
 - `src/components/DevicesAdminPage.tsx`: vista global de dispositivos.
 - `src/components/ProjectDeviceExperience.tsx`: gestion de dispositivos por proyecto.
+
+## Configuracion Manual De Devices
+
+Si necesitas cambiar rapido una IP, URL base o ID de dispositivo aunque sea hardcodeado, edita este archivo:
+
+- `src/lib/sensorBackends.ts`
+
+Constantes importantes:
+
+- `SENSOR_BACKEND_BASE_URLS.smart_parking`: URL base del backend para Smart Parking.
+- `SENSOR_BACKEND_BASE_URLS.people_counter`: URL base del backend para People Counter.
+- `SENSOR_BACKEND_BASE_URLS.lora`: URL base del backend para LoRa.
+- `DEFAULT_DEVICE_IDENTIFIERS.smart_parking`: ID por defecto de Smart Parking.
+- `DEFAULT_DEVICE_IDENTIFIERS.people_counter`: ID por defecto de People Counter.
+- `DEFAULT_DEVICE_IDENTIFIERS.lora`: ID por defecto de LoRa.
+- `SMART_PARKING_CAMERA_IDS`: lista hardcodeada de camaras Smart Parking usadas por el fallback local.
+
+Ejemplos:
+
+- Smart Parking: `smart_parking:A1`
+- People Counter: `cuenta_personas:A1`
+- LoRa: `1102`
+
+Si quieres apuntar a otra IP o servicio, puedes hacerlo de dos formas:
+
+1. Cambiando el fallback hardcodeado en `src/lib/sensorBackends.ts`.
+2. Usando variables de entorno:
+
+```env
+DECLARATIVE_DB_API_BASE_URL=http://db-api:3004
+SMART_PARKING_API_BASE_URL=http://192.168.1.50:3004
+PEOPLE_COUNTER_API_BASE_URL=http://192.168.1.50:3004
+LORA_API_BASE_URL=http://192.168.1.50:3004
+DEFAULT_SMART_PARKING_CAM_ID=smart_parking:A3
+DEFAULT_PEOPLE_COUNTER_CAM_ID=cuenta_personas:A3
+LORA_DEVICE_ID=1102
+SMART_PARKING_CAMERA_IDS=smart_parking:A3,smart_parking:A4
+```
+
+Las rutas que consumen esa configuracion son:
+
+- `src/app/api/sensors-proxy/smart-parking/route.ts`
+- `src/app/api/sensors-proxy/people-counter/route.ts`
+- `src/app/api/sensors-proxy/lora/route.ts`
+- `src/app/api/smart-parking/route.ts`
+- `src/app/api/people-counter/route.ts`
 
 ## Historial Reciente
 
