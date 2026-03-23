@@ -5,6 +5,16 @@
   --foreground: #171717;
   --neon-pink: #ff00ff;
   --bright-blue: #00ffff;
+  --font-geist-sans:
+    'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-geist-mono:
+    'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+  --font-montserrat:
+    'Trebuchet MS', 'Avenir Next', 'Segoe UI', sans-serif;
+  --font-roboto:
+    'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-poppins:
+    'Avenir Next', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 }
 
 /* Tema claro */
