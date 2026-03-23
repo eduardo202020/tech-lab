@@ -95,7 +95,7 @@ export default function LoginPage() {
         setError(error.message || 'Error al registrarse');
       } else {
         setError('');
-        alert('Cuenta creada en modo local. Ya puedes usarla en este navegador.');
+        alert('Cuenta creada en PostgreSQL. Ya puedes iniciar sesión.');
       }
     }
 
@@ -220,7 +220,10 @@ export default function LoginPage() {
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-theme-secondary w-4 h-4" />
                   <input
-                    type="email"
+                    type="text"
+                    inputMode="email"
+                    autoCapitalize="none"
+                    autoCorrect="off"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}

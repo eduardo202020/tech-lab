@@ -7,6 +7,7 @@ import React, {
   useState,
   useCallback,
 } from 'react';
+import { createMockAuthHeaders } from '@/lib/mockAuthClient';
 
 type AuthUser = {
   id: string;
@@ -20,7 +21,6 @@ type AuthSession = {
   expires_at: number;
 };
 
-// Tipo para el perfil de usuario
 export interface UserProfile {
   id: string;
   username: string;
@@ -35,11 +35,6 @@ export interface UserProfile {
   updated_at: string;
 }
 
-type StoredUserProfile = UserProfile & {
-  password?: string;
-};
-
-// Tipo para el contexto de autenticación
 interface AuthContextType {
   user: AuthUser | null;
   profile: UserProfile | null;
@@ -60,17 +55,20 @@ interface AuthContextType {
   updateProfile: (
     updates: Partial<UserProfile>
   ) => Promise<{ error: Error | null }>;
+  changePassword: (
+    currentPassword: string,
+    newPassword: string
+  ) => Promise<{ error: Error | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AUTH_STORAGE_KEY = 'techlab_mock_auth';
 const LEGACY_STORAGE_KEY = 'techlab_supabase_auth';
-const MOCK_PROFILES_KEY = 'techlab_mock_profiles';
 
-type MockUsersFile = {
-  usuarios?: StoredUserProfile[];
-  user_profiles?: StoredUserProfile[];
+type AuthApiResponse = {
+  error?: string;
+  profile?: UserProfile;
 };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -78,20 +76,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [session, setSession] = useState<AuthSession | null>(null);
   const [loading, setLoading] = useState(true);
-  const [profiles, setProfiles] = useState<StoredUserProfile[]>([]);
-
-  const sanitizeProfile = (storedProfile: StoredUserProfile): UserProfile => {
-    const publicProfile = { ...storedProfile };
-    delete publicProfile.password;
-    return publicProfile;
-  };
-
-  const saveProfilesToStorage = (nextProfiles: StoredUserProfile[]) => {
-    try {
-      if (typeof window === 'undefined') return;
-      localStorage.setItem(MOCK_PROFILES_KEY, JSON.stringify(nextProfiles));
-    } catch { }
-  };
 
   const saveAuthToStorage = (nextSession: AuthSession, nextProfile: UserProfile) => {
     try {
@@ -122,39 +106,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   };
 
-  const loadProfiles = async (): Promise<StoredUserProfile[]> => {
-    let baseProfiles: StoredUserProfile[] = [];
-    try {
-      const response = await fetch('/mocks/usuarios.json');
-      if (response.ok) {
-        const json = (await response.json()) as MockUsersFile;
-        baseProfiles = (json.usuarios || json.user_profiles || []) as StoredUserProfile[];
-      }
-    } catch { }
-
-    try {
-      if (typeof window !== 'undefined') {
-        const local = localStorage.getItem(MOCK_PROFILES_KEY);
-        if (local) {
-          const parsed = JSON.parse(local) as StoredUserProfile[];
-          const byId = new Map<string, StoredUserProfile>();
-          [...baseProfiles, ...parsed].forEach((item) => byId.set(item.id, item));
-          return Array.from(byId.values());
-        }
-      }
-    } catch { }
-
-    return baseProfiles;
-  };
-
-  const loadUserProfile = async (userId: string) => {
-    const found = profiles.find((item) => item.id === userId) || null;
-    if (found) return sanitizeProfile(found);
-    const loaded = await loadProfiles();
-    setProfiles(loaded);
-    const matched = loaded.find((item) => item.id === userId) || null;
-    return matched ? sanitizeProfile(matched) : null;
-  };
+  const toAuthUser = useCallback((nextProfile: UserProfile): AuthUser => {
+    return {
+      id: nextProfile.id,
+      email: nextProfile.email,
+      user_metadata: {
+        full_name: nextProfile.full_name,
+        user_name: nextProfile.username,
+        avatar_url: nextProfile.avatar_url,
+      },
+    };
+  }, []);
 
   const applyAuthState = useCallback(
     (nextSession: AuthSession, nextProfile: UserProfile) => {
@@ -166,35 +128,61 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
+  const fetchCurrentProfile = useCallback(async () => {
+    const response = await fetch('/api/auth/session', {
+      headers: createMockAuthHeaders(),
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      throw new Error('No se pudo validar la sesión');
+    }
+
+    const json = (await response.json()) as AuthApiResponse;
+    if (!json.profile) {
+      throw new Error('Perfil no disponible');
+    }
+
+    return json.profile;
+  }, []);
+
   const restoreSavedSession = useCallback(async () => {
     try {
       if (typeof window === 'undefined') return false;
-      const raw = localStorage.getItem(AUTH_STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
+      const raw =
+        localStorage.getItem(AUTH_STORAGE_KEY) ||
+        localStorage.getItem(LEGACY_STORAGE_KEY);
       if (!raw) return false;
+
       const parsed = JSON.parse(raw) as {
         session?: AuthSession;
         profile?: UserProfile;
       };
       if (!parsed?.session?.user || !parsed?.profile) return false;
-      applyAuthState(parsed.session, parsed.profile);
-      return true;
+
+      try {
+        const freshProfile = await fetchCurrentProfile();
+        const nextSession = parsed.session;
+        applyAuthState(nextSession, freshProfile);
+        return true;
+      } catch {
+        clearAuthStorage();
+        setUser(null);
+        setSession(null);
+        setProfile(null);
+        return false;
+      }
     } catch {
       return false;
     }
-  }, [applyAuthState]);
+  }, [applyAuthState, fetchCurrentProfile]);
 
-  // Inicializar autenticación
   useEffect(() => {
     let isMounted = true;
 
     const initializeAuth = async () => {
       try {
         if (!isMounted) return;
-
-        const loadedProfiles = await loadProfiles();
-        if (!isMounted) return;
-        setProfiles(loadedProfiles);
-
         const restored = await restoreSavedSession();
         if (!restored) {
           setUser(null);
@@ -215,11 +203,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [restoreSavedSession]);
 
-  // Funciones de autenticación
   const signInWithGoogle = async () => {
     try {
       return {
-        error: new Error('Autenticación OAuth deshabilitada en modo mock. Usa email/contraseña.'),
+        error: new Error(
+          'Autenticación OAuth deshabilitada. Usa usuario/email y contraseña.'
+        ),
       };
     } catch (error) {
       return { error: error as Error };
@@ -229,7 +218,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGitHub = async () => {
     try {
       return {
-        error: new Error('Autenticación OAuth deshabilitada en modo mock. Usa email/contraseña.'),
+        error: new Error(
+          'Autenticación OAuth deshabilitada. Usa usuario/email y contraseña.'
+        ),
       };
     } catch (error) {
       return { error: error as Error };
@@ -238,44 +229,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithEmail = async (email: string, password: string) => {
     try {
-      if (!password) return { error: new Error('Contraseña requerida') };
-
-      const normalized = email.trim().toLowerCase();
-      const loadedProfiles = profiles.length ? profiles : await loadProfiles();
-
-      const matchedProfile = loadedProfiles.find(
-        (item) =>
-          (item.email || '').toLowerCase() === normalized ||
-          item.username.toLowerCase() === normalized
-      );
-
-      if (!matchedProfile) {
-        return { error: new Error('Usuario no encontrado') };
+      if (!password) {
+        return { error: new Error('Contraseña requerida') };
       }
 
-      if (!matchedProfile.password) {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          identifier: email,
+          password,
+        }),
+      });
+
+      const json = (await response.json().catch(() => ({}))) as AuthApiResponse;
+      if (!response.ok || !json.profile) {
         return {
-          error: new Error(
-            'El usuario no tiene contraseña configurada en el modo local'
-          ),
+          error: new Error(json.error || 'No se pudo iniciar sesión'),
         };
       }
 
-      if (matchedProfile.password !== password) {
-        return { error: new Error('Contraseña incorrecta') };
-      }
-
-      const nextUser: AuthUser = {
-        id: matchedProfile.id,
-        email: matchedProfile.email,
-        user_metadata: {
-          full_name: matchedProfile.full_name,
-          user_name: matchedProfile.username,
-          avatar_url: matchedProfile.avatar_url,
-        },
-      };
+      const nextUser = toAuthUser(json.profile);
       const nextSession = createMockSession(nextUser);
-      applyAuthState(nextSession, sanitizeProfile(matchedProfile));
+      applyAuthState(nextSession, json.profile);
 
       return { error: null };
     } catch (error) {
@@ -290,48 +266,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   ) => {
     try {
       if (!password || password.length < 6) {
-        return { error: new Error('La contraseña debe tener al menos 6 caracteres') };
+        return {
+          error: new Error('La contraseña debe tener al menos 6 caracteres'),
+        };
       }
 
-      const loadedProfiles = profiles.length ? profiles : await loadProfiles();
-      const exists = loadedProfiles.some(
-        (item) => (item.email || '').toLowerCase() === email.toLowerCase()
-      );
-      if (exists) {
-        return { error: new Error('El email ya está registrado') };
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          password,
+          userData,
+        }),
+      });
+
+      const json = (await response.json().catch(() => ({}))) as AuthApiResponse;
+      if (!response.ok || !json.profile) {
+        return {
+          error: new Error(json.error || 'No se pudo registrar usuario'),
+        };
       }
 
-      const now = new Date().toISOString();
-      const nextProfile: StoredUserProfile = {
-        id: crypto.randomUUID(),
-        username: userData?.username || email.split('@')[0],
-        full_name: userData?.full_name || 'Usuario',
-        email,
-        role: (userData?.role || 'student') as UserProfile['role'],
-        avatar_url: userData?.avatar_url || null,
-        bio: userData?.bio || null,
-        phone: userData?.phone || null,
-        linkedin_url: userData?.linkedin_url || null,
-        password,
-        created_at: now,
-        updated_at: now,
-      };
-
-      const nextProfiles = [nextProfile, ...loadedProfiles.filter((item) => item.id !== nextProfile.id)];
-      setProfiles(nextProfiles);
-      saveProfilesToStorage(nextProfiles);
-
-      const nextUser: AuthUser = {
-        id: nextProfile.id,
-        email: nextProfile.email,
-        user_metadata: {
-          full_name: nextProfile.full_name,
-          user_name: nextProfile.username,
-          avatar_url: nextProfile.avatar_url,
-        },
-      };
+      const nextUser = toAuthUser(json.profile);
       const nextSession = createMockSession(nextUser);
-      applyAuthState(nextSession, sanitizeProfile(nextProfile));
+      applyAuthState(nextSession, json.profile);
 
       return { error: null };
     } catch (error) {
@@ -357,32 +316,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error: new Error('No user logged in') };
       }
 
-      const currentProfile = profile || (await loadUserProfile(user.id));
-      if (!currentProfile) {
-        return { error: new Error('Perfil no encontrado') };
+      const response = await fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: createMockAuthHeaders({
+          'Content-Type': 'application/json',
+        }),
+        body: JSON.stringify({ updates }),
+      });
+
+      const json = (await response.json().catch(() => ({}))) as AuthApiResponse;
+      if (!response.ok || !json.profile) {
+        return {
+          error: new Error(json.error || 'No se pudo actualizar el perfil'),
+        };
       }
 
-      const currentStoredProfile =
-        profiles.find((item) => item.id === currentProfile.id) || currentProfile;
+      setProfile(json.profile);
+      if (session) {
+        saveAuthToStorage(session, json.profile);
+      }
 
-      const nextProfile: StoredUserProfile = {
-        ...currentStoredProfile,
-        ...updates,
-        updated_at: new Date().toISOString(),
+      return { error: null };
+    } catch (error) {
+      return { error: error as Error };
+    }
+  };
+
+  const changePassword = async (
+    currentPassword: string,
+    newPassword: string
+  ) => {
+    try {
+      if (!user) {
+        return { error: new Error('No user logged in') };
+      }
+
+      const response = await fetch('/api/auth/password', {
+        method: 'PUT',
+        headers: createMockAuthHeaders({
+          'Content-Type': 'application/json',
+        }),
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+
+      const json = (await response.json().catch(() => ({}))) as {
+        error?: string;
       };
 
-      const nextProfiles =
-        profiles.length > 0
-          ? profiles.map((item) =>
-              item.id === nextProfile.id ? nextProfile : item
-            )
-          : [nextProfile];
-      setProfiles(nextProfiles);
-      saveProfilesToStorage(nextProfiles);
-      setProfile(sanitizeProfile(nextProfile));
-
-      if (session) {
-        saveAuthToStorage(session, sanitizeProfile(nextProfile));
+      if (!response.ok) {
+        return {
+          error: new Error(json.error || 'No se pudo cambiar la contraseña'),
+        };
       }
 
       return { error: null };
@@ -402,6 +386,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signUp,
     signOut,
     updateProfile,
+    changePassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -415,19 +400,16 @@ export const useAuth = () => {
   return context;
 };
 
-// Helper hook para verificar si el usuario es admin
 export const useIsAdmin = () => {
   const { profile } = useAuth();
   return profile?.role === 'admin';
 };
 
-// Helper hook para verificar autenticación
 export const useRequireAuth = () => {
   const { user, loading } = useAuth();
 
   useEffect(() => {
     if (!loading && !user) {
-      // Redirigir al login si no está autenticado
       window.location.href = '/login';
     }
   }, [user, loading]);
