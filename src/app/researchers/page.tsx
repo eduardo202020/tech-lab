@@ -28,18 +28,222 @@ import Header from '@/components/Header';
 import Modal from '@/components/Modal';
 import { useRef } from 'react';
 
+type ResearcherFormState = {
+  name: string;
+  email: string;
+  avatar_url: string;
+  position: string;
+  department: string;
+  biography: string;
+  academic_level: Researcher['academic_level'];
+  status: Researcher['status'];
+  join_date: string;
+  end_date: string;
+  phone: string;
+  linkedin_url: string;
+  research_gate_url: string;
+  orcid: string;
+  personal_website: string;
+  university: string;
+  degree: string;
+  specializations_text: string;
+  research_interests_text: string;
+  publications_text: string;
+  achievements_text: string;
+  projects_completed: string;
+  years_experience: string;
+};
+
+const splitList = (value: string) =>
+  value
+    .split('\n')
+    .map((item) => item.split(','))
+    .flat()
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+const createEmptyResearcherForm = (): ResearcherFormState => ({
+  name: '',
+  email: '',
+  avatar_url: '',
+  position: '',
+  department: 'Tech Lab',
+  biography: '',
+  academic_level: 'bachelor',
+  status: 'active',
+  join_date: new Date().toISOString().slice(0, 10),
+  end_date: '',
+  phone: '',
+  linkedin_url: '',
+  research_gate_url: '',
+  orcid: '',
+  personal_website: '',
+  university: 'Universidad Nacional de Ingenieria',
+  degree: '',
+  specializations_text: '',
+  research_interests_text: '',
+  publications_text: '',
+  achievements_text: '',
+  projects_completed: '0',
+  years_experience: '1',
+});
+
+function ResearcherAdminModal({
+  isOpen,
+  mode,
+  researcher,
+  saving,
+  onClose,
+  onSave,
+}: {
+  isOpen: boolean;
+  mode: 'create' | 'edit';
+  researcher: Researcher | null;
+  saving: boolean;
+  onClose: () => void;
+  onSave: (payload: Omit<Researcher, 'id' | 'created_at' | 'updated_at' | 'current_projects' | 'past_projects'> | Partial<Researcher>) => Promise<void>;
+}) {
+  const [form, setForm] = useState<ResearcherFormState>(createEmptyResearcherForm());
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (!researcher || mode === 'create') {
+      setForm(createEmptyResearcherForm());
+      return;
+    }
+
+    setForm({
+      name: researcher.name || '',
+      email: researcher.email || '',
+      avatar_url: researcher.avatar_url || '',
+      position: researcher.position || '',
+      department: researcher.department || 'Tech Lab',
+      biography: researcher.biography || '',
+      academic_level: researcher.academic_level || 'bachelor',
+      status: researcher.status || 'active',
+      join_date: researcher.join_date || new Date().toISOString().slice(0, 10),
+      end_date: researcher.end_date || '',
+      phone: researcher.phone || '',
+      linkedin_url: researcher.linkedin_url || '',
+      research_gate_url: researcher.research_gate_url || '',
+      orcid: researcher.orcid || '',
+      personal_website: researcher.personal_website || '',
+      university: researcher.university || '',
+      degree: researcher.degree || '',
+      specializations_text: (researcher.specializations || []).join('\n'),
+      research_interests_text: (researcher.research_interests || []).join('\n'),
+      publications_text: (researcher.publications || []).join('\n'),
+      achievements_text: (researcher.achievements || []).join('\n'),
+      projects_completed: String(researcher.projects_completed || 0),
+      years_experience: String(researcher.years_experience || 0),
+    });
+  }, [isOpen, mode, researcher]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const publications = splitList(form.publications_text);
+    const payload = {
+      name: form.name.trim(),
+      email: form.email.trim(),
+      avatar_url: form.avatar_url.trim() || '',
+      position: form.position.trim(),
+      department: form.department.trim(),
+      biography: form.biography.trim(),
+      academic_level: form.academic_level,
+      status: form.status,
+      join_date: form.join_date,
+      end_date: form.end_date || undefined,
+      phone: form.phone.trim(),
+      linkedin_url: form.linkedin_url.trim(),
+      research_gate_url: form.research_gate_url.trim(),
+      orcid: form.orcid.trim(),
+      personal_website: form.personal_website.trim(),
+      university: form.university.trim(),
+      degree: form.degree.trim(),
+      specializations: splitList(form.specializations_text),
+      research_interests: splitList(form.research_interests_text),
+      publications,
+      achievements: splitList(form.achievements_text),
+      projects_completed: Number(form.projects_completed || '0'),
+      publications_count: publications.length,
+      years_experience: Number(form.years_experience || '0'),
+      created_by: 'admin',
+    };
+
+    await onSave(payload);
+  };
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={mode === 'create' ? 'Nuevo Investigador' : 'Editar Investigador'}
+      size="lg"
+      className="bg-theme-card border border-theme-border text-theme-text"
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg" placeholder="Nombre completo" />
+          <input required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg" placeholder="Email" />
+          <input required value={form.position} onChange={(e) => setForm({ ...form, position: e.target.value })} className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg" placeholder="Posicion" />
+          <input required value={form.department} onChange={(e) => setForm({ ...form, department: e.target.value })} className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg" placeholder="Departamento" />
+          <input value={form.avatar_url} onChange={(e) => setForm({ ...form, avatar_url: e.target.value })} className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg" placeholder="Avatar URL" />
+          <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg" placeholder="Telefono" />
+          <select value={form.academic_level} onChange={(e) => setForm({ ...form, academic_level: e.target.value as Researcher['academic_level'] })} className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg">
+            <option value="undergraduate">Pregrado</option>
+            <option value="bachelor">Licenciado</option>
+            <option value="master">Magister</option>
+            <option value="phd">Doctor</option>
+            <option value="postdoc">Postdoc</option>
+            <option value="professor">Profesor</option>
+          </select>
+          <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as Researcher['status'] })} className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg">
+            <option value="active">Activo</option>
+            <option value="inactive">Inactivo</option>
+            <option value="alumni">Alumni</option>
+            <option value="visiting">Visitante</option>
+          </select>
+          <input type="date" value={form.join_date} onChange={(e) => setForm({ ...form, join_date: e.target.value })} className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg" />
+          <input type="date" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg" />
+          <input value={form.linkedin_url} onChange={(e) => setForm({ ...form, linkedin_url: e.target.value })} className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg" placeholder="LinkedIn URL" />
+          <input value={form.personal_website} onChange={(e) => setForm({ ...form, personal_website: e.target.value })} className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg" placeholder="Sitio personal" />
+          <input value={form.university} onChange={(e) => setForm({ ...form, university: e.target.value })} className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg" placeholder="Universidad" />
+          <input value={form.degree} onChange={(e) => setForm({ ...form, degree: e.target.value })} className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg" placeholder="Grado" />
+          <input type="number" min="0" value={form.projects_completed} onChange={(e) => setForm({ ...form, projects_completed: e.target.value })} className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg" placeholder="Proyectos completados" />
+          <input type="number" min="0" value={form.years_experience} onChange={(e) => setForm({ ...form, years_experience: e.target.value })} className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg" placeholder="Años de experiencia" />
+        </div>
+        <textarea value={form.biography} onChange={(e) => setForm({ ...form, biography: e.target.value })} className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg h-24" placeholder="Biografia" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <textarea value={form.specializations_text} onChange={(e) => setForm({ ...form, specializations_text: e.target.value })} className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg h-28" placeholder="Especializaciones, una por linea" />
+          <textarea value={form.research_interests_text} onChange={(e) => setForm({ ...form, research_interests_text: e.target.value })} className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg h-28" placeholder="Intereses de investigacion, uno por linea" />
+          <textarea value={form.publications_text} onChange={(e) => setForm({ ...form, publications_text: e.target.value })} className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg h-28" placeholder="Publicaciones, una por linea" />
+          <textarea value={form.achievements_text} onChange={(e) => setForm({ ...form, achievements_text: e.target.value })} className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg h-28" placeholder="Logros, uno por linea" />
+        </div>
+        <div className="flex justify-end gap-3">
+          <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg border border-theme-border hover:bg-theme-accent/10">Cancelar</button>
+          <button type="submit" disabled={saving} className="px-4 py-2 rounded-lg bg-theme-accent text-white disabled:opacity-60">
+            {saving ? 'Guardando...' : mode === 'create' ? 'Crear' : 'Actualizar'}
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
 export default function ResearchersPage() {
   const { user: sbUser, profile } = useAuthSession();
   const isAuthenticated = !!sbUser;
   const user = { role: profile?.role } as { role?: string };
   const {
     researchers,
-    // createResearcher: addResearcher,  // Commented out for build
-    // updateResearcher,  // Commented out for build
+    createResearcher,
+    updateResearcher,
     deleteResearcher,
     filterResearchers,
     loading: isLoading,
     fetchResearchers,
+    error,
   } = useResearchers({ autoFetch: false });
 
   // Función de búsqueda simulada
@@ -118,11 +322,10 @@ export default function ResearchersPage() {
   const [selectedProject, setSelectedProject] = useState('');
   const [showWhatsAppInfoModal, setShowWhatsAppInfoModal] = useState(false);
   const [whatsAppTargetName, setWhatsAppTargetName] = useState('');
-  // Modal states commented out for build
-  // const [showAddModal, setShowAddModal] = useState(false);
-  // const [showEditModal, setShowEditModal] = useState(false);
-  // const [showViewModal, setShowViewModal] = useState(false);
-  // const [selectedResearcher, setSelectedResearcher] = useState<Researcher | null>(null);
+  const [showResearcherModal, setShowResearcherModal] = useState(false);
+  const [researcherModalMode, setResearcherModalMode] = useState<'create' | 'edit'>('create');
+  const [selectedResearcher, setSelectedResearcher] = useState<Researcher | null>(null);
+  const [savingResearcher, setSavingResearcher] = useState(false);
   const [filteredResearchers, setFilteredResearchers] =
     useState<Researcher[]>(researchers);
   const lastFetchKey = useRef<string | null>(null);
@@ -312,9 +515,11 @@ export default function ResearchersPage() {
             {/* Botón Agregar - Solo para administradores */}
             {isAdmin && (
               <button
-                onClick={() =>
-                  alert('Funcionalidad de agregar investigador próximamente')
-                }
+                onClick={() => {
+                  setResearcherModalMode('create');
+                  setSelectedResearcher(null);
+                  setShowResearcherModal(true);
+                }}
                 className="flex items-center justify-center gap-2 w-full lg:w-auto bg-gradient-to-r from-neon-pink to-bright-blue text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
               >
                 <Plus className="w-4 h-4" />
@@ -544,14 +749,23 @@ export default function ResearchersPage() {
                   {isAdmin && (
                     <div className="flex flex-wrap gap-2">
                       <button
-                        onClick={() => alert('Edición próximamente')}
+                        onClick={() => {
+                          setResearcherModalMode('edit');
+                          setSelectedResearcher(researcher);
+                          setShowResearcherModal(true);
+                        }}
                         className="p-2.5 text-theme-secondary hover:text-theme-text hover:bg-theme-accent/10 border border-theme-border/60 rounded-lg transition-colors"
                         title="Editar"
                       >
                         <Edit3 className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => deleteResearcher(researcher.id)}
+                        onClick={async () => {
+                          if (!window.confirm(`Eliminar a ${researcher.name}?`)) {
+                            return;
+                          }
+                          await deleteResearcher(researcher.id);
+                        }}
                         className="p-2.5 text-red-500 hover:text-red-600 hover:bg-red-500/10 border border-theme-border/60 rounded-lg transition-colors"
                         title="Eliminar"
                       >
@@ -587,6 +801,9 @@ export default function ResearchersPage() {
             Cargando investigadores...
           </div>
         )}
+        {error && (
+          <div className="text-center text-red-400 py-2">{error}</div>
+        )}
 
         {/* Modales */}
         <Modal
@@ -613,41 +830,40 @@ export default function ResearchersPage() {
           </p>
         </Modal>
 
-        {/* Temporarily disabled for build 
-        <AddResearcherModal
-          isOpen={showAddModal}
-          onClose={() => setShowAddModal(false)}
-          onAdd={(researcherData) => {
-            addResearcher(researcherData);
-            setShowAddModal(false);
-          }}
-        />
-        */}
-
-        {/* Temporarily disabled for build 
-        <EditResearcherModal
-          isOpen={showEditModal}
-          onClose={() => {
-            setShowEditModal(false);
-            setSelectedResearcher(null);
-          }}
-          onEdit={(researcher) => {
-            updateResearcher(researcher.id, researcher);
-            setShowEditModal(false);
-            setSelectedResearcher(null);
-          }}
+        <ResearcherAdminModal
+          isOpen={showResearcherModal}
+          mode={researcherModalMode}
           researcher={selectedResearcher}
-        />
-
-        <ViewResearcherModal
-          isOpen={showViewModal}
+          saving={savingResearcher}
           onClose={() => {
-            setShowViewModal(false);
+            setShowResearcherModal(false);
             setSelectedResearcher(null);
           }}
-          researcher={selectedResearcher}
+          onSave={async (payload) => {
+            setSavingResearcher(true);
+            if (researcherModalMode === 'create') {
+              const created = await createResearcher(
+                payload as Omit<
+                  Researcher,
+                  'id' | 'created_at' | 'updated_at' | 'current_projects' | 'past_projects'
+                >
+              );
+              if (created) {
+                setShowResearcherModal(false);
+              }
+            } else if (selectedResearcher) {
+              const ok = await updateResearcher(
+                selectedResearcher.id,
+                payload as Partial<Researcher>
+              );
+              if (ok) {
+                setShowResearcherModal(false);
+                setSelectedResearcher(null);
+              }
+            }
+            setSavingResearcher(false);
+          }}
         />
-        */}
       </main>
     </div>
   );

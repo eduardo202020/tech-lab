@@ -3,23 +3,72 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { LogOut, User, Shield, GraduationCap, Search, Eye, Menu, X } from 'lucide-react';
+import { LogOut, User, Shield, GraduationCap, Search, Eye, Menu, X, KeyRound } from 'lucide-react';
 import { useAuth } from '@/contexts/SessionAuthContext';
 import ThemeToggle from './ThemeToggle';
 import { useState } from 'react';
+import Modal from './Modal';
 
 export default function Header() {
   const router = useRouter();
-  const { user, profile, signOut, loading } = useAuth();
+  const { user, profile, signOut, loading, changePassword } = useAuth();
   const isAuthenticated = !!user && !!profile;
   const isLoading = loading;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [passwordSaving, setPasswordSaving] = useState(false);
 
   const handleLogout = async () => {
     await signOut();
     router.push('/');
   };
+
+  const resetPasswordForm = () => {
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setPasswordError('');
+    setPasswordSuccess('');
+    setPasswordSaving(false);
+  };
+
+  const handleOpenPasswordModal = () => {
+    resetPasswordForm();
+    setShowPasswordModal(true);
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('La confirmación no coincide con la nueva contraseña.');
+      return;
+    }
+
+    setPasswordSaving(true);
+    const { error } = await changePassword(currentPassword, newPassword);
+    setPasswordSaving(false);
+
+    if (error) {
+      setPasswordError(error.message || 'No se pudo cambiar la contraseña.');
+      return;
+    }
+
+    setPasswordSuccess('Contraseña actualizada correctamente.');
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+  };
+
   return (
+    <>
     <header className="fixed top-0 left-0 right-0 z-50 bg-theme-bg/80 backdrop-blur-sm transition-colors duration-300">
       <div className="container mx-auto flex flex-wrap items-center justify-between px-6 py-4">
         {/* Mobile Menu Button & Logo */}
@@ -160,14 +209,22 @@ export default function Header() {
                   </span>
                 </div>
               </div>
-              {/* Logout button - Hidden on mobile, shown in mobile menu instead */}
-              <button
-                onClick={handleLogout}
-                className="hidden md:flex items-center gap-2 text-theme-secondary hover:text-theme-text transition-colors"
-                title="Cerrar sesión"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
+              <div className="hidden md:flex items-center gap-3">
+                <button
+                  onClick={handleOpenPasswordModal}
+                  className="flex items-center gap-2 text-theme-secondary hover:text-theme-text transition-colors"
+                  title="Cambiar contraseña"
+                >
+                  <KeyRound className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 text-theme-secondary hover:text-theme-text transition-colors"
+                  title="Cerrar sesión"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           ) : (
             <Link
@@ -234,6 +291,16 @@ export default function Header() {
               <div className="pt-4 border-t border-theme-border">
                 <button
                   onClick={() => {
+                    setMobileMenuOpen(false);
+                    handleOpenPasswordModal();
+                  }}
+                  className="flex items-center gap-2 px-3 py-2 text-theme-text hover:text-theme-accent hover:bg-theme-accent/10 rounded-md transition-colors w-full justify-center mb-2"
+                >
+                  <KeyRound className="w-4 h-4" />
+                  <span className="text-sm">Cambiar contraseña</span>
+                </button>
+                <button
+                  onClick={() => {
                     handleLogout();
                     setMobileMenuOpen(false);
                   }}
@@ -258,5 +325,82 @@ export default function Header() {
         </div>
       )}
     </header>
+    <Modal
+      isOpen={showPasswordModal}
+      onClose={() => {
+        setShowPasswordModal(false);
+        resetPasswordForm();
+      }}
+      title="Cambiar contraseña"
+      size="sm"
+      className="bg-theme-card border border-theme-border text-theme-text"
+    >
+      <form onSubmit={handleChangePassword} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-theme-secondary mb-2">
+            Contraseña actual
+          </label>
+          <input
+            type="password"
+            required
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-theme-secondary mb-2">
+            Nueva contraseña
+          </label>
+          <input
+            type="password"
+            required
+            minLength={6}
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-theme-secondary mb-2">
+            Confirmar nueva contraseña
+          </label>
+          <input
+            type="password"
+            required
+            minLength={6}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg focus:ring-2 focus:ring-theme-accent text-theme-text"
+          />
+        </div>
+        {passwordError && (
+          <p className="text-sm text-red-400">{passwordError}</p>
+        )}
+        {passwordSuccess && (
+          <p className="text-sm text-green-400">{passwordSuccess}</p>
+        )}
+        <div className="flex justify-end gap-3 pt-2">
+          <button
+            type="button"
+            onClick={() => {
+              setShowPasswordModal(false);
+              resetPasswordForm();
+            }}
+            className="px-4 py-2 rounded-lg border border-theme-border text-theme-text hover:bg-theme-accent/10 transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            disabled={passwordSaving}
+            className="px-4 py-2 rounded-lg bg-theme-accent text-white hover:opacity-90 transition-opacity disabled:opacity-60"
+          >
+            {passwordSaving ? 'Guardando...' : 'Actualizar'}
+          </button>
+        </div>
+      </form>
+    </Modal>
+    </>
   );
 }

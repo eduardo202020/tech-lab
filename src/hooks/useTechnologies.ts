@@ -157,7 +157,7 @@ export function useTechnologies(options?: UseTechnologyRecordsOptions) {
 
   const createTechnology = useCallback(
     async (
-      technologyData: Omit<TechnologyRecord, 'id' | 'created_at' | 'updated_at'>
+      technologyData: Omit<TechnologyRecord, 'created_at' | 'updated_at'>
     ): Promise<TechnologyRecord | null> => {
       try {
         const response = await fetch('/api/technologies', {
