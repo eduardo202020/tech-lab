@@ -15,6 +15,10 @@ import {
   useProjectDevices,
 } from '@/hooks/useProjectDevices';
 import type { DeviceType, ProjectDeviceRecord } from '@/lib/projectDevices';
+import {
+  DEFAULT_DEVICE_IDENTIFIERS,
+  DEVICE_IDENTIFIER_EXAMPLES,
+} from '@/lib/sensorBackends';
 
 type DeviceFormState = {
   name: string;
@@ -43,9 +47,9 @@ const DEVICE_TYPE_LABELS: Record<DeviceType, string> = {
 };
 
 const DEVICE_TYPE_HELPERS: Record<DeviceType, string> = {
-  smart_parking: 'Ejemplo de ID: smart_parking:A1',
-  people_counter: 'Ejemplo de ID: cuenta_personas:A1',
-  lora: 'Ejemplo de ID: 1102',
+  smart_parking: `Ejemplo de ID: ${DEVICE_IDENTIFIER_EXAMPLES.smart_parking}`,
+  people_counter: `Ejemplo de ID: ${DEVICE_IDENTIFIER_EXAMPLES.people_counter}`,
+  lora: `Ejemplo de ID: ${DEVICE_IDENTIFIER_EXAMPLES.lora}`,
 };
 
 function DeviceModal({
@@ -171,7 +175,7 @@ function DeviceModal({
                 value={form.secondary_identifier}
                 onChange={(e) => setForm({ ...form, secondary_identifier: e.target.value })}
                 className="w-full px-3 py-2 bg-theme-background border border-theme-border rounded-lg"
-                placeholder="cuenta_personas:A1"
+                placeholder={DEFAULT_DEVICE_IDENTIFIERS.people_counter}
               />
               <p className="text-xs text-theme-secondary mt-2">
                 Usalo para relacionar el Smart Parking con el contador de personas del area.
@@ -365,7 +369,10 @@ function LegacySensorSections({
             Sistema de conteo de personas en tiempo real que muestra el aforo actual del área monitoreada.
           </p>
           <div className="bg-theme-background rounded-lg p-4 border border-theme-border min-h-[600px]">
-            <PeopleCounterViewer camId="cuenta_personas:A1" refreshMs={10000} />
+            <PeopleCounterViewer
+              camId={DEFAULT_DEVICE_IDENTIFIERS.people_counter}
+              refreshMs={10000}
+            />
           </div>
         </div>
       )}

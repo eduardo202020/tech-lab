@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { Pool, type PoolClient } from 'pg';
 import dns from 'node:dns/promises';
+import {
+  DEFAULT_DEVICE_IDENTIFIERS,
+  SMART_PARKING_CAMERA_IDS,
+} from '@/lib/sensorBackends';
 
 const {
   SMARTPARKING_DB_HOST,
@@ -107,7 +111,7 @@ const buildAreaData = (spotRow: SpotRow, peopleCount: number | null): Area => {
 };
 
 const ensureBothCameras = (areas: Area[], peopleCount: number | null): Area[] => {
-  const desiredOrder = ['smart_parking:A1', 'smart_parking:A2'];
+  const desiredOrder = SMART_PARKING_CAMERA_IDS;
   const existing = new Set(areas.map((a) => a.cameraId));
 
   desiredOrder.forEach((camId) => {
@@ -152,8 +156,11 @@ const respondMock = (camId: string, counterCamId: string, reason: string) => {
   };
 
   const areas = [
-    buildMockArea('smart_parking:A1', [0, 1, 0, 1]),
-    buildMockArea('smart_parking:A2', [0, 0, 1, 0]),
+    buildMockArea(SMART_PARKING_CAMERA_IDS[0] || DEFAULT_DEVICE_IDENTIFIERS.smart_parking, [0, 1, 0, 1]),
+    buildMockArea(
+      SMART_PARKING_CAMERA_IDS[1] || SMART_PARKING_CAMERA_IDS[0] || DEFAULT_DEVICE_IDENTIFIERS.smart_parking,
+      [0, 0, 1, 0]
+    ),
   ];
 
   console.log(`[SmartParking][MOCK] Respondiendo datos simulados (${reason})`);
@@ -171,8 +178,9 @@ const respondMock = (camId: string, counterCamId: string, reason: string) => {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const camId = searchParams.get('camId') ?? 'smart_parking:A1';
-  const counterCamId = searchParams.get('counterCamId') ?? 'cuenta_personas:A1';
+  const camId = searchParams.get('camId') ?? DEFAULT_DEVICE_IDENTIFIERS.smart_parking;
+  const counterCamId =
+    searchParams.get('counterCamId') ?? DEFAULT_DEVICE_IDENTIFIERS.people_counter;
 
   // Modo mock para pruebas locales sin DB
   if (SMARTPARKING_MOCK === 'true') {
@@ -263,8 +271,8 @@ export async function GET(request: Request) {
 
   try {
     const { rows: spotRows } = await client.query(
-      'SELECT * FROM sp_registros WHERE cam_id IN ($1, $2) ORDER BY ts DESC',
-      ['smart_parking:A1', 'smart_parking:A2']
+      'SELECT * FROM sp_registros WHERE cam_id = ANY($1::text[]) ORDER BY ts DESC',
+      [SMART_PARKING_CAMERA_IDS]
     );
 
     if (spotRows.length === 0) {

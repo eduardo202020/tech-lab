@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
-import { DECLARATIVE_DB_API_BASE_URL } from '@/lib/sensorBackends';
+import { DEFAULT_DEVICE_IDENTIFIERS, SENSOR_BACKEND_BASE_URLS } from '@/lib/sensorBackends';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
-        const camId = searchParams.get('cam_id') || 'smart_parking:A1';
+        const camId = searchParams.get('cam_id') || DEFAULT_DEVICE_IDENTIFIERS.smart_parking;
 
-        const backendUrl = `${DECLARATIVE_DB_API_BASE_URL}/sp/${camId}`;
+        const backendUrl = `${SENSOR_BACKEND_BASE_URLS.smart_parking}/sp/${camId}`;
 
         const response = await fetch(backendUrl, {
             method: 'GET',

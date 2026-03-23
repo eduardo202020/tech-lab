@@ -6,6 +6,7 @@ import { Suspense, useState, useEffect, useCallback } from 'react';
 import { Users, TrendingUp, TrendingDown, Minus, AlertTriangle } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import * as THREE from 'three';
+import { DEFAULT_DEVICE_IDENTIFIERS } from '@/lib/sensorBackends';
 
 interface ViewerProps {
   camId?: string;
@@ -290,7 +291,10 @@ function CounterDisplay({ data }: { data: CounterData }) {
   );
 }
 
-function PeopleCounterScene({ camId = 'cuenta_personas:A1', refreshMs = 10000 }: ViewerProps) {
+function PeopleCounterScene({
+  camId = DEFAULT_DEVICE_IDENTIFIERS.people_counter,
+  refreshMs = 10000,
+}: ViewerProps) {
   const { theme } = useTheme();
   const [counterData, setCounterData] = useState<CounterData | null>(null);
   const [error, setError] = useState<string | null>(null);

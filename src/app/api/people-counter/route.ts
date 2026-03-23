@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { Pool, type PoolClient } from 'pg';
+import { DEFAULT_DEVICE_IDENTIFIERS } from '@/lib/sensorBackends';
 
 const {
   SMARTPARKING_DB_HOST,
@@ -82,7 +83,8 @@ const respondMock = (camId: string, reason: string) => {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const counterCamId = searchParams.get('counterCamId') ?? 'cuenta_personas:A1';
+  const counterCamId =
+    searchParams.get('counterCamId') ?? DEFAULT_DEVICE_IDENTIFIERS.people_counter;
 
   // Modo mock para pruebas locales sin DB
   if (SMARTPARKING_MOCK === 'true') {

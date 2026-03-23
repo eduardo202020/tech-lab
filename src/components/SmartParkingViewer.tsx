@@ -4,6 +4,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Box } from '@react-three/drei';
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
+import { DEFAULT_DEVICE_IDENTIFIERS } from '@/lib/sensorBackends';
 
 interface ParkingSpot {
   spot_id: string;
@@ -247,7 +248,10 @@ function ParkingAreaViewer({ area, theme, lastUpdate }: { area: ParkingArea; the
   );
 }
 
-function ParkingScene({ camId = 'smart_parking:A1', refreshMs = 10000 }: ViewerProps) {
+function ParkingScene({
+  camId = DEFAULT_DEVICE_IDENTIFIERS.smart_parking,
+  refreshMs = 10000,
+}: ViewerProps) {
   const { theme } = useTheme();
   const [parkingData, setParkingData] = useState<ParkingData | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);

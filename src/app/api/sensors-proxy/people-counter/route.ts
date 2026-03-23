@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
-import { DECLARATIVE_DB_API_BASE_URL } from '@/lib/sensorBackends';
+import { DEFAULT_DEVICE_IDENTIFIERS, SENSOR_BACKEND_BASE_URLS } from '@/lib/sensorBackends';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
-        const camId = searchParams.get('cam_id') || 'cuenta_personas:A1';
+        const camId = searchParams.get('cam_id') || DEFAULT_DEVICE_IDENTIFIERS.people_counter;
 
-        const backendUrl = `${DECLARATIVE_DB_API_BASE_URL}/cupe/${camId}`;
+        const backendUrl = `${SENSOR_BACKEND_BASE_URLS.people_counter}/cupe/${camId}`;
 
         const response = await fetch(backendUrl, {
             method: 'GET',

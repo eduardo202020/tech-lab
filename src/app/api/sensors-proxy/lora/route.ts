@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { DECLARATIVE_DB_API_BASE_URL, LORA_DEVICE_ID } from '@/lib/sensorBackends';
+import { DEFAULT_DEVICE_IDENTIFIERS, SENSOR_BACKEND_BASE_URLS } from '@/lib/sensorBackends';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,13 +10,13 @@ export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
         const rawLimit = searchParams.get('limit');
-        const deviceId = searchParams.get('deviceId') || LORA_DEVICE_ID;
+        const deviceId = searchParams.get('deviceId') || DEFAULT_DEVICE_IDENTIFIERS.lora;
         const parsedLimit = rawLimit ? Number(rawLimit) : DEFAULT_LIMIT;
         const limit = Number.isInteger(parsedLimit) && parsedLimit > 0
             ? Math.min(parsedLimit, MAX_LIMIT)
             : DEFAULT_LIMIT;
 
-        const backendUrl = `${DECLARATIVE_DB_API_BASE_URL}/caliaire/${encodeURIComponent(deviceId)}/${limit}`;
+        const backendUrl = `${SENSOR_BACKEND_BASE_URLS.lora}/caliaire/${encodeURIComponent(deviceId)}/${limit}`;
 
         const response = await fetch(backendUrl, {
             method: 'GET',
