@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/postgres';
+import { requirePermission } from '@/lib/mockAuthServer';
 
 export const runtime = 'nodejs';
 
@@ -91,6 +92,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const authResult = requirePermission(request, 'loans', 'create');
+    if (authResult.response) return authResult.response;
+
     await ensureTable();
 
     const body = (await request.json()) as {
@@ -155,6 +159,9 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    const authResult = requirePermission(request, 'loans', 'update');
+    if (authResult.response) return authResult.response;
+
     await ensureTable();
 
     const body = (await request.json()) as {
@@ -201,6 +208,9 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    const authResult = requirePermission(request, 'loans', 'delete');
+    if (authResult.response) return authResult.response;
+
     await ensureTable();
 
     const { searchParams } = new URL(request.url);

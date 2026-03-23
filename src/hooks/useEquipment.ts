@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { createMockAuthHeaders } from '@/lib/mockAuthClient';
 
 export interface EquipmentRecord {
   id: string;
@@ -91,12 +92,13 @@ export function useEquipment(options?: UseEquipmentRecordOptions) {
       try {
         const res = await fetch('/api/equipment', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: createMockAuthHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify(equipmentData),
         });
 
         if (!res.ok) {
-          throw new Error('No se pudo crear equipo en PostgreSQL');
+          const json = await res.json().catch(() => ({}));
+          throw new Error(json.error || 'No se pudo crear equipo en PostgreSQL');
         }
 
         const json = await res.json();
@@ -121,12 +123,15 @@ export function useEquipment(options?: UseEquipmentRecordOptions) {
       try {
         const res = await fetch('/api/equipment', {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: createMockAuthHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({ id, updates }),
         });
 
         if (!res.ok) {
-          throw new Error('No se pudo actualizar equipo en PostgreSQL');
+          const json = await res.json().catch(() => ({}));
+          throw new Error(
+            json.error || 'No se pudo actualizar equipo en PostgreSQL'
+          );
         }
 
         const json = await res.json();
@@ -150,10 +155,12 @@ export function useEquipment(options?: UseEquipmentRecordOptions) {
     try {
       const res = await fetch(`/api/equipment?id=${encodeURIComponent(id)}`, {
         method: 'DELETE',
+        headers: createMockAuthHeaders(),
       });
 
       if (!res.ok) {
-        throw new Error('No se pudo eliminar equipo en PostgreSQL');
+        const json = await res.json().catch(() => ({}));
+        throw new Error(json.error || 'No se pudo eliminar equipo en PostgreSQL');
       }
 
       setEquipment((prev) => prev.filter((item) => item.id !== id));

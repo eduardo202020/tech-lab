@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useProjectsData, ProjectRecord } from './useProjectsData';
+import { createMockAuthHeaders } from '@/lib/mockAuthClient';
 
 export interface TechnologyRecord {
   id: string;
@@ -161,12 +162,15 @@ export function useTechnologies(options?: UseTechnologyRecordsOptions) {
       try {
         const response = await fetch('/api/technologies', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: createMockAuthHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify(technologyData),
         });
 
         if (!response.ok) {
-          throw new Error('No se pudo crear tecnología en PostgreSQL');
+          const json = await response.json().catch(() => ({}));
+          throw new Error(
+            json.error || 'No se pudo crear tecnología en PostgreSQL'
+          );
         }
 
         const json = await response.json();
@@ -186,12 +190,15 @@ export function useTechnologies(options?: UseTechnologyRecordsOptions) {
       try {
         const response = await fetch('/api/technologies', {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: createMockAuthHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({ id, updates }),
         });
 
         if (!response.ok) {
-          throw new Error('No se pudo actualizar tecnología en PostgreSQL');
+          const json = await response.json().catch(() => ({}));
+          throw new Error(
+            json.error || 'No se pudo actualizar tecnología en PostgreSQL'
+          );
         }
 
         await loadTechnologies();
@@ -209,10 +216,14 @@ export function useTechnologies(options?: UseTechnologyRecordsOptions) {
       try {
         const response = await fetch(`/api/technologies?id=${encodeURIComponent(id)}`, {
           method: 'DELETE',
+          headers: createMockAuthHeaders(),
         });
 
         if (!response.ok) {
-          throw new Error('No se pudo eliminar tecnología en PostgreSQL');
+          const json = await response.json().catch(() => ({}));
+          throw new Error(
+            json.error || 'No se pudo eliminar tecnología en PostgreSQL'
+          );
         }
 
         await loadTechnologies();

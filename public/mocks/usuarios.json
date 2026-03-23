@@ -5,6 +5,7 @@
             "username": "luis.pujay",
             "full_name": "Luis Fernando Pujay Mateo",
             "email": "",
+            "password": "admin123",
             "role": "admin",
             "avatar_url": "",
             "projects": [
@@ -20,6 +21,7 @@
             "username": "edson.palacios",
             "full_name": "Edson Vasquez Palacios",
             "email": "",
+            "password": "techlab123",
             "role": "researcher",
             "avatar_url": "",
             "projects": [
@@ -35,6 +37,7 @@
             "username": "javier.gonzales",
             "full_name": "Javier Arteaga Gonzales",
             "email": "",
+            "password": "techlab123",
             "role": "researcher",
             "avatar_url": "",
             "projects": [
@@ -50,6 +53,7 @@
             "username": "cleber.gutierr",
             "full_name": "Cleber Lee Aguado Gutiérr",
             "email": "",
+            "password": "techlab123",
             "role": "researcher",
             "avatar_url": "",
             "projects": [
@@ -65,6 +69,7 @@
             "username": "alexander.sanchez",
             "full_name": "Alexander Miller Rojas Sanchez",
             "email": "",
+            "password": "techlab123",
             "role": "researcher",
             "avatar_url": "",
             "projects": [
@@ -80,6 +85,7 @@
             "username": "victor.bendezu",
             "full_name": "Victor Adrian Anampa Bendezu",
             "email": "",
+            "password": "techlab123",
             "role": "researcher",
             "avatar_url": "",
             "projects": [
@@ -95,6 +101,7 @@
             "username": "albert.rosales",
             "full_name": "Albert Ken Argumedo Rosales",
             "email": "",
+            "password": "techlab123",
             "role": "researcher",
             "avatar_url": "",
             "projects": [
@@ -110,6 +117,7 @@
             "username": "jhunior.lazaro",
             "full_name": "Jhunior Eduardo Guevara Lázaro",
             "email": "",
+            "password": "techlab123",
             "role": "researcher",
             "avatar_url": "",
             "projects": [
@@ -126,6 +134,7 @@
             "username": "mauricio.portocarrero",
             "full_name": "Mauricio Rafael Vigo Portocarrero",
             "email": "",
+            "password": "techlab123",
             "role": "researcher",
             "avatar_url": "",
             "projects": [
@@ -141,6 +150,7 @@
             "username": "jorge.ortega",
             "full_name": "Jorge Luis Parishuaña Ortega",
             "email": "",
+            "password": "techlab123",
             "role": "researcher",
             "avatar_url": "",
             "projects": [
@@ -157,6 +167,7 @@
             "username": "adrian.delgado",
             "full_name": "Adrián Alonso Burga Delgado",
             "email": "",
+            "password": "techlab123",
             "role": "researcher",
             "avatar_url": "",
             "projects": [
@@ -172,6 +183,7 @@
             "username": "elsa.cuestas",
             "full_name": "Elsa Maria Mercedes Luque Cuestas",
             "email": "",
+            "password": "techlab123",
             "role": "researcher",
             "avatar_url": "",
             "projects": [
@@ -187,6 +199,7 @@
             "username": "mircea.calle",
             "full_name": "Mircea Danitza Medina Calle",
             "email": "",
+            "password": "techlab123",
             "role": "researcher",
             "avatar_url": "",
             "projects": [
@@ -202,6 +215,7 @@
             "username": "kewin.claro",
             "full_name": "Kewin Rougelly Cuadros Claro",
             "email": "",
+            "password": "techlab123",
             "role": "researcher",
             "avatar_url": "",
             "projects": [
@@ -217,6 +231,7 @@
             "username": "paulo.cardenas",
             "full_name": "Paulo Roberto Quispe Cardenas",
             "email": "",
+            "password": "techlab123",
             "role": "researcher",
             "avatar_url": "",
             "projects": [
@@ -232,6 +247,7 @@
             "username": "nicolas.matute",
             "full_name": "Nicolás Francisco Silva Matute",
             "email": "",
+            "password": "techlab123",
             "role": "researcher",
             "avatar_url": "",
             "projects": [
@@ -247,6 +263,7 @@
             "username": "mario.galindo",
             "full_name": "Mario Fernando Achalma Galindo",
             "email": "",
+            "password": "techlab123",
             "role": "researcher",
             "avatar_url": "",
             "projects": [

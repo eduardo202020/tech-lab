@@ -11,6 +11,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useAuth as useAuthSession } from '@/contexts/SessionAuthContext';
 import { useEquipment, EquipmentRecord } from '@/hooks/useEquipment';
 import Modal from '@/components/Modal';
+import { createMockAuthHeaders } from '@/lib/mockAuthClient';
 
 type LoanEvent = {
   id: string;
@@ -114,7 +115,7 @@ export default function LoansCalendar({ onSelectEvent }: { onSelectEvent?: (even
       setSubmitting(true);
       const res = await fetch('/api/loans', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: createMockAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(payload),
       });
 
@@ -169,7 +170,7 @@ export default function LoansCalendar({ onSelectEvent }: { onSelectEvent?: (even
         demoPromises.push(
           fetch('/api/loans', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: createMockAuthHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify(payload),
           })
         );
@@ -377,4 +378,3 @@ export default function LoansCalendar({ onSelectEvent }: { onSelectEvent?: (even
     </div>
   );
 }
-

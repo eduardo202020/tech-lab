@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { createMockAuthHeaders } from '@/lib/mockAuthClient';
 
 export interface ResearcherRecord {
   id: string;
@@ -138,12 +139,15 @@ export function useResearchers(options?: UseResearcherRecordsOptions) {
     try {
       const res = await fetch('/api/researchers', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: createMockAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(researcherData),
       });
 
       if (!res.ok) {
-        throw new Error('No se pudo crear investigador en PostgreSQL');
+        const json = await res.json().catch(() => ({}));
+        throw new Error(
+          json.error || 'No se pudo crear investigador en PostgreSQL'
+        );
       }
 
       const json = await res.json();
@@ -165,12 +169,15 @@ export function useResearchers(options?: UseResearcherRecordsOptions) {
     try {
       const res = await fetch('/api/researchers', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: createMockAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ id, updates }),
       });
 
       if (!res.ok) {
-        throw new Error('No se pudo actualizar investigador en PostgreSQL');
+        const json = await res.json().catch(() => ({}));
+        throw new Error(
+          json.error || 'No se pudo actualizar investigador en PostgreSQL'
+        );
       }
 
       const json = await res.json();
@@ -192,10 +199,14 @@ export function useResearchers(options?: UseResearcherRecordsOptions) {
     try {
       const res = await fetch(`/api/researchers?id=${encodeURIComponent(id)}`, {
         method: 'DELETE',
+        headers: createMockAuthHeaders(),
       });
 
       if (!res.ok) {
-        throw new Error('No se pudo eliminar investigador en PostgreSQL');
+        const json = await res.json().catch(() => ({}));
+        throw new Error(
+          json.error || 'No se pudo eliminar investigador en PostgreSQL'
+        );
       }
 
       setResearchers((prev) => prev.filter((researcher) => researcher.id !== id));

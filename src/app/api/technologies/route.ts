@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { query } from '@/lib/postgres';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { requirePermission } from '@/lib/mockAuthServer';
 
 export const runtime = 'nodejs';
 
@@ -84,6 +85,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
     try {
+        const authResult = requirePermission(request, 'technologies', 'create');
+        if (authResult.response) return authResult.response;
+
         await ensureTable();
 
         const body = (await request.json()) as Record<string, unknown>;
@@ -113,6 +117,9 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
     try {
+        const authResult = requirePermission(request, 'technologies', 'update');
+        if (authResult.response) return authResult.response;
+
         await ensureTable();
 
         const body = (await request.json()) as {
@@ -159,6 +166,9 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
     try {
+        const authResult = requirePermission(request, 'technologies', 'delete');
+        if (authResult.response) return authResult.response;
+
         await ensureTable();
 
         const { searchParams } = new URL(request.url);

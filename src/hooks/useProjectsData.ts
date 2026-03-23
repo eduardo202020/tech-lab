@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { createMockAuthHeaders } from '@/lib/mockAuthClient';
 
 export interface ProjectRecord {
   id: string;
@@ -133,12 +134,13 @@ export function useProjectsData(options?: UseProjectRecordsOptions) {
       try {
         const res = await fetch('/api/projects', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: createMockAuthHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify(projectData),
         });
 
         if (!res.ok) {
-          throw new Error('No se pudo crear proyecto en PostgreSQL');
+          const json = await res.json().catch(() => ({}));
+          throw new Error(json.error || 'No se pudo crear proyecto en PostgreSQL');
         }
 
         const json = await res.json();
@@ -160,12 +162,15 @@ export function useProjectsData(options?: UseProjectRecordsOptions) {
       try {
         const res = await fetch('/api/projects', {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: createMockAuthHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({ id, updates }),
         });
 
         if (!res.ok) {
-          throw new Error('No se pudo actualizar proyecto en PostgreSQL');
+          const json = await res.json().catch(() => ({}));
+          throw new Error(
+            json.error || 'No se pudo actualizar proyecto en PostgreSQL'
+          );
         }
 
         const json = await res.json();
@@ -191,10 +196,14 @@ export function useProjectsData(options?: UseProjectRecordsOptions) {
       try {
         const res = await fetch(`/api/projects?id=${encodeURIComponent(id)}`, {
           method: 'DELETE',
+          headers: createMockAuthHeaders(),
         });
 
         if (!res.ok) {
-          throw new Error('No se pudo eliminar proyecto en PostgreSQL');
+          const json = await res.json().catch(() => ({}));
+          throw new Error(
+            json.error || 'No se pudo eliminar proyecto en PostgreSQL'
+          );
         }
 
         setProjects((prev) => prev.filter((project) => project.id !== id));

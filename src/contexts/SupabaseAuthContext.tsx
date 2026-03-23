@@ -35,6 +35,10 @@ export interface UserProfile {
   updated_at: string;
 }
 
+type StoredUserProfile = UserProfile & {
+  password?: string;
+};
+
 // Tipo para el contexto de autenticación
 interface AuthContextType {
   user: AuthUser | null;
@@ -65,8 +69,8 @@ const LEGACY_STORAGE_KEY = 'techlab_supabase_auth';
 const MOCK_PROFILES_KEY = 'techlab_mock_profiles';
 
 type MockUsersFile = {
-  usuarios?: UserProfile[];
-  user_profiles?: UserProfile[];
+  usuarios?: StoredUserProfile[];
+  user_profiles?: StoredUserProfile[];
 };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -74,9 +78,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [session, setSession] = useState<AuthSession | null>(null);
   const [loading, setLoading] = useState(true);
-  const [profiles, setProfiles] = useState<UserProfile[]>([]);
+  const [profiles, setProfiles] = useState<StoredUserProfile[]>([]);
 
-  const saveProfilesToStorage = (nextProfiles: UserProfile[]) => {
+  const sanitizeProfile = (storedProfile: StoredUserProfile): UserProfile => {
+    const publicProfile = { ...storedProfile };
+    delete publicProfile.password;
+    return publicProfile;
+  };
+
+  const saveProfilesToStorage = (nextProfiles: StoredUserProfile[]) => {
     try {
       if (typeof window === 'undefined') return;
       localStorage.setItem(MOCK_PROFILES_KEY, JSON.stringify(nextProfiles));
@@ -112,13 +122,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   };
 
-  const loadProfiles = async (): Promise<UserProfile[]> => {
-    let baseProfiles: UserProfile[] = [];
+  const loadProfiles = async (): Promise<StoredUserProfile[]> => {
+    let baseProfiles: StoredUserProfile[] = [];
     try {
       const response = await fetch('/mocks/usuarios.json');
       if (response.ok) {
         const json = (await response.json()) as MockUsersFile;
-        baseProfiles = (json.usuarios || json.user_profiles || []) as UserProfile[];
+        baseProfiles = (json.usuarios || json.user_profiles || []) as StoredUserProfile[];
       }
     } catch { }
 
@@ -126,8 +136,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (typeof window !== 'undefined') {
         const local = localStorage.getItem(MOCK_PROFILES_KEY);
         if (local) {
-          const parsed = JSON.parse(local) as UserProfile[];
-          const byId = new Map<string, UserProfile>();
+          const parsed = JSON.parse(local) as StoredUserProfile[];
+          const byId = new Map<string, StoredUserProfile>();
           [...baseProfiles, ...parsed].forEach((item) => byId.set(item.id, item));
           return Array.from(byId.values());
         }
@@ -139,10 +149,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadUserProfile = async (userId: string) => {
     const found = profiles.find((item) => item.id === userId) || null;
-    if (found) return found;
+    if (found) return sanitizeProfile(found);
     const loaded = await loadProfiles();
     setProfiles(loaded);
-    return loaded.find((item) => item.id === userId) || null;
+    const matched = loaded.find((item) => item.id === userId) || null;
+    return matched ? sanitizeProfile(matched) : null;
   };
 
   const applyAuthState = useCallback(
@@ -242,6 +253,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error: new Error('Usuario no encontrado') };
       }
 
+      if (!matchedProfile.password) {
+        return {
+          error: new Error(
+            'El usuario no tiene contraseña configurada en el modo local'
+          ),
+        };
+      }
+
+      if (matchedProfile.password !== password) {
+        return { error: new Error('Contraseña incorrecta') };
+      }
+
       const nextUser: AuthUser = {
         id: matchedProfile.id,
         email: matchedProfile.email,
@@ -252,7 +275,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
       };
       const nextSession = createMockSession(nextUser);
-      applyAuthState(nextSession, matchedProfile);
+      applyAuthState(nextSession, sanitizeProfile(matchedProfile));
 
       return { error: null };
     } catch (error) {
@@ -279,7 +302,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const now = new Date().toISOString();
-      const nextProfile: UserProfile = {
+      const nextProfile: StoredUserProfile = {
         id: crypto.randomUUID(),
         username: userData?.username || email.split('@')[0],
         full_name: userData?.full_name || 'Usuario',
@@ -289,6 +312,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         bio: userData?.bio || null,
         phone: userData?.phone || null,
         linkedin_url: userData?.linkedin_url || null,
+        password,
         created_at: now,
         updated_at: now,
       };
@@ -307,7 +331,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
       };
       const nextSession = createMockSession(nextUser);
-      applyAuthState(nextSession, nextProfile);
+      applyAuthState(nextSession, sanitizeProfile(nextProfile));
 
       return { error: null };
     } catch (error) {
@@ -338,21 +362,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error: new Error('Perfil no encontrado') };
       }
 
-      const nextProfile: UserProfile = {
-        ...currentProfile,
+      const currentStoredProfile =
+        profiles.find((item) => item.id === currentProfile.id) || currentProfile;
+
+      const nextProfile: StoredUserProfile = {
+        ...currentStoredProfile,
         ...updates,
         updated_at: new Date().toISOString(),
       };
 
-      const nextProfiles = profiles.map((item) =>
-        item.id === nextProfile.id ? nextProfile : item
-      );
+      const nextProfiles =
+        profiles.length > 0
+          ? profiles.map((item) =>
+              item.id === nextProfile.id ? nextProfile : item
+            )
+          : [nextProfile];
       setProfiles(nextProfiles);
       saveProfilesToStorage(nextProfiles);
-      setProfile(nextProfile);
+      setProfile(sanitizeProfile(nextProfile));
 
       if (session) {
-        saveAuthToStorage(session, nextProfile);
+        saveAuthToStorage(session, sanitizeProfile(nextProfile));
       }
 
       return { error: null };
